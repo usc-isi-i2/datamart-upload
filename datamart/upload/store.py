@@ -19,7 +19,7 @@ from datamart.utilities.utils import Utils as datamart_utils
 from datamart.materializers.general_materializer import GeneralMaterializer
 from wikifier import config
 from io import StringIO
-
+from collections import defaultdict
 # WIKIDATA_QUERY_SERVER = config.endpoint_main
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
 # WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
@@ -105,6 +105,10 @@ class Datamart_dataset:
         p.add_statement('P31', Item('Q18616576'))
         self.doc.kg.add_subject(p)
 
+        p = WDProperty('C2010', Datatype.StringValue)
+        p.add_label('extra information', lang='en')
+        p.add_description('some extra information that may needed for this dataset', lang='en')
+        self.doc.kg.add_subject(p)
         # get the starting source id
         sparql_query = """
             prefix wdt: <http://www.wikidata.org/prop/direct/>
@@ -135,13 +139,16 @@ class Datamart_dataset:
             print("[WARNING] No starting source id found! Will initialize the starting source with D1000001")
             self.resource_id = 1000001
         else:
-            self.resource_id = 1000001
+            if len(results) != 1:
+                print(str(results))
+                raise ValueError("Something wrong with the dataset counter!")
+            self.resource_id = int(results[0]['x']['value'])
 
     def load_and_preprocess(self, input_dir, file_type="csv"):
         from_online_file = False
         if file_type=="csv":
             try:
-                loaded_data = pd.read_csv(input_dir,dtype=str)
+                loaded_data = [pd.read_csv(input_dir,dtype=str)]
             except:
                 raise ValueError("Reading csv from" + input_dir + "failed.")
 
@@ -162,14 +169,19 @@ class Datamart_dataset:
             }
             try:
                 result = general_materializer.get(metadata=file_metadata).to_csv(index=False)
-                # remove last \n so that we will not get an extra useless row
-                if result[-1] == "\n":
-                    result = result[:-1]
-                    loaded_data = StringIO(result)
-                    loaded_data = pd.read_csv(loaded_data,dtype="str")
-
             except:
                 raise ValueError("Loading online data from " + input_dir + "failed!")
+                # remove last \n so that we will not get an extra useless row
+            if result[-1] == "\n":
+                result = result[:-1]
+            loaded_data = StringIO(result)
+            loaded_data = [pd.read_csv(loaded_data,dtype="str")]
+
+        elif file_type=="wikitable":
+            from_online_file = True
+            from datamart.materializers.wikitables_materializer import WikitablesMaterializer
+            materializer = WikitablesMaterializer()
+            loaded_data, xpaths = materializer.get(input_dir)
         else:
             raise ValueError("Unsupported file type")
 
@@ -177,56 +189,74 @@ class Datamart_dataset:
 
         # run dsbox's profiler and cleaner
         hyper1 = ProfilerHyperparams.defaults()
-        profiler = Profiler(hyperparams=hyper1)
-        profiled_df = profiler.produce(inputs=loaded_data).value
         hyper2 = CleaningFeaturizerHyperparameter.defaults()
-        clean_f = CleaningFeaturizer(hyperparams=hyper2)
-        clean_f.set_training_data(inputs=profiled_df)
-        clean_f.fit()
-        cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
-        # wikifier_res = wikifier.produce(loaded_data, target_columns=self.columns_are_string)
+        self.columns_are_string = defaultdict(list)
+        all_wikifier_res = []
+        all_metadata = []
+        for df_count, each in enumerate(loaded_data):
+            clean_f = CleaningFeaturizer(hyperparams=hyper2)
+            profiler = Profiler(hyperparams=hyper1)
+            profiled_df = profiler.produce(inputs=each).value            
+            clean_f.set_training_data(inputs=profiled_df)
+            clean_f.fit()
+            cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
+            # wikifier_res = wikifier.produce(loaded_data, target_columns=self.columns_are_string)
 
-        # TODO: It seems fill na with "" will change the column type!
-        # cleaned_df = cleaned_df.fillna("")
-        wikifier_res = wikifier.produce(cleaned_df)
-        # TODO: need update profiler here to generate better semantic type
-        metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
-        self.columns_are_string = []
-        for i, each_column_meta in enumerate(metadata['variables']):
-            if 'http://schema.org/Text' in each_column_meta['semantic_type']:
-                self.columns_are_string.append(i)
+            # TODO: It seems fill na with "" will change the column type!
+            # cleaned_df = cleaned_df.fillna("")
+            wikifier_res = wikifier.produce(cleaned_df)
+            # TODO: need update profiler here to generate better semantic type
+            metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
+            
+            for i, each_column_meta in enumerate(metadata['variables']):
+                if 'http://schema.org/Text' in each_column_meta['semantic_type']:
+                    self.columns_are_string[df_count].append(i)
                 
-        if from_online_file:
-            metadata['url'] = input_dir
-            metadata['title'] = input_dir.split("/")[-1]
-        return wikifier_res, metadata
+            if from_online_file:
+                metadata['url'] = input_dir
+                metadata['title'] = input_dir.split("/")[-1]
+                metadata['file_type'] = file_type
+            if file_type=="wikitable":
+                metadata['xpath'] = xpaths[df_count]
+
+            all_wikifier_res.append(wikifier_res)
+            all_metadata.append(metadata)
+
+        return all_wikifier_res, all_metadata
 
 
-    def model_data(self, input_df:pd.DataFrame, metadata: dict):
-        if metadata is None:
+    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int):
+        if metadata is None or metadata[number] is None:
             metadata = {}
-        title = metadata.get("title") or ""
-        keywords = metadata.get("keywords") or ""
+        extra_information = {}
+        title = metadata[number].get("title") or ""
+        keywords = metadata[number].get("keywords") or ""
+        file_type = metadata[number].get("file_type") or ""
         # TODO: if no url given?
-        url = metadata.get("url") or "https://"
+        url = metadata[number].get("url") or "https://"
         if type(keywords) is list:
             keywords = " ".join(keywords)
         node_id = 'D' + str(self.resource_id)
         q = WDItem(node_id)
+        if 'xpath' in metadata[number]:
+            extra_information['xpath'] = metadata[number]['xpath']
+
         self.resource_id += 1
         q.add_label(node_id, lang='en')
         q.add_statement('P31', Item('Q1172284'))  # indicate it is subclass of a dataset
         q.add_statement('P2699', URLValue(url))  # url
+        q.add_statement('P2701', StringValue(file_type)) # file type
         q.add_statement('P1476', MonolingualText(title, lang='en'))  # title
         q.add_statement('C2001', StringValue(node_id))  # datamart identifier
         q.add_statement('C2004', StringValue(keywords))  # keywords
+        q.add_statement('C2010', StringValue(str(extra_information)))
         # each columns
-        for i in self.columns_are_string:
+        for i in self.columns_are_string[number]:
             try: 
-                semantic_type = metadata['variables'][i]['semantic_type']
+                semantic_type = metadata[number]['variables'][i]['semantic_type']
             except IndexError:
                 semantic_type = 'http://schema.org/Text'
-            res = self.process_one_column(column_data=input_df.iloc[:,i], item=q, column_number=i, semantic_type=semantic_type)
+            res = self.process_one_column(column_data=input_dfs[number].iloc[:,i], item=q, column_number=i, semantic_type=semantic_type)
             if not res:
                 print("Error when adding column " + str(i))
         self.doc.kg.add_subject(q)
