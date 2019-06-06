@@ -24,7 +24,7 @@ from collections import defaultdict
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
 # WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
 # WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
-DATAMRT_SERVER = "http://dsbox02.isi.edu:9999/blazegraph/namespace/datamart3/sparql"
+DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
 
 class Datamart_isi_upload:
     def __init__(self, query_server=None, update_server=None):
