@@ -1,1 +1,0 @@
-This folder's code require to have firefox installed and have the gecodriver in the system!

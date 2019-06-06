@@ -15,8 +15,8 @@ from etk.wikidata.truthy import TruthyUpdater
 from dsbox.datapreprocessing.cleaner.data_profile import Profiler, Hyperparams as ProfilerHyperparams
 from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturizer, CleaningFeaturizerHyperparameter
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart.utilities.utils import Utils as datamart_utils
-from datamart.materializers.general_materializer import GeneralMaterializer
+from datamart_isi.utilities.utils import Utils as datamart_utils
+from datamart_isi.materializers.general_materializer import GeneralMaterializer
 from wikifier import config
 from io import StringIO
 from collections import defaultdict
@@ -26,7 +26,7 @@ from collections import defaultdict
 # WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
 DATAMRT_SERVER = "http://dsbox02.isi.edu:9999/blazegraph/namespace/datamart3/sparql"
 
-class Datamart_dataset:
+class Datamart_isi_upload:
     def __init__(self, query_server=None, update_server=None):
         self.punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
         if query_server and update_server:
@@ -179,7 +179,7 @@ class Datamart_dataset:
 
         elif file_type=="wikitable":
             from_online_file = True
-            from datamart.materializers.wikitables_materializer import WikitablesMaterializer
+            from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
             materializer = WikitablesMaterializer()
             loaded_data, xpaths = materializer.get(input_dir)
         else:
