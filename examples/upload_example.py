@@ -1,6 +1,6 @@
-from datamart.upload.store import Datamart_dataset
+from datamart_isi.upload.store import Datamart_isi_upload
 # this sample will save the following online csv datasets into datamart in blaze graph
-a = Datamart_dataset()
+a = Datamart_isi_upload()
 all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Most-Recent-Cohorts-Scorecard-Elements.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Unemployment.csv", 
@@ -8,6 +8,9 @@ all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/population.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/poverty.csv"
     ]
+
+all_dir = ["https://gitlab.com/svattam/datamart-uploads/raw/master/2017-yellow-cab-lga.csv", "https://gitlab.com/svattam/datamart-uploads/raw/master/FIFA_2018_Statistics_N.csv", "https://gitlab.com/svattam/datamart-uploads/raw/master/NPDB1807.CSV", "https://gitlab.com/svattam/datamart-uploads/raw/master/ny_lga_weather_16_17_18.csv", "https://gitlab.com/svattam/datamart-uploads/raw/master/psam_h06.csv"]
+
 for input_dir in all_dir:
     df,meta=a.load_and_preprocess(input_dir=input_dir,file_type="online_csv")
     # there should only have one table extracted from one online csv address

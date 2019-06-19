@@ -1,10 +1,11 @@
 wikidata-wikifier@git+https://github.com/usc-isi-i2/wikidata-wikifier.git@master
+dsbox-primitives@git+https://github.com/usc-isi-i2/dsbox-primitives.git@master
 d3m>=2019.4.4
 jsonlines>=1.2.0
 psycopg2-binary>=2.7.5
 psycopg2>=2.7.5
 python-dateutil>=2.7.3
-etk
+etk@git+https://github.com/ckxz105/etk.git@jun_test
 rltk==2.0.0a13
 tablextract>=1.2.5
 termcolor>=1.1.0

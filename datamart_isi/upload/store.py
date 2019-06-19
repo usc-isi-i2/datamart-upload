@@ -17,6 +17,7 @@ from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturiz
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi.utilities.utils import Utils as datamart_utils
 from datamart_isi.materializers.general_materializer import GeneralMaterializer
+from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
 from wikifier import config
 from io import StringIO
 from collections import defaultdict
@@ -24,7 +25,7 @@ from collections import defaultdict
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
 # WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
 # WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
-DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
+DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql"
 
 class Datamart_isi_upload:
     def __init__(self, query_server=None, update_server=None):
@@ -179,7 +180,6 @@ class Datamart_isi_upload:
 
         elif file_type=="wikitable":
             from_online_file = True
-            from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
             materializer = WikitablesMaterializer()
             loaded_data, xpaths = materializer.get(input_dir)
         else:
@@ -241,6 +241,16 @@ class Datamart_isi_upload:
         if 'xpath' in metadata[number]:
             extra_information['xpath'] = metadata[number]['xpath']
 
+        data_metadata = {}
+        data_metadata['shape_0'] = input_dfs[number].shape[0]
+        data_metadata['shape_1'] = input_dfs[number].shape[1]
+        for i, each in enumerate(metadata[number]['variables']):
+            each_column_meta = {}
+            each_column_meta['semantic_type'] = each['semantic_type']
+            each_column_meta['name'] = input_dfs[number].columns[i]
+            extra_information['column_meta_' + str(i)] = each_column_meta
+        extra_information['data_metadata'] = data_metadata
+
         self.resource_id += 1
         q.add_label(node_id, lang='en')
         q.add_statement('P31', Item('Q1172284'))  # indicate it is subclass of a dataset
@@ -269,12 +279,13 @@ class Datamart_isi_upload:
         :param semantic_type: a list indicate the semantic tpye of this column
         :return: a bool indicate succeeded or not
         """
+        translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
         try:
             all_data = set(column_data.tolist())
             all_value_str_set = set()
             for each in all_data:
                 # set to lower characters, remove punctuation and split by the space
-                words_processed = str(each).lower().translate(self.punctuation_table).split()
+                words_processed = str(each).lower().translate(translator).split()
                 for word in words_processed:
                     all_value_str_set.add(word)
             all_value_str = " ".join(all_value_str_set)
@@ -296,8 +307,7 @@ class Datamart_isi_upload:
             statement.add_qualifier('P1545', QuantityValue(column_number))  # column index
             return True
         except:
-            # import pdb
-            # pdb.set_trace()
+            print("[ERROR] processing column No." + str(column_number) + " failed!")
             return False
 
     def output_to_ttl(self, file_path: str, file_format="ttl"):                        
