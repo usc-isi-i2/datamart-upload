@@ -261,7 +261,7 @@ class Datamart_isi_upload:
         q.add_statement('C2004', StringValue(keywords))  # keywords
         q.add_statement('C2010', StringValue(str(extra_information)))
         # each columns
-        for i in input_dfs[number].shape[1]:
+        for i in range(input_dfs[number].shape[1]):
             try: 
                 semantic_type = metadata[number]['variables'][i]['semantic_type']
             except IndexError:

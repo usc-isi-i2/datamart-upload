@@ -1,0 +1,414 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Datamart Link Panel
+basePath: /
+paths:
+  /search:
+    post:
+      tags:
+        - Search API
+      summary: Search
+      description: 'The main search function for isi datamart, call this api with a supplied_data_file, it could be csv file, or a path to a csv file or a d3m dataset id(e.g.: "DA_poverty_estimation") \n It can also accept extra parameter "max_return_docs" (a int indicate how many results want to get returned) default is 20'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+#        - name: query
+#          in: formData
+#          type: string
+#          required: false
+#          description: The query
+        - name: data
+          in: formData
+          type: file
+          required: true
+          description: Supplied data file
+        - name: max_return_docs
+          in: query
+          type: integer
+          required: false
+          description: Max return docs (default 20)
+          example: 20
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SearchResult'
+        '404':
+          description: Not found.
+  /download:
+    post:
+      tags:
+        - Download API
+      summary: Download
+      description: 'The function used to download the searched result with given DatamartSearchResult\n Call this api passing search_result_task(adapted from search api), supplied_data_file(a csv file or a path to the csv file), return_format(general csv format or d3m format with metadata) and get the downloaded file'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/zip
+      parameters:
+        - name: task
+          in: formData
+          type: string
+          required: true
+          description: The search result (a dict format) from search api
+        - name: data
+          in: formData
+          type: file
+          required: true
+          description: Supplied data file(a path to csv or a csv file)
+        - name: format
+          in: formData
+          type: string
+          enum:
+            - csv
+            - d3m
+          required: true
+          description: Download format(general csv format or d3m format)
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            type: file
+        '404':
+          description: Not found.
+  /download/{id}:
+    get:
+      tags:
+        - Download API
+      summary: Download the dataset with given id
+      description: 'Download the dataset with the supplied datamart id. Different from download, it will return the dataset without join hint column. If a wikidata format id is given, it will return some random Q nodes with those properties'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/zip
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+          description: ID of datamart
+          example: 'D1000001'
+        - name: format
+          in: query
+          type: string
+          enum:
+            - csv
+            - d3m
+          required: true
+          description: Download format
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            type: file
+        '404':
+          description: Not found.
+  /augment:
+    post:
+      tags:
+        - Augment API
+      summary: Augment dataset
+      description: 'The function used to augment the given dataset with given DatamartSearchResult\n Call this api passing search_result_task(adapted from search api), supplied_data_file(a csv file or a path to the csv file), return_format(general csv format or d3m format with metadata) and get the downloaded file. \nExtra parameter "destination" control whether to save the augmented results to the path or not. \nAnother extra paramter "columns" used to control which column number required to append on the supplied data.'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/zip
+      parameters:
+        - name: task
+          in: formData
+          type: string
+          required: true
+          description: The search result task (dict) from search api
+        - name: data
+          in: formData
+          type: file
+          required: true
+          description: Supplied data file
+        - name: format
+          in: formData
+          type: string
+          enum:
+            - csv
+            - d3m
+          required: true
+          description: Download format
+        - name: columns
+          in: formData
+          type: string
+          required: false
+          description: Optional parameter, a str indicate the list of column indices from the Datamart dataset that should be appened. See format example below, If not given, all possible columns from search results will be appended.
+          example: '1, 3'
+        - name: destination
+          in: formData
+          type: string
+          required: false
+          description: If given, the augmented results(in csv or d3m) will be saved to the given path. If not given, the augmented result will be returned to the user for download. See the example for the destination format
+          example: /Users/claire/Desktop
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            type: file
+        '404':
+          description: Not found.
+  /upload/generateWD+Metadata:
+    post:
+      tags:
+        - Upload API
+      summary: upload the url of input file
+      description: 'First part of upload, the function used to materilize the given url and generate the corresponding metadata that will be stored in to datamart database. User can check and edit if they want. It will return two list, first list is a list of the materilized csv results, the second list is a list of json file which indicates the WD+ metadata.'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: input_dir
+          in: query
+          type: string
+          required: true
+          description: Url of input file
+          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv'
+        - name: file_type
+          in: query
+          type: string
+          enum:
+            - online_csv
+          required: true
+          description: Online file type, currently only support online_csv
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            $ref: '#/definitions/ProcessResult'
+        '404':
+          description: Not found.
+  /upload/uploadWD+Metadata:
+    post:
+      tags:
+        - Upload API
+      summary: upload data and metadata
+      description: 'Second part of upload, the function used the genrated data and metadata from "/generateWD+Metadata" and upload to datamart database.'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/text
+      parameters:
+        - name: data_input
+          in: formData
+          type: string
+          required: true
+          description: Data(in list format) from load_and_process api
+        - name: metadata
+          in: formData
+          type: string
+          required: true
+          description: Metadata(in list format) from load_and_process api
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            type: file
+        '404':
+          description: Not found.
+  /upload:
+    post:
+      tags:
+        - Upload API
+      summary: upload data and metadata
+      description: 'ALL-IN-ONE upload method that take a url indicate the file path and the file type. The function will automatically generate the metadata and upload to datamart database.'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: input_dir
+          in: query
+          type: string
+          required: true
+          description: Url of input file
+          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv'
+        - name: file_type
+          in: query
+          type: string
+          enum:
+            - online_csv
+          required: true
+          description: Online file type, currently only support online_csv
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            $ref: '#/definitions/ProcessResult'
+        '404':
+          description: Not found.
+definitions:
+  SearchResult:
+    type: object
+    properties:
+      summary:
+        type: string
+      datamart_id:
+        type: string
+      score:
+        type: number
+      materialize_info:
+        type: object
+        properties:
+          id:
+            type: string
+          score:
+            type: number
+          metadata:
+            type: object
+            properties:
+              connection_url:
+                type: string
+              search_result:
+                type: object
+                properties:
+                  p_nodes_needed:
+                    type: array
+                    items:
+                      type: string
+                  target_q_node_column_name:
+                    type: string
+              query_json:
+                type: string
+              search_type:
+                type: string
+          augmentation:
+            type: object
+            properties:
+              properties:
+                type: string
+              left_columns:
+                type: array
+                items:
+                  type: integer
+              right_columns:
+                type: array
+                items:
+                  type: integer
+              datamart_type:
+                type: string
+      metadata:
+        type: array
+        items:
+          type: object
+          properties:
+            selector:
+              type: array
+              items:
+                type: string
+            metadata:
+              type: object
+              properties:
+                structural_type:
+                  type: string
+                semantic_types:
+                  type: array
+                  items:
+                    type: string
+                dimension:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    semantic_types:
+                      type: array
+                      items:
+                        type: string
+                    length:
+                      type: integer
+                schema:
+                  type: string
+  ProcessResult:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: string
+      metadata:
+        type: array
+        items:
+          type: object
+          properties:
+            datamart_id:
+              type: string
+            materialization:
+              type: object
+              properties:
+                python_path:
+                  type: string
+                arguments:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    file_type:
+                      type: string
+            variables:
+              type: array
+              items:
+                type: object
+                properties:
+                  datamart_id:
+                    type: string
+                  semantic_type:
+                    type: array
+                    items:
+                      type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  named_entity:
+                    type: array
+                    items:
+                      type: string
+                  temporal_coverage:
+                    type: object
+                    properties:
+                      start:
+                        type: string
+                      end:
+                        type: string
+            title:
+              type: string
+            description:
+              type: string
+            keywords:
+              type: array
+              items:
+                type: string
+            url:
+              type: string
+            file_type:
+              type: string
+            xpath:
+              type: string
+#  Datamart:
+#    type: object
+#    properties:
+#      File Name:
+#        type: string
+#      Datamart ID:
+#        type: string
+#      Score:
+#        type: number
+#      Description:
+#        type: string
+#      URL:
+#        type: string
+#      Columns:
+#        type: array
+#        items:
+#          type: string
+#      Recommend Join Columns:
+#        type: string
