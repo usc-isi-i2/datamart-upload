@@ -9,7 +9,7 @@ paths:
       tags:
         - Search API
       summary: Search
-      description: 'The main search function for isi datamart, call this api with a supplied_data_file, it could be csv file, or a path to a csv file or a d3m dataset id(e.g.: "DA_poverty_estimation") \n It can also accept extra parameter "max_return_docs" (a int indicate how many results want to get returned) default is 20'
+      description: '<p>The main search function for isi datamart, should always call this api first. <br> Currently supplied_data is necessary, it could be a csv file, or a path to a csv file or a d3m dataset id(for example: "DA_poverty_estimation") The option for uploading the path or dataset id is not shown here. <br> Function can also accept extra parameter "max_return_docs" (a int indicate how many results want to get returned), if not given, the default value is 20.</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -29,7 +29,7 @@ paths:
           in: query
           type: integer
           required: false
-          description: Max return docs (default 20)
+          description: Max return docs (default 20 if not given)
           example: 20
       responses:
         '200':
@@ -45,7 +45,7 @@ paths:
       tags:
         - Download API
       summary: Download
-      description: 'The function used to download the searched result with given DatamartSearchResult\n Call this api passing search_result_task(adapted from search api), supplied_data_file(a csv file or a path to the csv file), return_format(general csv format or d3m format with metadata) and get the downloaded file'
+      description: '<p>The function used to download the searched result with given search result adapted from search API. It will only return the portions of the dataset referenced by id that matches well with data. If no rows can be joined, an error will be raised. <br> Three parameters are required: <br> 1 .The string format search result as "task"(adapted from search api). <br> 2. The supplied data (a csv file or a path to the csv file). <br>  3. Return format(general csv format or d3m format with metadata).</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -81,7 +81,7 @@ paths:
       tags:
         - Download API
       summary: Download the dataset with given id
-      description: 'Download the dataset with the supplied datamart id. Different from download, it will return the dataset without join hint column. If a wikidata format id is given, it will return some random Q nodes with those properties'
+      description: '<p>The function used to download the dataset with the supplied datamart id. Different from download, it will return the whole dataset without join hint column. <br> If a wikidata format id is given, it will return maximum 100 random Q nodes with those properties. </p>'
       consumes:
         - multipart/form-data
       produces:
@@ -113,7 +113,7 @@ paths:
       tags:
         - Augment API
       summary: Augment dataset
-      description: 'The function used to augment the given dataset with given DatamartSearchResult\n Call this api passing search_result_task(adapted from search api), supplied_data_file(a csv file or a path to the csv file), return_format(general csv format or d3m format with metadata) and get the downloaded file. \nExtra parameter "destination" control whether to save the augmented results to the path or not. \nAnother extra paramter "columns" used to control which column number required to append on the supplied data.'
+      description: '<p>The function used to download the searched result with given search result adapted from search API. It will only return the portions of the dataset referenced by id that matches well with data. If no rows can be joined, an error will be raised. <br> Three parameters are required: <br> 1 ."task": The string format search result as "task"(adapted from search api). <br> 2."data": The supplied data (a csv file or a path to the csv file). <br>  3. "format": Return format(general csv format or d3m format with metadata). <br> Two parameters are optional: <br> 4. "destination": If given, the system will save the augmented dataset to the path and return the path. If not given, it will return the results to user as download function. <br> 5."columns": used to control which column number required to append on the supplied data. If not given, all columns will be appened. </p>'
       consumes:
         - multipart/form-data
       produces:
@@ -161,7 +161,7 @@ paths:
       tags:
         - Upload API
       summary: upload the url of input file
-      description: 'First part of upload, the function used to materilize the given url and generate the corresponding metadata that will be stored in to datamart database. User can check and edit if they want. It will return two list, first list is a list of the materilized csv results, the second list is a list of json file which indicates the WD+ metadata.'
+      description: '<p>The first part of upload, the function used to materilize the given url and generate the corresponding metadata that will be stored in to datamart database. User can check and edit if they want. It will return two list, first list is a list of the materilized csv results, the second list is a list of json file which indicates the WD+ metadata.</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -192,7 +192,7 @@ paths:
       tags:
         - Upload API
       summary: upload data and metadata
-      description: 'Second part of upload, the function used the genrated data and metadata from "/generateWD+Metadata" and upload to datamart database.'
+      description: '<p>Second part of upload, the function used the genrated data and metadata from "/generateWD+Metadata" and upload to datamart database.</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -220,7 +220,7 @@ paths:
       tags:
         - Upload API
       summary: upload data and metadata
-      description: 'ALL-IN-ONE upload method that take a url indicate the file path and the file type. The function will automatically generate the metadata and upload to datamart database.'
+      description: '<p>ALL-IN-ONE upload method that take a url indicate the file path and the file type. The function will automatically generate the metadata and upload to datamart database.</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -393,6 +393,11 @@ definitions:
               type: string
             xpath:
               type: string
+tags:
+  - name: Search API
+  - name: Download API
+  - name: Augment API
+  - name: Upload API
 #  Datamart:
 #    type: object
 #    properties:
