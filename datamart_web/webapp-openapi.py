@@ -616,7 +616,7 @@ def upload():
         for i in range(len(df)):
             datamart_upload_instance.model_data(df, meta, i)
             datamart_upload_instance.upload()
-
+        return wrap_response('0000', msg="UPLOAD Success!")
     except Exception as e:
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
 
