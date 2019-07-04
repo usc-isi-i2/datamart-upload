@@ -9,22 +9,22 @@ paths:
       tags:
         - Search API
       summary: Search
-      description: '<p>The main search function for isi datamart, should always call this api first. <br> Currently supplied_data is necessary, it could be a csv file, or a path to a csv file or a d3m dataset id(for example: "DA_poverty_estimation") The option for uploading the path or dataset id is not shown here. <br> Function can also accept extra parameter "max_return_docs" (a int indicate how many results want to get returned), if not given, the default value is 20.</p>'
+      description: '<p>The main search function for isi datamart, should always call this api first. Currently supplied_data is necessary. Currently query do not make influence on isi datamart search. <br> <br> One parameters are required: <br> 1. "data":It could be a csv file, or a path to a csv file or a d3m dataset id(for example: "DA_poverty_estimation") The option for uploading the path or dataset id is not shown here. <br> Two parameters are optional: 1. "max_return_docs": A int indicate how many results want to get returned from search, if not given, the default value will be 20. <br> 2. "query": a json-like query used to add more searching rquirements. </p>'
       consumes:
         - multipart/form-data
       produces:
         - application/json
       parameters:
-#        - name: query
-#          in: formData
-#          type: string
-#          required: false
-#          description: The query
+        - name: query
+          in: formData
+          type: string
+          required: false
+          description: The query
         - name: data
           in: formData
           type: file
           required: true
-          description: Supplied data file
+          description: '<p>Supplied data file, you can try to upload a exmaple file from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_search_data.csv">here</a>.</p>'
         - name: max_return_docs
           in: query
           type: integer
@@ -45,7 +45,7 @@ paths:
       tags:
         - Download API
       summary: Download
-      description: '<p>The function used to download the searched result with given search result adapted from search API. It will only return the portions of the dataset referenced by id that matches well with data. If no rows can be joined, an error will be raised. <br> Three parameters are required: <br> 1 .The string format search result as "task"(adapted from search api). <br> 2. The supplied data (a csv file or a path to the csv file). <br>  3. Return format(general csv format or d3m format with metadata).</p>'
+      description: '<p>The function used to download the searched result with given search result adapted from search API. It will only return the portions of the dataset referenced by id that matches well with data. If no rows can be joined, an error will be raised. <br><br> Three parameters are required: <br> 1 ."task": The string format search result(adapted from search api). <br> 2."data": The supplied data (a csv file or a path to the csv file). <br>  3. "format": Return format(general csv format or d3m format with metadata).</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -55,12 +55,12 @@ paths:
           in: formData
           type: string
           required: true
-          description: The search result (a dict format) from search api
+          description: '<p>The search result task (json-like str) from search api you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_search_result_wikidata.txt">example1</a> or <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_search_result_general.txt">example2</a> </p>'
         - name: data
           in: formData
           type: file
           required: true
-          description: Supplied data file(a path to csv or a csv file)
+          description: '<p>Supplied data file, you can try to upload a exmaple file from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_search_data.csv">here</a>.</p>'
         - name: format
           in: formData
           type: string
@@ -81,7 +81,7 @@ paths:
       tags:
         - Download API
       summary: Download the dataset with given id
-      description: '<p>The function used to download the dataset with the supplied datamart id. Different from download, it will return the whole dataset without join hint column. <br> If a wikidata format id is given, it will return maximum 100 random Q nodes with those properties. </p>'
+      description: '<p>The function used to download the dataset with the supplied datamart id. Different from download, it will return the whole dataset without join hint column. <br> If a wikidata format id is given, it will return maximum 100 random Q nodes with those properties. <br> <br>Two parameters are required: <br> 1. "id": The datamart id, can be found from search result. <br> 2. "format": Return format(general csv format or d3m format with metadata).</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -113,7 +113,7 @@ paths:
       tags:
         - Augment API
       summary: Augment dataset
-      description: '<p>The function used to download the searched result with given search result adapted from search API. It will only return the portions of the dataset referenced by id that matches well with data. If no rows can be joined, an error will be raised. <br> Three parameters are required: <br> 1 ."task": The string format search result as "task"(adapted from search api). <br> 2."data": The supplied data (a csv file or a path to the csv file). <br>  3. "format": Return format(general csv format or d3m format with metadata). <br> Two parameters are optional: <br> 4. "destination": If given, the system will save the augmented dataset to the path and return the path. If not given, it will return the results to user as download function. <br> 5."columns": used to control which column number required to append on the supplied data. If not given, all columns will be appened. </p>'
+      description: '<p>The function used to download the searched result with given search result adapted from search API. It will only return the portions of the dataset referenced by id that matches well with data. If no rows can be joined, an error will be raised.<br> <br> Three parameters are required: <br> 1 ."task": The string format search result as "task"(adapted from search api). <br> 2."data": The supplied data (a csv file or a path to the csv file). <br>  3. "format": Return format(general csv format or d3m format with metadata). <br> Two parameters are optional: <br> 4. "destination": If given, the system will save the augmented dataset to the path and return the path. If not given, it will return the results to user as download function. <br> 5."columns": used to control which column number required to append on the supplied data. If not given, all columns will be appened. </p>'
       consumes:
         - multipart/form-data
       produces:
@@ -123,12 +123,12 @@ paths:
           in: formData
           type: string
           required: true
-          description: The search result task (dict) from search api
+          description: '<p>The search result task (json-like str) from search api you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_search_result_wikidata.txt">example1</a> or <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_search_result_general.txt">example2</a> </p>'
         - name: data
           in: formData
           type: file
           required: true
-          description: Supplied data file
+          description: '<p>Supplied data file, you can try to upload a exmaple file from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_search_data.csv">here</a>.</p>'
         - name: format
           in: formData
           type: string
@@ -161,18 +161,18 @@ paths:
       tags:
         - Upload API
       summary: upload the url of input file
-      description: '<p>The first part of upload, the function used to materilize the given url and generate the corresponding metadata that will be stored in to datamart database. User can check and edit if they want. It will return two list, first list is a list of the materilized csv results, the second list is a list of json file which indicates the WD+ metadata.</p>'
+      description: '<p>The first part of upload, the function used to materilize the given url and generate the corresponding metadata that will be stored in to datamart database. User can check and edit if they want. It will return two list, first list is a list of the materilized csv results, the second list is a list of json file which indicates the WD+ metadata.<br><br> Two parameters are required: 1. "url": The link to the target file. <br> 2. "file_type": A string indicate which type of the uploaded object is, currently only online_csv is available.</p> '
       consumes:
         - multipart/form-data
       produces:
         - application/json
       parameters:
-        - name: input_dir
+        - name: url
           in: query
           type: string
           required: true
           description: Url of input file
-          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv'
+          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv'
         - name: file_type
           in: query
           type: string
@@ -192,7 +192,7 @@ paths:
       tags:
         - Upload API
       summary: upload data and metadata
-      description: '<p>Second part of upload, the function used the genrated data and metadata from "/generateWD+Metadata" and upload to datamart database.</p>'
+      description: '<p>Second part of upload, the function used the genrated data and metadata from "/generateWD+Metadata" and upload to datamart database.<br><br> Two parameters are required: 1. "data_input": A list of the csv data generated from step 1. <br> 2. "file_type": A list of the database metadata for isi datamart generated from step 2.</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -202,12 +202,12 @@ paths:
           in: formData
           type: string
           required: true
-          description: Data(in list format) from load_and_process api
+          description: '<p>Data(in list format) from load_and_process api, you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_upload_part1_data.txt">here</a> </p>'
         - name: metadata
           in: formData
           type: string
           required: true
-          description: Metadata(in list format) from load_and_process api
+          description: '<p>Metadata(in list format) from load_and_process api, you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_upload_part1_metadata.txt">here</a> </p>'
       responses:
         '200':
           description: 'successful operation'
@@ -220,18 +220,18 @@ paths:
       tags:
         - Upload API
       summary: upload data and metadata
-      description: '<p>ALL-IN-ONE upload method that take a url indicate the file path and the file type. The function will automatically generate the metadata and upload to datamart database.</p>'
+      description: '<p>ALL-IN-ONE upload method that take a url indicate the file path and the file type. The function will automatically generate the metadata and upload to datamart database. It is RECOMMEND to use this function to upload the dataset instead of the 2-step one. <br> <br> Two parameters are required: 1. "url": The link to the target file. <br> 2. "file_type": A string indicate which type of the uploaded object is, currently only online_csv is available. </p>'
       consumes:
         - multipart/form-data
       produces:
         - application/json
       parameters:
-        - name: input_dir
+        - name: url
           in: query
           type: string
           required: true
           description: Url of input file
-          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv'
+          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv'
         - name: file_type
           in: query
           type: string

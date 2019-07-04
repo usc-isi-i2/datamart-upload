@@ -1,0 +1,725 @@
+{
+    "summary": " - educate.csv -\n    * Datamart ID: D1000004\n    * Score: 0.8747209821429115\n    * URL: https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/educate.csv\n    * Columns: \n\t[0] FIPS Code\n\t[1] State\n\t[2] Area name\n\t[3] 2003 Rural-urban Continuum Code\n\t[4] 2003 Urban Influence Code\n\t[5] 2013 Rural-urban Continuum Code\n\t[6] 2013 Urban Influence Code\n\t[7] Less than a high school diploma\n\t[8] 1970\n\t[9] High school diploma only\n\t[10] 1970\n\t[11] Some college (1-3 years)\n\t[12] 1970\n\t[13] Four years of college or higher\n\t[14] 1970\n\t[15] Percent of adults with less than a high school diploma\n\t[16] 1970\n\t[17] Percent of adults with a high school diploma only\n\t[18] 1970\n\t[19] Percent of adults completing some college (1-3 years)\n\t[20] 1970\n\t[21] Percent of adults completing four years of college or higher\n\t[22] 1970\n\t[23] Less than a high school diploma\n\t[24] 1980\n\t[25] High school diploma only\n\t[26] 1980\n\t[27] Some college (1-3 years)\n\t[28] 1980\n\t[29] Four years of college or higher\n\t[30] 1980\n\t[31] Percent of adults with less than a high school diploma\n\t[32] 1980\n\t[33] Percent of adults with a high school diploma only\n\t[34] 1980\n\t[35] Percent of adults completing some college (1-3 years)\n\t[36] 1980\n\t[37] Percent of adults completing four years of college or higher\n\t[38] 1980\n\t[39] Less than a high school diploma\n\t[40] 1990\n\t[41] High school diploma only\n\t[42] 1990\n\t[43] Some college or associate's degree\n\t[44] 1990\n\t[45] Bachelor's degree or higher\n\t[46] 1990\n\t[47] Percent of adults with less than a high school diploma\n\t[48] 1990\n\t[49] Percent of adults with a high school diploma only\n\t[50] 1990\n\t[51] Percent of adults completing some college or associate's degree\n\t[52] 1990\n\t[53] Percent of adults with a bachelor's degree or higher\n\t[54] 1990\n\t[55] Less than a high school diploma\n\t[56] 2000\n\t[57] High school diploma only\n\t[58] 2000\n\t[59] Some college or associate's degree\n\t[60] 2000\n\t[61] Bachelor's degree or higher\n\t[62] 2000\n\t[63] Percent of adults with less than a high school diploma\n\t[64] 2000\n\t[65] Percent of adults with a high school diploma only\n\t[66] 2000\n\t[67] Percent of adults completing some college or associate's degree\n\t[68] 2000\n\t[69] Percent of adults with a bachelor's degree or higher\n\t[70] 2000\n\t[71] Less than a high school diploma\n\t[72] 2013-17\n\t[73] High school diploma only\n\t[74] 2013-17\n\t[75] Some college or associate's degree\n\t[76] 2013-17\n\t[77] Bachelor's degree or higher\n\t[78] 2013-17\n\t[79] Percent of adults with less than a high school diploma\n\t[80] 2013-17\n\t[81] Percent of adults with a high school diploma only\n\t[82] 2013-17\n\t[83] Percent of adults completing some college or associate's degree\n\t[84] 2013-17\n\t[85] Percent of adults with a bachelor's degree or higher\n\t[86] 2013-17\n\t[87] FIPS Code_wikidata\n\t[88] State_wikidata\n    * Recommend Join Columns: FIPS Code_wikidata\n",
+    "score": 0.8747209821429115,
+    "metadata": [
+      {
+        "selector": [],
+        "metadata": {
+          "structural_type": "d3m.container.pandas.DataFrame",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Table"
+          ],
+          "dimension": {
+            "name": "rows",
+            "semantic_types": [
+              "https://metadata.datadrivendiscovery.org/types/TabularRow"
+            ],
+            "length": 3283
+          },
+          "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__"
+        ],
+        "metadata": {
+          "dimension": {
+            "name": "columns",
+            "semantic_types": [
+              "https://metadata.datadrivendiscovery.org/types/TabularColumn"
+            ],
+            "length": 49
+          }
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          0
+        ],
+        "metadata": {
+          "name": "FIPS Code",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Integer"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          1
+        ],
+        "metadata": {
+          "name": "State",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          2
+        ],
+        "metadata": {
+          "name": "Area name",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          3
+        ],
+        "metadata": {
+          "name": "2003 Rural-urban Continuum Code",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          4
+        ],
+        "metadata": {
+          "name": "2003 Urban Influence Code",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          5
+        ],
+        "metadata": {
+          "name": "2013 Rural-urban Continuum Code",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          6
+        ],
+        "metadata": {
+          "name": "2013 Urban Influence Code",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          7
+        ],
+        "metadata": {
+          "name": "Less than a high school diploma, 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          8
+        ],
+        "metadata": {
+          "name": "High school diploma only, 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          9
+        ],
+        "metadata": {
+          "name": "Some college (1-3 years), 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          10
+        ],
+        "metadata": {
+          "name": "Four years of college or higher, 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          11
+        ],
+        "metadata": {
+          "name": "Percent of adults with less than a high school diploma, 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          12
+        ],
+        "metadata": {
+          "name": "Percent of adults with a high school diploma only, 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          13
+        ],
+        "metadata": {
+          "name": "Percent of adults completing some college (1-3 years), 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          14
+        ],
+        "metadata": {
+          "name": "Percent of adults completing four years of college or higher, 1970",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          15
+        ],
+        "metadata": {
+          "name": "Less than a high school diploma, 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          16
+        ],
+        "metadata": {
+          "name": "High school diploma only, 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          17
+        ],
+        "metadata": {
+          "name": "Some college (1-3 years), 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          18
+        ],
+        "metadata": {
+          "name": "Four years of college or higher, 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          19
+        ],
+        "metadata": {
+          "name": "Percent of adults with less than a high school diploma, 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          20
+        ],
+        "metadata": {
+          "name": "Percent of adults with a high school diploma only, 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          21
+        ],
+        "metadata": {
+          "name": "Percent of adults completing some college (1-3 years), 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          22
+        ],
+        "metadata": {
+          "name": "Percent of adults completing four years of college or higher, 1980",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          23
+        ],
+        "metadata": {
+          "name": "Less than a high school diploma, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          24
+        ],
+        "metadata": {
+          "name": "High school diploma only, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          25
+        ],
+        "metadata": {
+          "name": "Some college or associate's degree, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          26
+        ],
+        "metadata": {
+          "name": "Bachelor's degree or higher, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          27
+        ],
+        "metadata": {
+          "name": "Percent of adults with less than a high school diploma, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          28
+        ],
+        "metadata": {
+          "name": "Percent of adults with a high school diploma only, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          29
+        ],
+        "metadata": {
+          "name": "Percent of adults completing some college or associate's degree, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          30
+        ],
+        "metadata": {
+          "name": "Percent of adults with a bachelor's degree or higher, 1990",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          31
+        ],
+        "metadata": {
+          "name": "Less than a high school diploma, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          32
+        ],
+        "metadata": {
+          "name": "High school diploma only, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          33
+        ],
+        "metadata": {
+          "name": "Some college or associate's degree, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          34
+        ],
+        "metadata": {
+          "name": "Bachelor's degree or higher, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          35
+        ],
+        "metadata": {
+          "name": "Percent of adults with less than a high school diploma, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          36
+        ],
+        "metadata": {
+          "name": "Percent of adults with a high school diploma only, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          37
+        ],
+        "metadata": {
+          "name": "Percent of adults completing some college or associate's degree, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          38
+        ],
+        "metadata": {
+          "name": "Percent of adults with a bachelor's degree or higher, 2000",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          39
+        ],
+        "metadata": {
+          "name": "Less than a high school diploma, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          40
+        ],
+        "metadata": {
+          "name": "High school diploma only, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          41
+        ],
+        "metadata": {
+          "name": "Some college or associate's degree, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          42
+        ],
+        "metadata": {
+          "name": "Bachelor's degree or higher, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          43
+        ],
+        "metadata": {
+          "name": "Percent of adults with less than a high school diploma, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          44
+        ],
+        "metadata": {
+          "name": "Percent of adults with a high school diploma only, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          45
+        ],
+        "metadata": {
+          "name": "Percent of adults completing some college or associate's degree, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          46
+        ],
+        "metadata": {
+          "name": "Percent of adults with a bachelor's degree or higher, 2013-17",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          47
+        ],
+        "metadata": {
+          "name": "FIPS Code_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          48
+        ],
+        "metadata": {
+          "name": "State_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      }
+    ],
+    "datamart_id": "D1000004",
+    "materialize_info": "{\"id\": \"D1000004\", \"score\": 0.8747209821429115, \"metadata\": {\"connection_url\": \"http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql\", \"search_result\": {\"score\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#double\", \"type\": \"literal\", \"value\": \"0.8747209821429115\"}, \"rank\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#int\", \"type\": \"literal\", \"value\": \"4\"}, \"variable\": {\"type\": \"uri\", \"value\": \"http://www.wikidata.org/entity/statement/D1000004-a3492121-e0b6-44f0-baa8-32ef28761368\"}, \"dataset\": {\"type\": \"uri\", \"value\": \"http://www.wikidata.org/entity/D1000004\"}, \"url\": {\"type\": \"uri\", \"value\": \"https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/educate.csv\"}, \"file_type\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"csv\"}, \"title\": {\"xml:lang\": \"en\", \"type\": \"literal\", \"value\": \"educate.csv\"}, \"keywords\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"FIPS Code State Area name 2003 Rural-urban Continuum Code 2003 Urban Influence Code 2013 Rural-urban Continuum Code 2013 Urban Influence Code Less than a high school diploma, 1970 High school diploma only, 1970 Some college (1-3 years), 1970 Four years of college or higher, 1970 Percent of adults with less than a high school diploma, 1970 Percent of adults with a high school diploma only, 1970 Percent of adults completing some college (1-3 years), 1970 Percent of adults completing four years of college or higher, 1970 Less than a high school diploma, 1980 High school diploma only, 1980 Some college (1-3 years), 1980 Four years of college or higher, 1980 Percent of adults with less than a high school diploma, 1980 Percent of adults with a high school diploma only, 1980 Percent of adults completing some college (1-3 years), 1980 Percent of adults completing four years of college or higher, 1980 Less than a high school diploma, 1990 High school diploma only, 1990 Some college or associate's degree, 1990 Bachelor's degree or higher, 1990 Percent of adults with less than a high school diploma, 1990 Percent of adults with a high school diploma only, 1990 Percent of adults completing some college or associate's degree, 1990 Percent of adults with a bachelor's degree or higher, 1990 Less than a high school diploma, 2000 High school diploma only, 2000 Some college or associate's degree, 2000 Bachelor's degree or higher, 2000 Percent of adults with less than a high school diploma, 2000 Percent of adults with a high school diploma only, 2000 Percent of adults completing some college or associate's degree, 2000 Percent of adults with a bachelor's degree or higher, 2000 Less than a high school diploma, 2013-17 High school diploma only, 2013-17 Some college or associate's degree, 2013-17 Bachelor's degree or higher, 2013-17 Percent of adults with less than a high school diploma, 2013-17 Percent of adults with a high school diploma only, 2013-17 Percent of adults completing some college or associate's degree, 2013-17 Percent of adults with a bachelor's degree or higher, 2013-17 FIPS Code_wikidata State_wikidata\"}, \"extra_information\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"{'column_meta_0': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Integer'], 'name': 'FIPS Code'}, 'column_meta_1': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'State'}, 'column_meta_2': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'Area name'}, 'column_meta_3': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': '2003 Rural-urban Continuum Code'}, 'column_meta_4': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': '2003 Urban Influence Code'}, 'column_meta_5': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': '2013 Rural-urban Continuum Code'}, 'column_meta_6': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': '2013 Urban Influence Code'}, 'column_meta_7': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Less than a high school diploma, 1970'}, 'column_meta_8': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'High school diploma only, 1970'}, 'column_meta_9': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Some college (1-3 years), 1970'}, 'column_meta_10': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Four years of college or higher, 1970'}, 'column_meta_11': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with less than a high school diploma, 1970'}, 'column_meta_12': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with a high school diploma only, 1970'}, 'column_meta_13': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults completing some college (1-3 years), 1970'}, 'column_meta_14': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults completing four years of college or higher, 1970'}, 'column_meta_15': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Less than a high school diploma, 1980'}, 'column_meta_16': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'High school diploma only, 1980'}, 'column_meta_17': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Some college (1-3 years), 1980'}, 'column_meta_18': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Four years of college or higher, 1980'}, 'column_meta_19': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with less than a high school diploma, 1980'}, 'column_meta_20': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with a high school diploma only, 1980'}, 'column_meta_21': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults completing some college (1-3 years), 1980'}, 'column_meta_22': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults completing four years of college or higher, 1980'}, 'column_meta_23': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Less than a high school diploma, 1990'}, 'column_meta_24': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'High school diploma only, 1990'}, 'column_meta_25': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Some college or associate's degree, 1990\\\"}, 'column_meta_26': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Bachelor's degree or higher, 1990\\\"}, 'column_meta_27': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with less than a high school diploma, 1990'}, 'column_meta_28': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with a high school diploma only, 1990'}, 'column_meta_29': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Percent of adults completing some college or associate's degree, 1990\\\"}, 'column_meta_30': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Percent of adults with a bachelor's degree or higher, 1990\\\"}, 'column_meta_31': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Less than a high school diploma, 2000'}, 'column_meta_32': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'High school diploma only, 2000'}, 'column_meta_33': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Some college or associate's degree, 2000\\\"}, 'column_meta_34': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Bachelor's degree or higher, 2000\\\"}, 'column_meta_35': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with less than a high school diploma, 2000'}, 'column_meta_36': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with a high school diploma only, 2000'}, 'column_meta_37': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Percent of adults completing some college or associate's degree, 2000\\\"}, 'column_meta_38': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Percent of adults with a bachelor's degree or higher, 2000\\\"}, 'column_meta_39': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Less than a high school diploma, 2013-17'}, 'column_meta_40': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'High school diploma only, 2013-17'}, 'column_meta_41': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Some college or associate's degree, 2013-17\\\"}, 'column_meta_42': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Bachelor's degree or higher, 2013-17\\\"}, 'column_meta_43': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with less than a high school diploma, 2013-17'}, 'column_meta_44': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Percent of adults with a high school diploma only, 2013-17'}, 'column_meta_45': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Percent of adults completing some college or associate's degree, 2013-17\\\"}, 'column_meta_46': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': \\\"Percent of adults with a bachelor's degree or higher, 2013-17\\\"}, 'column_meta_47': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'FIPS Code_wikidata'}, 'column_meta_48': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'State_wikidata'}, 'data_metadata': {'shape_0': 3283, 'shape_1': 49}}\"}, \"datasetLabel\": {\"xml:lang\": \"en\", \"type\": \"literal\", \"value\": \"D1000004\"}, \"variableName\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"FIPS Code_wikidata\"}}, \"query_json\": {\"keywords\": [\"FIPS_wikidata\"], \"variables\": {\"FIPS_wikidata\": \"q200696 q490112 q494958 q507256 q495974 q178341 q156370 q110212 q486293 q485746 q489586 q484457 q511922 q506086 q505276 q382993 q511106 q493236 q498684 q108821 q485420 q61150 q502014 q489327 q58696 q507414 q486362 q1177705 q494931 q504391 q490925 q493049 q484596 q494776 q27045 q486398 q504360 q65433 q49231 q502348 q486530 q461204 q490405 q506563 q497200 q501575 q376505 q484567 q487610 q495359 q61384 q491543 q253538 q493054 q114423 q156570 q495067 q487578 q498141 q115556 q500776 q487686 q503870 q485221 q491919 q376136 q306343 q79804 q501914 q377162 q5925 q484294 q489687 q507294 q110764 q374460 q112456 q502222 q503446 q489222 q512868 q489571 q586070 q489659 q498301 q487616 q498613 q500933 q312563 q61005 q484367 q513758 q492016 q496664 q506321 q486060 q377122 q495985 q108101 q489056 q491236 q511120 q156380 q507139 q490494 q487334 q495198 q109270 q506225 q489468 q61165 q486344 q492036 q336948 q494751 q108798 q484465 q54064 q114140 q265079 q304791 q495181 q284439 q115014 q501927 q507126 q594313 q485974 q11299 q507918 q110384 q495613 q277728 q485752 q377131 q495937 q489915 q61145 q114503 q485434 q115577 q311901 q486243 q115349 q501096 q495906 q111385 q489677 q491519 q372648 q281681 q108137 q26610 q26519 q486139 q376059 q501602 q496751 q156486 q109209 q491927 q490745 q26689 q490383 q502549 q494998 q493228 q485795 q26628 q346959 q109846 q498276 q505405 q28292 q61086 q192992 q341708 q113056 q502715 q491267 q495368 q373348 q507016 q495246 q501312 q501948 q691614 q492819 q503451 q182176 q490190 q489369 q341639 q484273 q502386 q54439 q506682 q488186 q336322 q108058 q489652 q111766 q489546 q27011 q18426 q496475 q376776 q501804 q488543 q495195 q486048 q112953 q295787 q110640 q111886 q488879 q491406 q487403 q503505 q110561 q506315 q205715 q501968 q110750 q114884 q110486 q489265 q494093 q514024 q497284 q501340 q240621 q484279 q503554 q109265 q504335 q111266 q488560 q485543 q483990 q502086 q107982 q496629 q376024 q497642 q61204 q491525 q494598 q491390 q366871 q115551 q503546 q509910 q505428 q487243 q507782 q506309 q751202 q495990 q156642 q486526 q374989 q485204 q430328 q115404 q27229 q488572 q497861 q484771 q109279 q489324 q489729 q495142 q506892 q56146 q490799 q513968 q500598 q485628 q26907 q486471 q487744 q508220 q342428 q495310 q484133 q502875 q486137 q115104 q844012 q493709 q491285 q491831 q484672 q118127 q271613 q485553 q484607 q490740 q498346 q491479 q494564 q502564 q489668 q509092 q500751 q495951 q115428 q485502 q485445 q374358 q400747 q82603 q509880 q491276 q49290 q113962 q111876 q510915 q496971 q1139827 q109622 q501270 q112714 q496700 q489663 q108866 q488531 q63719 q484648 q502081 q501848 q109641 q506230 q54260 q695782 q497871 q61036 q156647 q484668 q109670 q167656 q110900 q156623 q503000 q490009 q389783 q491339 q351865 q502920 q503883 q490184 q494803 q112957 q28286 q174913 q61472 q494138 q48902 q128080 q374950 q504318 q484300 q486874 q496722 q111957 q108117 q486380 q507966 q505848 q341915 q311921 q486174 q484290 q505510 q490283 q489536 q180785 q94673 q113919 q507459 q485001 q493715 q506172 q484559 q262708 q491032 q504445 q58694 q515220 q506937 q512799 q494471 q495264 q488537 q156181 q484513 q24648 q486198 q484263 q510244 q490874 q502516 q505272 q156629 q501000 q49014 q502428 q115166 q494211 q503538 q484542 q495479 q374200 q487681 q403319 q421960 q156481 q494794 q45441 q484574 q491144 q489682 q495376 q495834 q156287 q386885 q484590 q484159 q111291 q490140 q490498 q490859 q487725 q505398 q494616 q491954 q115227 q491196 q506162 q113854 q484349 q175799 q156448 q112526 q112915 q494167 q483893 q495059 q167589 q484418 q508288 q486503 q490999 q507892 q504435 q485710 q487738 q176480 q312155 q506332 q490318 q499542 q182845 q515166 q111851 q257311 q48937 q484404 q168144 q498104 q374626 q1124720 q485020 q494500 q376703 q486210 q501815 q137516 q507427 q27009 q28496 q506151 q496678 q113313 q130083 q111540 q490251 q507733 q502285 q504366 q26699 q486444 q505854 q505453 q485799 q426746 q506489 q112086 q502640 q491547 q489735 q502569 q491201 q115433 q374547 q502364 q486651 q503081 q370710 q489648 q496152 q500645 q490796 q488548 q513878 q486229 q489864 q505841 q485370 q484616 q484420 q110130 q490144 q500908 q379654 q490477 q488566 q115563 q26762 q374422 q109308 q505505 q508254 q152891 q494161 q500854 q501074 q58759 q502230 q484752 q112807 q377035 q497702 q501827 q484391 q341755 q492310 q494634 q489318 q110606 q156253 q494174 q502373 q488528 q375652 q486480 q26914 q484282 q489092 q502278 q513919 q487003 q111566 q506779 q497489 q493125 q494579 q498066 q2613700 q505874 q156444 q507353 q490779 q374410 q495925 q493599 q510900 q115081 q111298 q500984 q486118 q504441 q500918 q114923 q375002 q54163 q506326 q58689 q513950 q500680 q113220 q71190 q109785 q495414 q484582 q491152 q491046 q312455 q486614 q48878 q494129 q109830 q484015 q495417 q491136 q496115 q490369 q512767 q484153 q61339 q266493 q390141 q493079 q61173 q384754 q488492 q486288 q501263 q491996 q495393 q848649 q175756 q112768 q495667 q374908 q513805 q486633 q312201 q498332 q495620 q115589 q54238 q61346 q508209 q502526 q494526 q54076 q376576 q513775 q486081 q376129 q351808 q337776 q489159 q495958 q490129 q483950 q842902 q27018 q496729 q486112 q494552 q495409 q485047 q496577 q485412 q500880 q502784 q113773 q1139833 q495867 q497728 q485715 q389365 q108861 q271601 q493529 q494624 q495219 q503064 q495687 q507870 q507382 q156216 q494806 q485787 q486994 q514008 q156488 q26528 q108418 q486458 q495280 q485038 q484461 q490266 q376822 q489106 q487572 q259095 q61026 q167583 q335121 q511510 q497737 q468557 q113029 q484740 q486757 q485042 q489553 q486431 q402938 q488690 q509757 q54246 q502463 q156374 q506772 q112220 q508192 q112488 q26883 q486064 q484493 q109975 q61461 q48896 q494575 q26584 q492652 q181967 q251277 q156297 q430938 q112125 q489897 q488576 q504294 q500871 q495332 q487415 q111168 q507881 q490908 q288592 q488796 q373886 q109312 q110504 q496716 q280815 q491221 q496862 q513833 q489273 q490716 q113423 q376086 q502419 q490671 q312470 q494198 q505292 q115125 q489716 q48933 q505644 q484325 q507826 q501323 q489259 q491882 q540907 q491178 q108957 q48831 q495682 q403310 q504428 q496003 q26619 q495154 q494899 q113375 q495252 q501242 q491556 q5092 q485526 q483932 q450159 q163097 q491068 q505987 q484150 q497810 q490344 q483847 q501256 q502393 q511723 q26705 q491970 q490774 q491508 q489919 q485463 q491327 q502351 q488553 q507365 q389573 q368006 q495738 q54073 q495137 q109751 q485024 q490949 q376729 q497854 q128137 q111753 q489756 q115344 q112550 q506951 q495398 q374452 q500958 q485536 q493040 q486325 q484681 q58711 q489702 q491966 q376096 q490088 q507722 q188376 q156276 q501236 q506197 q488687 q488792 q58688 q488943 q112882 q490255 q495175 q485920 q486218 q489886 q135330 q484530 q110403 q263742 q111633 q47894 q485235 q114550 q485006 q502587 q156191 q486522 q498356 q156582 q497917 q491991 q271915 q485430 q495677 q485291 q490966 q497208 q486160 q495856 q506175 q486313 q487599 q504830 q387216 q489332 q495160 q193072 q498312 q376546 q484563 q494203 q108122 q113396 q111821 q182112 q486659 q503889 q496486 q108520 q486491 q489787 q489471 q156273 q26616 q162560 q493260 q499295 q502468 q489894 q56154 q56145 q506975 q376053 q501298 q408744 q489942 q477870 q493088 q496596 q491590 q491584 q507907 q28499 q156455 q485441 q495112 q489986 q498319 q336229 q26740 q503495 q512816 q137916 q500711 q494630 q496602 q108626 q26754 q501582 q490678 q110539 q486366 q54235 q501319 q431440 q490287 q383739 q485478 q488683 q374342 q509745 q61181 q110739 q490019 q492021 q111774 q486270 q486476 q503329 q491894 q109981 q484643 q109626 q497646 q505884 q502380 q494514 q494480 q503492 q112686 q484633 q485615 q486187 q506921 q108534 q500939 q376034 q502021 q494236 q507047 q498072 q112499 q26701 q108842 q489673 q493951 q26622 q110491 q494485 q497602 q26676 q403184 q374973 q486920 q490409 q376042 q485229 q491452 q54254 q61315 q495269 q503014 q202454 q490095 q43421 q504422 q280826 q502288 q490649 q505868 q486848 q341865 q495013 q112846 q486255 q485720 q490215 q111759 q507266 q495944 q494636 q491184 q109810 q506145 q27037 q61170 q497652 q500312 q54447 q113815 q489599 q490835 q112137 q591156 q128096 q502777 q109150 q338424 q486075 q495157 q109690 q111921 q506690 q114043 q284840 q486495 q495873 q506498 q112107 q507629 q484538 q501036 q376562 q495037 q619609 q108397 q490488 q509861 q495078 q504355 q489783 q489912 q486654 q488181 q502492 q486466 q495862 q491759 q156568 q110500 q501809 q489847 q284806 q108803 q491321 q27041 q82367 q506291 q501819 q486238 q110575 q113793 q488853 q495120 q490813 q198529 q488522 q502200 q495003 q94663 q108083 q496091 q485729 q110412 q490750 q61010 q114123 q484509 q487716 q926619 q26598 q511069 q489747 q495845 q507981 q112078 q109442 q421970 q501022 q484378 q113151 q502077 q111979 q494905 q506357 q111254 q489779 q492057 q461562 q192753 q484431 q111936 q108837 q951290 q490848 q48905 q495090 q115266 q491256 q488512 q490077 q506727 q61042 q491214 q376640 q430113 q110779 q494764 q111946 q114992 q486435 q108367 q513982 q501277 q491288 q110755 q501060 q111517 q54443 q400757 q500818 q500674 q501055 q488201 q112834 q486095 q512832 q115025 q111622 q156257 q26889 q183135 q506697 q484470 q495448 q507321 q949766 q109986 q27844 q109512 q491432 q370310 q495581 q156353 q304289 q490980 q61355 q133853 q376353 q336167 q376330 q507028 q498295 q28488 q503486 q108784 q61167 q490029 q111259 q384737 q506363 q74661 q113255 q514038 q485804 q56149 q499302 q56144 q48910 q488210 q111400 q109815 q501974 q494233 q82605 q255943 q496453 q486105 q261380 q494098 q156306 q280838 q110516 q27240 q163529 q490789 q487581 q94669 q113201 q113763 q506351 q488810 q491533 q109709 q490896 q490325 q498028 q494216 q495315 q24646 q497845 q156156 q506525 q495998 q26712 q493102 q494771 q108607 q484755 q120080 q512937 q495216 q491170 q374382 q54441 q491959 q485780 q495052 q156366 q61354 q133860 q491857 q486517 q156220 q496447 q303491 q74704 q61365 q312149 q61381 q61157 q426398 q485532 q108072 q179950 q497899 q493605 q507811 q507472 q501157 q486513 q115337 q389551 q421956 q506064 q110978 q485301 q502959 q61352 q489477 q111672 q489980 q486328 q502442 q375803 q484482 q61470 q489880 q484620 q376592 q496077 q484142 q109795 q504403 q495147 q108846 q490989 q500686 q111380 q61020 q54446 q514093 q484371 q512732 q109646 q108053 q488840 q156431 q61468 q61330 q501959 q124637 q374979 q47944 q486231 q490986 q507169 q376764 q340608 q369211 q486448 q496708 q156459 q484745 q156479 q503461 q486507 q500891 q488874 q501172 q450374 q501789 q494518 q375019 q491108 q110340 q337915 q500670 q495851 q500977 q496161 q485509 q492346 q156429 q502240 q491140 q502521 q486099 q312746 q495105 q494822 q377023 q502250 q156342 q513078 q366959 q484183 q485791 q506068 q496009 q486486 q156361 q339724 q502712 q503071 q112565 q485513 q505305 q337402 q484586 q167565 q108131 q509838 q111831 q108499 q497999 q491878 q487254 q504385 q491026 q511834 q490378 q45438 q508247 q108106 q494560 q505968 q486006 q498116 q108424 q497992 q486150 q488826 q353108 q350001 q486664 q27031 q127978 q492012 q109508 q489420 q63953 q495839 q39450 q61500 q113132 q107146 q336183 q484767 q156575 q387555 q502050 q500654 q109695 q249638 q26527 q503877 q74686 q503501 q486071 q500734 q490642 q485402 q494164 q26723 q110565 q426360 q490769 q156496 q486281 q110592 q502036 q485588 q494248 q496616 q494134 q504345 q544539 q502581 q145006 q111391 q506768 q61135 q378527 q492044 q127973 q483942 q104994 q496758 q505999 q491976 q337067 q505515 q312742 q368766 q485620 q484330 q488175 q137562 q31091 q486453 q182644 q486091 q493134 q108428 q483857 q495564 q502554 q377157 q498020 q156437 q374495 q48850 q156471 q58691 q485922 q26564 q26756 q854630 q506202 q109681 q506342 q26744 q494626 q489793 q340591 q487280 q494086 q61143 q61131 q109661 q495899 q340606 q484340 q54165 q505993 q495608 q491837 q490505 q115356 q501839 q491112 q484600 q195664 q312731 q61014 q502984 q61358 q506181 q54240 q485539 q485213 q496771 q70979 q26587 q379585 q512925 q492888 q402945 q370654 q488517 q112823 q502207 q428298 q501078 q496109 q108067 q506569 q511095 q507099 q48874 q261672 q1125008 q26766 q488917 q110421 q484222 q489613 q27238 q512911 q115324 q497880 q501559 q502235 q511150 q496900 q470626 q507798 q484440 q484234 q282188 q484287 q486184 q486535 q115216 q503864 q26595 q490690 q497377 q501306 q515177 q495654 q495649 q304671 q505980 q494947 q114843 q484776 q113117 q506168 q501140 q17174784 q490972 q502952 q507943 q493243 q63951 q507399 q493250 q403777 q61478 q267164 q375608 q111613 q485944 q507281 q107126 q486838 q111859 q61350 q496622 q506015 q115480 q495388 q485571 q278589 q500663 q312453 q491148 q497979 q175035 q485058 q176307 q498372 q18432 q493071 q113096 q156346 q108372 q501151 q61048 q385365 q111368 q495570 q501779 q490033 q501843 q156634 q496146 q495672 q377234 q110482 q156388 q130009 q497615 q490879 q496132 q502269 q501248 q510885 q511470 q113783 q497890 q108077 q506209 q137828 q376069 q495326 q156467 q196014 q248521 q484521 q346925 q501796 q63958 q506574 q48891 q220005 q495191 q484239 q495031 q107973 q486352 q108788 q486133 q54161 q195658 q486207 q497971 q484146 q485558 q484385 q112584 q489620 q493033 q61032 q111286 q485660 q484551 q110495 q488693 q502342 q302852 q156295 q485549 q502451 q495273 q501989 q156463 q507112 q193230 q505354 q109756 q486372 q490722 q378896 q26738 q495719 q502880 q113041 q487731 q515150 q488481 q26735 q495289 q489099 q109820 q484361 q506987 q127972 q502377 q109686 q486301 q490710 q115247 q128079 q27034 q490259 q483958 q339175 q503478 q489463 q494223 q109761 q376464 q54091 q484354 q115289 q501568 q502257 q494620 q505359 q498353 q488922 q280820 q109969 q488821 q114479 q115272 q488805 q111584 q490512 q109165 q501785 q506337 q490108 q503521 q491021 q490471 q114862 q156270 q485062 q375108 q27840 q502707 q111720 q1139839 q504863 q500758 q54253 q490762 q32349 q114459 q484156 q74633 q502925 q61289 q26710 q489447 q114445 q504856 q2613601 q474999 q115332 q156639 q115419 q138141 q495930 q110670 q494912 q492061 q61200 q188204 q54442 q494541 q340605 q484780 q376113 q488206 q48917 q377011 q495349 q82505 q312740 q494799 q484659 q375008 q511788 q485474 q111310 q61160 q510407 q484268 q178281 q203022 q509895 q491126 q491931 q504450 q496169 q483973 q490920 q489877 q495045 q490427 q156445 q58684 q494774 q498362 q485980 q505444 q486765 q502592 q496176 q109503 q485524 q491456 q495017 q738043 q502244 q491243 q1124743 q504846 q312750 q61216 q498077 q494569 q114529 q486248 q26898 q108127 q112993 q156278 q501823 q61317 q484408 q279452 q490002 q484570 q486309 q110904 q377181 q511647 q312509 q497607 q507609 q490210 q494923 q108436 q374649 q373953 q493024 q498163 q54234 q486043 q506191 q488769 q498675 q376876 q510920 q489007 q271609 q489486 q495356 q376838 q61084 q114948 q491017 q494791 q115316 q484474 q507078 q507117 q781165 q54231 q379474 q487016 q943772 q112934 q490414 q490272 q505834 q488701 q492026 q507244 q486401 q504312 q489616 q490432 q489855 q490395 q109298 q485646 q489993 q487605 q489312 q502414 q489088 q490852 q484388 q486265 q49222 q502732 q502743 q494156 q485741 q485577 q507488 q489873 q494192 q114323 q484346 q335017 q494463 q111235 q502437 q130008 q494413 q491623 q164603 q485245 q494893 q156643 q485408 q376803 q54089 q375143 q503511 q495261 q496685 q351887 q498621 q491301 q111421 q108379 q496737 q111409 q26716 q110570 q490436 q529958 q156411 q28285 q511084 q110257 q156468 q494755 q486000 q26614 q493957 q489079 q61348 q495022 q506506 q27021 q28316 q496139 q512713 q512901 q502483 q115061 q496589 q513092 q507931 q512686 q513905 q312254 q26631 q127975 q156163 q497424 q374604 q48834 q506552 q27233 q115413 q114339 q502368 q311904 q500767 q485250 q61484 q109437 q507336 q109636 q496886 q506385 q491343 q506187 q494254 q502729 q504850 q497908 q49149 q505499 q484411 q495043 q485650 q177562 q503093 q496693 q498014 q111904 q114301 q490124 q63771 q504284 q497707 q183263 q312451 q26526 q115182 q502054 q156265 q54444 q492048 q484791 q489306 q502459 q28283 q507063 q494117 q71202 q490446 q505438 q112069 q113293 q497804 q500742 q491311 q113823 q488653 q376947 q247715 q427315 q48856 q502543 q502447 q54082 q505317 q485596 q376004 q61148 q486087 q372364 q507757 q489163 q484452 q495344 q108503 q486305 q431826 q111867 q111782 q111694 q488224 q501935 q485388 q501918 q490727 q490914 q491436 q493107 q376102 q115043 q490134 q501067 q494152 q501115 q111250 q491982 q28321 q513818 q495969 q491529 q491762 q511478 q486394 q506676 q48931 q108952 q108618 q502945 q156387 q54160 q484729 q112115 q490400 q428902 q112603 q485364 q484577 q495640 q497928 q496764 q486961 q492493 q495223 q500845 q52250 q507616 q119372 q498307 q379663 q483923 q486348 q16861 q485484 q507308 q491073 q49259 q115148 q115281 q491427 q501830 q58692 q490734 q109665 q486261 q491903 q503468 q504838 q40881 q486011 q506370 q495885 q312475 q109204 q497984 q111928 q484556 q488885 q485984 q495633 q496656 q502737 q82510 q491470 q495132 q932966 q204761 q112271 q486538 q484231 q112149 q27024 q486357 q156168 q61034 q312497 q495340 q492053 q123766 q110187 q506376 q488166 q421963 q114026 q290157 q61077 q513010 q507770 q498024 q490423 q512965 q486191 q253186 q486376 q502294 q302165 q485631 q486621 q61129 q507853 q349995 q111304 q489610 q491949 q485969 q494207 q494815 q488582 q835104 q338052 q374334 q490390 q486040 q502933 q505333 q487236 q18419 q112634 q156452 q498042 q505417 q109289 q327080 q489684 q74628 q495275 q496096 q113834 q486791 q825807 q374256 q491646 q109284 q484639 q495382 q507743 q386271 q505287 q490014 q110680 q500784 q495285 q128075 q485926 q504329 q111575 q485600 q61368 q26601 q488505 q288606 q500861 q494536 q312449 q501563 q484612 q494241 q492070 q26885 q484527 q111245 q484247 q29118 q61502 q421974 q495169 q484748 q490023 q54065 q109160 q511849 q497695 q502047 q156632 q498058 q515205 q488659 q507153 q489743 q109804 q490168 q110555 q260871 q490219 q108408 q61018 q507587 q500698 q495603 q485912 q506235 q156613 q496197 q493450 q54251 q502213 q485224 q506722 q502487 q485035 q502072 q27023 q385931 q494077 q110983 q508618 q497830 q51733 q496292 q506479 q497216 q490958 q501029 q492342 q501163 q28311 q494228 q490703 q491121 q58683 q489861 q498286 q484786 q109215 q110510 q488171 q489576 q29124 q54445 q501761 q185533 q510947 q501606 q153251 q56151 q491537 q312744 q156628 q484488 q501858 q192650 q502727 q489891 q54236 q500803 q490994 q130006 q505347 q156186 q475301 q496025 q505975 q1124916 q426699 q312473 q511908 q498321 q489430 q490683 q484224 q108494 q511691 q501800 q111709 q492032 q109518 q503059 q485013 q61370 q498336 q28274 q494180 q372373 q376616 q156385 q847676 q485044 q491633 q485656 q54262 q177678 q48863 q311897 q495171 q505422 q490550 q374890 q501147 q61379 q156566 q507838 q489901 q27051 q109836 q484734 q495209 q2613391 q115463 q110760 q112781 q492040 q495072 q491889 q108403 q501130 q488859 q377046 q498148 q484760 q488461 q489591 q489062 q484501 q513994 q489595 q496568 q111316 q201014 q376175 q490757 q112652 q495116 q269164 q113333 q491035 q477951 q503516 q61202 q374404 q337688 q489999 q112061 q513744 q502560 q110768 q61 q126829 q490443 q493074 q61521 q490065 q29445 q113005 q495257 q61327 q505886 q490150 q108793 q502722 q507088 q61176 q488868 q133857 q494760 q71136 q491514 q505387 q491292 q493083 q493037 q109275 q16554 q108087 q484124 q112512 q505638 q111374 q489075 q486843 q336190 q493044 q502719 q115307 q490306 q38022 q510122 q486167 q484398 q496440 q494926 q374527 q491945 q74290 q491463 q115568 q507230 q505941 q115273 q488649 q503438 q502031 q376990 q486626 q493029 q115200 q109317 q503455 q486386 q24645 q502576 q26697 q484535 q56153 q489069 q507957 q111844 q504397 q484342 q511806 q488475 q88 q484395 q496962 q498377 q504410 q648752 q108093 q505392 q111729 q511164 q54072 q379660 q58712 q501084 q507438 q489869 q376446 q114904 q485950 q485592 q48867 q493222 q495096 q489939 q490322 q932951 q377171 q498128 q48926 q490482 q489853 q112977 q491004 q485276 q312748 q483916 q504350 q109170 q485460 q493443 q312734 q486054 q503442 q58698 q490656 q473605 q495126 q109447 q377952 q111280 q61294 q495965 q127979 q512951 q513891 q203049 q491872 q492066 q113756 q111686 q113354 q32348 q485623 q503583 q491616 q500838 q501596 q503088 q500569 q490116 q26895 q375125 q374484 q113940 q505380 q494943 q109790 q487288 q495979 q485470 q304065 q110407 q498155 q110336 q501043 q502069 q503023 q507216 q485448 q491702 q111098 q496607 q491052 q491281 q499547 q109303 q108143 q108827 q48920 q27245 q26502 q484304 q485910 q497817 q28523 q156350 q502479 q109656 q488847 q494121 q27025 q28308 q485017 q302918 q487704 q494916 q400753 q491160 q490522 q376120 q489377 q156637 q374663 q512787 q511659 q487564 q61526 q61296 q495645 q112869 q490161 q494970 q504375 q490839 q374968 q113906 q490807 q500793 q108962 q490652 q156291 q26719 q494072 q485641 q26807 q26605 q488194 q494494 q501331 q501014 q63729 q493092 q484603 q497482 q113237 q501350 q495912 q488488 q506538 q490946 q311908 q13188841 q495891 q63718 q181015 q491988 q499551 q506907 q491316 q490647 q506557 q312586 q134080 q384890 q94783 q496644 q113017 q484381 q491331 q113864 q378438 q82499 q489642 q495691 q495658 q113079 q511935 q115583 q491569 q888563 q48927 q285625 q513792 q486078 q491843 q54066 q495799 q491447 q61024 q156177 q128077 q501101 q54258 q280596 q109451 q492355 q502210 q108391 q491208 q485378 q483862 q509813 q156464 q109651 q61414 q489711 q379540 q376106 q491011 q484426 q509926 q58771 q487692 q496045 q488499 q115258 q484296 q490953 q485305 q370329 q486317 q484664 q108851 q312737 q502739 q26591 q486067 q495662 q500947 q498123 q511713 q506531 q494508 q115298 q495204 q485896 q488892 q127238 q505411 q494818 q372796 q429814 q502511 q496242 q386189 q485528 q375991 q498341 q110532 q496125 q156340 q487283 q494081 q111647 q376849 q26891 q491862 q488818 q377148 q484335 q312487 q503551 q497824 q502507 q179954 q497634 q110624 q108856 q490386 q489083 q488865 q18424 q135328 q374442 q490104 q26760 q512885 q485736 q494919 q486123 q495629 q505861 q108832 q26506 q496558 q506220 q491116 q61138 q511876 q505299 q485808 q847673 q367632 q494990 q485426 q502273 q513933 q495006 q156475 q506547 q489767 q505282 q483947 q113843 q490121 q495151 q486336 q501939 q506752 q494810 q493112 q485491 q483954 q491129 q483895 q500897 q113875 q112673 q71100 q504415 q502397 q311894 q337270 q61458 q494146 q374765 q137509 q491899 q502503 q111174 q376899 q111790 q494952 q488668 q488679 q494476 q500813 q490157 q108871 q486499 q511498 q495625 q110389 q511772 q820502 q118743 q54086 q494556 q497172 q496980 q496070 q503366 q111894 q489935 q109616 q113984 q490695 q498327 q503076 q485239 q512259 q488831 q110684 q337204 q181325 q495588 q486179 q115396 q49289 q403544 q495595 q112619 q495880 q490864 q502424 q488672 q58686 q489625 q496031 q511461 q486800 q512699 q488698 q26730 q374471 q495185 q118716 q61153 q488468 q1130480 q483982 q490843 q109457 q156213 q491936 q488675 q511679 q490454 q494460 q491553 q484548 q509798 q504842 q485582 q494768 q283657 q484194 q488219 q487677 q501982 q491173 q112737 q109526 q484685 q111744 q374589 q485726 q109825 q501954 q485392 q495234 q375996 q156377 q111593 q427732 q263418 q109705 q398939 q492488 q497628 q491272 q117917 q127184 q489796 q507575 q61481 q112698 q113805 q337348 q110426 q496511 q26880 q379665 q111530 q508271 q156619 q193167 q501123 q156440 q484401 q493255 q485361 q506215 q491157 q486440 q484496 q483888 q402259 q373575 q496636 q488813 q491850 q484450 q498034 q113892 q426262 q506300 q511135 q109851 q173867 q341679 q112442 q504379 q490450 q142369 q109631 q111549 q501292 q501284 q489762 q188275 q501051 q110528 q485561 q109155 q494104 q176068 q156500 q491911 q501345 q484991 q502496 q502360 q112793 q489457 q500992 q156650 q115386 q926589 q342803 q113275 q113185 q110417 q502473 q497795 q493610 q484505 q511487 q485467 q495229 q494936 q512981 q502404 q113748 q485455 q510934 q489481 q491190 q108047 q507000 q486143 q497964 q110773 q512993 q502456 q501092 q486215 q404898 q505310 q506512 q511747 q487322 q109779 q495239 q108111 q496086 q497938 q111913 q387978 q484629 q110655 q111663 q491941 q495918 q54079 q167580 q496583 q512746 q156188 q501964 q489751 q500702 q110325 q490360 q111220 q490937 q156503 q54438 q502431 q127970 q509786 q488912 q28503 q61029 q491626 q484478 q501555 q511964 q507180 q56152 q490869 q54440 q490784 q487534 q501835 q490420 q211360 q376527 q108386 q502345 q156358 q497788 q224910 q490357 q495201 q485452 q502929 q156577 q501587 q490903 q156618 q111273 q338939 q489690 q497953 q109293 q114969 q501976 q504371 q509770 q108612 q110262 q257334 q58774 q280844 q61039 q379657 q111968 q494186 q842938 q496744 q61007 q133854 q169952 q376755 q485209 q107977 q509826 q156580 q251267 q494716 q342043 q54093 q491229 q501108 q496406 q495165 q494142 q490181 q490884 q511524 q502411 q511761 q24464 q336337 q486389 q376483 q491868 q486154 q502400 q484624 q498395 q485030 q509848 q483937 q485383 q502356 q61012 q496104 q61363 q506157\"}}, \"search_type\": \"general\"}, \"augmentation\": {\"properties\": \"join\", \"right_columns\": [47], \"left_columns\": [6]}, \"datamart_type\": \"isi\"}"
+  }

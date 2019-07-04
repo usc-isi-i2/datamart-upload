@@ -1,0 +1,194 @@
+[
+    {
+      "datamart_id": null,
+      "materialization": {
+        "python_path": "default_materializer",
+        "arguments": null
+      },
+      "variables": [
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Integer"
+          ],
+          "name": "Rank",
+          "description": "column name: Rank, dtype: int64"
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "County-area",
+          "description": "column name: County-area, dtype: object",
+          "named_entity": [
+            "New York County",
+            "Arlington",
+            "Falls Church City",
+            "Marin",
+            "Alexandria City",
+            "Pitkin",
+            "Los Alamos",
+            "Fairfax County",
+            "Hunterdon",
+            "Borden"
+          ]
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "State",
+          "description": "column name: State, dtype: object",
+          "named_entity": [
+            "New York",
+            "Virginia",
+            "California",
+            "Colorado",
+            "New Mexico",
+            "New Jersey",
+            "Texas"
+          ]
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "Per capita income",
+          "description": "column name: Per capita income, dtype: object",
+          "named_entity": [
+            "$62,498 ",
+            "$62,018 ",
+            "$59,088 ",
+            "$56,791 ",
+            "$54,608 ",
+            "$51,814 ",
+            "$51,044 ",
+            "$50,532 ",
+            "$50,349 ",
+            "$50,042 "
+          ]
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "Median household income",
+          "description": "column name: Median household income, dtype: object",
+          "named_entity": [
+            "$69,659 ",
+            "$103,208 ",
+            "$120,000 ",
+            "$90,839 ",
+            "$85,706 ",
+            "$72,745 ",
+            "$106,686 ",
+            "$110,292 ",
+            "$106,143 ",
+            "$71,607 "
+          ]
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "Median family income",
+          "description": "column name: Median family income, dtype: object",
+          "named_entity": [
+            "$84,627 ",
+            "$139,244 ",
+            "$152,857 ",
+            "$117,357 ",
+            "$107,511 ",
+            "$93,981 ",
+            "$124,979 ",
+            "$128,596 ",
+            "$125,828 ",
+            "$76,250 "
+          ]
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ],
+          "name": "Population",
+          "description": "column name: Population, dtype: float64"
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ],
+          "name": "Number of households",
+          "description": "column name: Number of households, dtype: float64"
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "County-equivalent_link",
+          "description": "column name: County-equivalent_link, dtype: object",
+          "named_entity": [
+            "https://en.wikipedia.org/wiki/Manhattan",
+            "https://en.wikipedia.org/wiki/Arlington_County,_Virginia",
+            "https://en.wikipedia.org/wiki/Falls_Church,_Virginia",
+            "https://en.wikipedia.org/wiki/Marin_County,_California",
+            "https://en.wikipedia.org/wiki/Alexandria,_Virginia",
+            "https://en.wikipedia.org/wiki/Pitkin_County,_Colorado",
+            "https://en.wikipedia.org/wiki/Los_Alamos_County,_New_Mexico",
+            "https://en.wikipedia.org/wiki/Fairfax_County,_Virginia",
+            "https://en.wikipedia.org/wiki/Hunterdon_County,_New_Jersey",
+            "https://en.wikipedia.org/wiki/Borden_County,_Texas"
+          ]
+        },
+        {
+          "datamart_id": null,
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ],
+          "name": "State_wikidata",
+          "description": "column name: State_wikidata, dtype: object",
+          "named_entity": [
+            "Q1384",
+            "Q16974590",
+            "Q99",
+            "Q7225223",
+            "",
+            "Q5354848"
+          ]
+        }
+      ],
+      "title": "test_upload_data.csv",
+      "description": "Rank : int64, County-area : object, State : object, Per capita income : object, Median household income : object, Median family income : object, Population : float64, Number of households : float64, County-equivalent_link : object, State_wikidata : object",
+      "keywords": [
+        "Rank",
+        "County-area",
+        "State",
+        "Per capita income",
+        "Median household income",
+        "Median family income",
+        "Population",
+        "Number of households",
+        "County-equivalent_link",
+        "State_wikidata"
+      ],
+      "url": "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv",
+      "file_type": "csv"
+    }
+  ]

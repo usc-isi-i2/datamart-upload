@@ -31,10 +31,10 @@ from datamart_isi.utilities.utils import Utils
 from flasgger import Swagger
 
 
-dataset_paths = ["/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation", "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_current"]
+dataset_paths = ["/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation", "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_current", "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
-datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql")
+datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql")
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -226,6 +226,10 @@ def search():
         query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=DATAMART_SERVER)
+        logger.debug("Start running wikifier...")
+        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
+        logger.debug("Wikifier finished, start running download...")
+        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
@@ -597,17 +601,37 @@ def augment():
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
 
 
-@app.route('/load_and_process', methods=['POST'])
+
+@app.route('/upload', methods=['POST'])
+@cross_origin()
+def upload():
+    logger.debug("Start uploading in one step...")
+    try:
+        if request.values.get('url'):
+            url = request.values.get('url')
+        if request.values.get('file_type'):
+            file_type = request.values.get('file_type')
+
+        df, meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
+        for i in range(len(df)):
+            datamart_upload_instance.model_data(df, meta, i)
+            datamart_upload_instance.upload()
+
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+
+@app.route('/upload/generateWD+Metadata', methods=['POST'])
 @cross_origin()
 def load_and_process():
     logger.debug("Start loading and process the upload data")
     try:
-        if request.values.get('input_dir'):
-            input_dir = request.values.get('input_dir')
+        if request.values.get('url'):
+            url = request.values.get('url')
         if request.values.get('file_type'):
             file_type = request.values.get('file_type')
 
-        df,meta = datamart_upload_instance.load_and_preprocess(input_dir=input_dir,file_type=file_type)
+        df,meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
         df_returned = []
         for each in df:
             data = io.StringIO()
@@ -619,9 +643,9 @@ def load_and_process():
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload/uploadWD+Metadata', methods=['POST'])
 @cross_origin()
-def upload():
+def upload_metadata():
     logger.debug("Start uploading...")
     try:
         if request.values.get('metadata'):

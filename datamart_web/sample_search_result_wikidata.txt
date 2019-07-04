@@ -1,0 +1,123 @@
+{
+    "summary": " - wikidata search result for FIPS_wikidata -\n    * Datamart ID: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata\n    * Score: 1\n    * URL: None\n    * Columns: \n\t[0] population\n\t[1] area\n\t[2] inception\n    * Recommend Join Columns: FIPS_wikidata\n",
+    "score": 1,
+    "metadata": [
+      {
+        "selector": [],
+        "metadata": {
+          "structural_type": "d3m.container.pandas.DataFrame",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Table"
+          ],
+          "dimension": {
+            "name": "rows",
+            "semantic_types": [
+              "https://metadata.datadrivendiscovery.org/types/TabularRow"
+            ],
+            "length": 19
+          },
+          "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__"
+        ],
+        "metadata": {
+          "dimension": {
+            "name": "columns",
+            "semantic_types": [
+              "https://metadata.datadrivendiscovery.org/types/TabularColumn"
+            ],
+            "length": 3
+          }
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          0
+        ],
+        "metadata": {
+          "name": "population_for_FIPS_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            true,
+            [
+              "http://schema.org/Float",
+              "https://metadata.datadrivendiscovery.org/types/Attribute",
+              "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+            ]
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          1
+        ],
+        "metadata": {
+          "name": "area_for_FIPS_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            true,
+            [
+              "http://schema.org/Float",
+              "https://metadata.datadrivendiscovery.org/types/Attribute",
+              "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+            ]
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          2
+        ],
+        "metadata": {
+          "name": "inception_for_FIPS_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            true,
+            [
+              "http://schema.org/DateTime",
+              "https://metadata.datadrivendiscovery.org/types/Attribute",
+              "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+            ]
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          3
+        ],
+        "metadata": {
+          "name": "q_node",
+          "structural_type": "str",
+          "semantic_types": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://wikidata.org/qnode",
+            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          4
+        ],
+        "metadata": {
+          "name": "joining_pairs",
+          "structural_type": "list",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+          ]
+        }
+      }
+    ],
+    "datamart_id": "wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata",
+    "materialize_info": "{\"id\": \"wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata\", \"score\": 1, \"metadata\": {\"connection_url\": \"http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql\", \"search_result\": {\"p_nodes_needed\": [\"P1082\", \"P2046\", \"P571\"], \"target_q_node_column_name\": \"FIPS_wikidata\"}, \"query_json\": null, \"search_type\": \"wikidata\"}, \"augmentation\": {\"properties\": \"join\", \"left_columns\": [6], \"right_columns\": [4]}, \"datamart_type\": \"isi\"}"
+  }
