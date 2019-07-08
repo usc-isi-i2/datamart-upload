@@ -389,32 +389,45 @@ def download_by_id(id):
     datamart_id = id
     return_format = request.values.get('format')
     try:
-        sparql_query = '''
-            prefix ps: <http://www.wikidata.org/prop/statement/> 
-            prefix pq: <http://www.wikidata.org/prop/qualifier/> 
-            prefix p: <http://www.wikidata.org/prop/>
+        # general format datamart id
+        if len(datamart_id) == 6 and datamart_id[0] == "Z":
+            sparql_query = '''
+                prefix ps: <http://www.wikidata.org/prop/statement/> 
+                prefix pq: <http://www.wikidata.org/prop/qualifier/> 
+                prefix p: <http://www.wikidata.org/prop/>
 
-            SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
-            WHERE 
-            {
-              ?dataset p:C2001/ps:C2001 ?title .
-             filter regex(str(?title), "''' + datamart_id + '''").
-             ?dataset p:P2699/ps:P2699 ?url.
-             ?dataset p:P2701/ps:P2701 ?file_type.
-             ?dataset p:C2010/ps:C2010 ?extra_information.
-            }
-        '''
-        sparql = SPARQLWrapper(DATAMART_SERVER)
-        sparql.setQuery(sparql_query)
-        sparql.setReturnFormat(JSON)
-        sparql.setMethod(POST)
-        sparql.setRequestMethod(URLENCODED)
-        results = sparql.query().convert()['results']['bindings']
-        logger.debug("Totally " + str(len(results)) + " results found with given id.")
-        if len(results) == 0:
-            return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
-        logger.debug("Start materialize the dataset...")
-        result_df = Utils.materialize(metadata=results[0])
+                SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
+                WHERE 
+                {
+                  ?dataset p:C2001/ps:C2001 ?title .
+                 filter regex(str(?title), "''' + datamart_id + '''").
+                 ?dataset p:P2699/ps:P2699 ?url.
+                 ?dataset p:P2701/ps:P2701 ?file_type.
+                 ?dataset p:C2010/ps:C2010 ?extra_information.
+                }
+            '''
+            sparql = SPARQLWrapper(DATAMART_SERVER)
+            sparql.setQuery(sparql_query)
+            sparql.setReturnFormat(JSON)
+            sparql.setMethod(POST)
+            sparql.setRequestMethod(URLENCODED)
+            results = sparql.query().convert()['results']['bindings']
+            logger.debug("Totally " + str(len(results)) + " results found with given id.")
+            if len(results) == 0:
+                return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
+            logger.debug("Start materialize the dataset...")
+            result_df = Utils.materialize(metadata=results[0])
+
+        elif len(datamart_id) >= 20 and datamart_id[:18] == "wikidata_search_on":
+            # wikidata search
+            # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
+            p_nodes = datamart_id.split("___")
+            p_nodes = p_nodes[1: -1]
+            materialize_info = {"p_nodes_needed": p_nodes}
+            result_df = Utils.materialize(materialize_info)
+        else:
+            return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
+
         logger.debug("Materialize finished, start sending...")
         result_id = str(hash(result_df.values.tobytes()))
         save_dir = "/tmp/download_result" + result_id
@@ -611,14 +624,85 @@ def upload():
             url = request.values.get('url')
         if request.values.get('file_type'):
             file_type = request.values.get('file_type')
+        if request.values.get('title'):
+            title = request.values.get('title').split("||")
+        if request.values.get('description'):
+            description = request.values.get('description').split("||")
+        if request.values.get('keywords'):
+            keywords = request.values.get('keywords').split("||")
 
         df, meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
+        try:
+            for i in range(len(df)):
+                if title:
+                    df[i]['title'] = title[i]
+                if description:
+                    df[i]['description'] = description[i]
+                if keywords:
+                    df[i]['keywords'] = keywords[i]
+        except:
+            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only " 
+            if title:
+                msg += str(len(title)) +" title, "
+            if description:
+                msg += str(len(description)) + " description, "
+            if keywords:
+                msg += str(len(keywords)) + "keywords"
+            msg+= " given."
+            return wrap_response('1000', msg=msg)
+
         for i in range(len(df)):
             datamart_upload_instance.model_data(df, meta, i)
             datamart_upload_instance.upload()
         return wrap_response('0000', msg="UPLOAD Success!")
     except Exception as e:
-        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+
+@app.route('/upload/test', methods=['POST'])
+@cross_origin()
+def upload_test():
+    logger.debug("Start uploading(test version) in one step...")
+    datamart_upload_test_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql")
+    try:
+        if request.values.get('url'):
+            url = request.values.get('url')
+        if request.values.get('file_type'):
+            file_type = request.values.get('file_type')
+        if request.values.get('title'):
+            title = request.values.get('title').split("||")
+        if request.values.get('description'):
+            description = request.values.get('description').split("||")
+        if request.values.get('keywords'):
+            keywords = request.values.get('keywords').split("||")
+
+        df, meta = datamart_upload_test_instance.load_and_preprocess(input_dir=url, file_type=file_type)
+        try:
+            for i in range(len(df)):
+                if title:
+                    df[i]['title'] = title[i]
+                if description:
+                    df[i]['description'] = description[i]
+                if keywords:
+                    df[i]['keywords'] = keywords[i]
+        except:
+            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only " 
+            if title:
+                msg += str(len(title)) +" title, "
+            if description:
+                msg += str(len(description)) + " description, "
+            if keywords:
+                msg += str(len(keywords)) + "keywords"
+            msg+= " given."
+            return wrap_response('1000', msg=msg)
+
+        for i in range(len(df)):
+            datamart_upload_test_instance.model_data(df, meta, i)
+            datamart_upload_test_instance.upload()
+        return wrap_response('0000', msg="UPLOAD TEST Success!")
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" %(str(e), str(traceback.format_exc())))
+
 
 
 @app.route('/upload/generateWD+Metadata', methods=['POST'])

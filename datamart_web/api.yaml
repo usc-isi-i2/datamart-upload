@@ -139,7 +139,7 @@ paths:
           in: path
           type: string
           required: true
-          description: ID of datamart
+          description: "<p>ID of datamart<br> example1: D1000001<br> example2: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata</p>"
           example: 'D1000001'
         - name: format
           in: query
@@ -184,17 +184,17 @@ paths:
           in: query
           type: string
           required: false
-          description: Name of the dataset
+          description: Name of the dataset, if the url contains multiple dataset, please provide each title, split with mark "||". For example, title1||title2
         - name: description
           in: query
           type: string
           required: false
-          description: Description of the dataset
+          description: Description of the dataset, if the url contains multiple dataset, please provide each description, split with mark "||". For example, This is description for first dataset||This is description for second dataset
         - name: keywords
           in: query
           type: string
           required: false
-          description: Keywords or tags to describe the dataset content
+          description: Keywords or tags to describe the dataset content, if the url contains multiple dataset, please provide each keywords, split with mark "||". For example, keywords1_1, keywords1_2||keywords2_1, keywords2_2
       responses:
         '200':
           description: 'successful operation'
