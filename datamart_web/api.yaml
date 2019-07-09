@@ -40,6 +40,33 @@ paths:
               $ref: '#/definitions/SearchResult'
         '404':
           description: Not found.
+  /search_without_data:
+    post:
+      tags:
+        - Search API
+      summary: Search by keywords or title
+      description: '<p>One parameter is required: <br> 1. "query_json": It could be a dict.</p>'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: query_json
+          in: formData
+          type: string
+          required: true
+          description: '<p>It should include the key-value pair of keywords or title. Like See format example below.</p>'
+          example: "{\"keywords\": \"Rank County-area State Per capita income Median household income Median family income Population Number of households County-equivalent_link State_wikidata\", \"title\": \"List_of_United_States_counties_by_per_capita_income.csv\"}"
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SearchResult'
+        '404':
+          description: Not found.
+
   /augment:
     post:
       tags:
@@ -294,12 +321,12 @@ paths:
           in: formData
           type: string
           required: true
-          description: '<p>Data(in list format) from load_and_process api, you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_upload_part1_data.txt">here</a> </p>'
+          description: '<p>Data(in list format) from /upload/generateWD+Metadata api, you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_upload_part1_data.txt">here</a> </p>'
         - name: metadata
           in: formData
           type: string
           required: true
-          description: '<p>Metadata(in list format) from load_and_process api, you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_upload_part1_metadata.txt">here</a> </p>'
+          description: '<p>Metadata(in list format) from /upload/generateWD+Metadata api, you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/sample_upload_part1_metadata.txt">here</a> </p>'
       responses:
         '200':
           description: 'successful operation'
