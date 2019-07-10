@@ -7,7 +7,13 @@ all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/educate.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/population.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/poverty.csv",
-"https://gitlab.com/svattam/datamart-uploads/raw/master/2017-yellow-cab-lga.csv", "https://gitlab.com/svattam/datamart-uploads/raw/master/FIFA_2018_Statistics_N.csv", "https://gitlab.com/svattam/datamart-uploads/raw/master/NPDB1807.CSV", "https://gitlab.com/svattam/datamart-uploads/raw/master/ny_lga_weather_16_17_18.csv", "https://gitlab.com/svattam/datamart-uploads/raw/master/psam_h06.csv", "https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz"]
+"https://gitlab.com/svattam/datamart-uploads/raw/master/2017-yellow-cab-lga.csv", 
+"https://gitlab.com/svattam/datamart-uploads/raw/master/FIFA_2018_Statistics_N.csv", 
+"https://gitlab.com/svattam/datamart-uploads/raw/master/NPDB1807.CSV", 
+"https://gitlab.com/svattam/datamart-uploads/raw/master/ny_lga_weather_16_17_18.csv", 
+"https://gitlab.com/svattam/datamart-uploads/raw/master/psam_h06.csv", 
+"https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz"
+]
 
 for input_dir in all_dir:
     # input_dir = "https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz"
