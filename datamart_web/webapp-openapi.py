@@ -213,8 +213,10 @@ def search():
             loaded_dataset = None
 
         if loaded_dataset is None:
-            logger.debug("Unable to load the input file with")
-            logger.debug(str(path))
+            logger.debug("There is no supplied data detected. If you want to query with keywords or title, "
+                         "please use /search_without_data to do keywords search!")
+            # logger.debug("Unable to load the input file with")
+            # logger.debug(str(path))
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
@@ -259,7 +261,7 @@ def search_by_keywords():
         if query:
             query = json.loads(query)
 
-        keywords_search: typing.List[str] = query["keywords"].split(' ') if "keywords" in query.keys() else []
+        keywords_search: typing.List[str] = query["keywords"] if "keywords" in query.keys() else []
         title_search: str = query["title"] if "title" in query.keys() else ''
 
         query_wrapped = DatamartQuery(keywords_search=keywords_search, title_search=title_search)
