@@ -251,6 +251,38 @@ def search():
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
+@app.route('/search_without_data', methods=['POST'])
+@cross_origin()
+def search_by_keywords():
+    try:
+        query = request.form.get('query_json')
+        if query:
+            query = json.loads(query)
+
+        keywords_search: typing.List[str] = query["keywords"].split(' ') if "keywords" in query.keys() else []
+        title_search: str = query["title"] if "title" in query.keys() else ''
+
+        query_wrapped = DatamartQuery(keywords_search=keywords_search, title_search=title_search)
+
+        logger.debug("Starting datamart search service...")
+        datamart_instance = Datamart(connection_url=DATAMART_SERVER)
+        res = datamart_instance.search_with_keywords(query=query_wrapped).get_next_page() or []
+        logger.debug("Search finished, totally find " + str(len(res)) + " results.")
+        results = []
+        for r in res:
+            cur = {
+                "summary": parse_search_result(r),
+                'score': r.score(),
+                'metadata': r.get_metadata().to_json_structure(),
+                'datamart_id': r.id(),
+                'materialize_info': r.serialize()
+            }
+            results.append(cur)
+        return json.dumps(results, indent=2)
+    except Exception as e:
+        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
 @app.route('/download', methods=['POST'])
 @cross_origin()
 def download():
@@ -390,12 +422,15 @@ def download_by_id(id):
     return_format = request.values.get('format')
     try:
         # general format datamart id
+<<<<<<< HEAD
         if len(datamart_id) == 7 and datamart_id[0] == "D":
+=======
+        if len(datamart_id) == 8 and datamart_id[0] == "D":
+>>>>>>> 25ef59a16d7b496c1caf5aebeaa90fce454a1e86
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
                 prefix p: <http://www.wikidata.org/prop/>
-
                 SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
                 WHERE 
                 {
@@ -626,10 +661,16 @@ def upload():
             file_type = request.values.get('file_type')
         if request.values.get('title'):
             title = request.values.get('title').split("||")
+        else:
+            title = None
         if request.values.get('description'):
             description = request.values.get('description').split("||")
+        else:
+            description = None
         if request.values.get('keywords'):
             keywords = request.values.get('keywords').split("||")
+        else:
+            keywords = None
 
         df, meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
         try:
@@ -641,7 +682,7 @@ def upload():
                 if keywords:
                     df[i]['keywords'] = keywords[i]
         except:
-            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only " 
+            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only "
             if title:
                 msg += str(len(title)) +" title, "
             if description:
@@ -671,10 +712,16 @@ def upload_test():
             file_type = request.values.get('file_type')
         if request.values.get('title'):
             title = request.values.get('title').split("||")
+        else:
+            title = None
         if request.values.get('description'):
             description = request.values.get('description').split("||")
+        else:
+            description = None
         if request.values.get('keywords'):
             keywords = request.values.get('keywords').split("||")
+        else:
+            keywords = None
 
         df, meta = datamart_upload_test_instance.load_and_preprocess(input_dir=url, file_type=file_type)
         try:
@@ -686,7 +733,7 @@ def upload_test():
                 if keywords:
                     df[i]['keywords'] = keywords[i]
         except:
-            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only " 
+            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only "
             if title:
                 msg += str(len(title)) +" title, "
             if description:
@@ -765,152 +812,6 @@ def upload_metadata():
         return wrap_response('0000', msg="UPLOAD Success!")
     except Exception as e:
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
-
-
-
-# @app.route('/new/materialize_data', methods=['POST'])
-# @cross_origin()
-# def materialize_data():
-#     try:
-#         data = request.data
-#         materialize_info = json.loads(data)
-#         first_n_rows = None
-#         datamart_search_result = DatamartSearchResult.deserialize(materialize_info["info"])
-#         print("materialize_info is")
-#         print(materialize_info["info"])
-#         sys.stdout.flush()
-#         try:
-#             first_n_rows = int(materialize_info['first_n_rows'])
-#         except:
-#             pass
-#         df = Utils.materialize(metadata=datamart_search_result.search_result)
-#         if first_n_rows:
-#             df = df.iloc[:first_n_rows, :]
-#         csv = df.to_csv(index=False)
-#         return wrap_response('0000', data=csv)
-#     except Exception as e:
-#         return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
-
-#
-# @app.route('/new/join_data', methods=['POST'])
-# @cross_origin()
-# def join_data():
-#     try:
-#         left_df = read_file(request.files, 'left_data', 'csv')
-#         right_id = int(request.form.get('right_data'))
-#         left_columns = json.loads(request.form.get('left_columns'))
-#         right_columns = json.loads(request.form.get('right_columns'))
-#         left_meta = json.loads(request.form.get('left_meta')) if request.form.get('left_meta') else None
-#         exact_match = request.args.get('exact_match') or request.form.get('exact_match')
-#         if exact_match and exact_match.lower() == 'true':
-#             joiner = JoinerType.EXACT_MATCH
-#         else:
-#             joiner = JoinerType.RLTK
-#         join_res = join(left_data=left_df,
-#                          right_data=right_id,
-#                          left_columns=left_columns,
-#                          right_columns=right_columns,
-#                          left_meta=left_meta,
-#                          joiner=joiner)
-#         if join_res.df is not None:
-#             join_res.df.rename(columns=Renamer(), inplace=True)
-#             joined_csv = join_res.df.to_csv(index=False)
-#             return wrap_response('0000', data=joined_csv,
-#                                       matched_rows=join_res.matched_rows,
-#                                       cover_ratio=join_res.cover_ratio)
-#         else:
-#             return wrap_response('2000', msg="Failed, invalid inputs")
-#     except Exception as e:
-#         return wrap_response('1000', msg="FAIL JOIN - %s \n %s" %(str(e), str(traceback.format_exc())))
-#
-# @app.route('/new/get_metadata_single_file', methods=['POST'])
-# @cross_origin()
-# def get_metadata_single_file():
-#     try:
-#         description = request.json
-#         enable_two_ravens_profiler = False
-#         if request.args.get('enable_two_ravens_profiler') and request.args.get(
-#                 'enable_two_ravens_profiler').lower() != "false":
-#             enable_two_ravens_profiler = True
-#         metadata_list = generate_metadata(description, enable_two_ravens_profiler=enable_two_ravens_profiler)
-#         return wrap_response('0000', data=metadata_list)
-#     except Exception as e:
-#         return wrap_response('1000', msg="FAIL GENERATE DATA FOR SINGLE FILE - %s \n %s" %(str(e), str(traceback.format_exc())))
-#
-# @app.route('/new/get_multiple_dataset_metadata', methods=['POST'])
-# @cross_origin()
-# def get_multiple_dataset_metadata():
-#     try:
-#         url = request.json.get('url')
-#         if 'wikipedia.org' in url:
-#             metadata_lists = [[dataset_meta] for dataset_meta in wikipedia_tables_metadata(url)]
-#         else:
-#             enable_two_ravens_profiler = False
-#             if request.args.get('enable_two_ravens_profiler') and request.args.get(
-#                     'enable_two_ravens_profiler').lower() != "false":
-#                 enable_two_ravens_profiler = True
-#             url = request.json.get('url')
-#             description = request.json.get('description')
-#             metadata_lists = bulk_generate_metadata(html_page=url, description=description,
-#                                                     enable_two_ravens_profiler=enable_two_ravens_profiler)
-#         return wrap_response('0000', data=metadata_lists)
-#     except Exception as e:
-#         return wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
-#
-# # @app.route('/new/get_metadata_extract_links', methods=['POST'])
-# # def get_metadata_extract_links():
-# #     try:
-# #         enable_two_ravens_profiler = False
-# #         if request.args.get('enable_two_ravens_profiler') and request.args.get(
-# #                 'enable_two_ravens_profiler').lower() != "false":
-# #             enable_two_ravens_profiler = True
-# #         url = request.json.get('url')
-# #         description = request.json.get('description')
-# #         metadata_lists = bulk_generate_metadata(html_page=url, description=description,
-# #                                                 enable_two_ravens_profiler=enable_two_ravens_profiler)
-# #         return wrap_response('0000', data=metadata_lists)
-# #     except Exception as e:
-# #         return wrap_response('1000', msg="FAIL GENERATE META FROM LINKS - %s \n %s" %(str(e), str(traceback.format_exc())))
-#
-# @app.route('/new/upload_metadata_list', methods=['POST'])
-# @cross_origin()
-# def upload_list_of_metadata():
-#     try:
-#         all_metadata = request.json.get('metadata')
-#         for_test = request.json.get('for_test')
-#         allow_duplicates = request.json.get('allow_duplicates')
-#         es_index = TEST_ES_INDEX if for_test else PRODUCTION_ES_INDEX
-#         deduplicate = not allow_duplicates
-#         succeed = []
-#         if isinstance(all_metadata, dict):
-#             succeed = upload(meta_list=[all_metadata],
-#                    es_index=es_index,
-#                    deduplicate=deduplicate)
-#         elif all_metadata and isinstance(all_metadata[0], dict):
-#             succeed = upload(meta_list=all_metadata,
-#                    es_index=es_index,
-#                    deduplicate=deduplicate)
-#         elif all_metadata and isinstance(all_metadata[0], list):
-#             succeed = bulk_upload(list_of_meta_list=all_metadata,
-#                         es_index=es_index,
-#                         deduplicate=deduplicate)
-#         return wrap_response('0000', data=succeed)
-#     except Exception as e:
-#         return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
-
-# # ----- gui for upload -----
-# @app.route('/gui', methods=['GET'])
-# def gui_index():
-#     return render_template("index.html")
-
-# def get_metadata_extract_links():
-#     try:
-#         url = request.json.get('url')
-#         description = request.json.get('description')
-#         metadata_lists = bulk_generate_metadata(html_page=url, description=description)
-#         return wrap_response('0000', data=metadata_lists)
-#     except Exception as e:
-#         return self.wrap_response('1000', msg="FAIL METADATA GENERATION - " + str(e))
 
 
 if __name__ == '__main__':
