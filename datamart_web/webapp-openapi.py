@@ -390,7 +390,7 @@ def download_by_id(id):
     return_format = request.values.get('format')
     try:
         # general format datamart id
-        if len(datamart_id) == 6 and datamart_id[0] == "Z":
+        if len(datamart_id) == 7 and datamart_id[0] == "D":
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
