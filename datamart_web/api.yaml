@@ -56,7 +56,7 @@ paths:
           type: string
           required: true
           description: '<p>It should include the key-value pair of keywords or title. Like See format example below.</p>'
-          example: "{\"keywords\": \"Rank County-area State Per capita income Median household income Median family income Population Number of households County-equivalent_link State_wikidata\", \"title\": \"List_of_United_States_counties_by_per_capita_income.csv\"}"
+          example: "{\"keywords\": [\"Rank\",\"County-area\",\"State\"], \"title\": \"List_of_United_States_counties_by_per_capita_income.csv\"}"
       responses:
         '200':
           description: successful operation
