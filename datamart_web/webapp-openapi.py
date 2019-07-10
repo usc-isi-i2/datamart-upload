@@ -210,14 +210,21 @@ def search():
                 logger.debug("d3m path input detected!")
                 loaded_dataset = load_d3m_dataset(path)
         else:
+            path = None
             loaded_dataset = None
 
         if loaded_dataset is None:
-            logger.debug("Unable to load the input file with")
-            logger.debug(str(path))
-            return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - Unable to load input supplied data',
+            if path is None:
+                logger.error("No path given")
+                return wrap_response(code='1000',
+                                 msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
                                  data=None)
+            else:
+                logger.error("Unable to load the input file with")
+                logger.error(str(path))
+                return wrap_response(code='1000',
+                                     msg='FAIL SEARCH - Unable to load input supplied data',
+                                     data=None)
 
         max_return_docs = int(request.args.get('max_return_docs')) if request.args.get('max_return_docs') else 20
 
@@ -422,11 +429,8 @@ def download_by_id(id):
     return_format = request.values.get('format')
     try:
         # general format datamart id
-<<<<<<< HEAD
-        if len(datamart_id) == 7 and datamart_id[0] == "D":
-=======
+
         if len(datamart_id) == 8 and datamart_id[0] == "D":
->>>>>>> 25ef59a16d7b496c1caf5aebeaa90fce454a1e86
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
