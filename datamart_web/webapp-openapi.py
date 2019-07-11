@@ -490,6 +490,10 @@ def download_by_id(id):
                 "source":{'license': 'Other'},
             }
             return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
+            # update structure type
+            update_part = {"structural_type":str}
+            for i in range(result_df.shape[1]):
+                return_ds.metadata = return_ds.metadata.update(metadata = update_part, selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
 
             with tempfile.TemporaryDirectory() as tmpdir:
                 absolute_path_part_length = len(str(tmpdir))
