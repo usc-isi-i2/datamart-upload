@@ -12,6 +12,7 @@ import tempfile
 import pathlib
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 from flask_cors import CORS, cross_origin
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 # import spacy
@@ -33,8 +34,8 @@ from flasgger import Swagger
 
 dataset_paths = ["/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation", "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_current", "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
 WIKIDATA_QUERY_SERVER = wikidata_server
-DATAMART_SERVER = general_search_server
-datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql")
+DATAMART_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
+datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql")
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -429,8 +430,15 @@ def download_by_id(id):
     return_format = request.values.get('format')
     try:
         # general format datamart id
+        if len(datamart_id) >= 20 and datamart_id[:18] == "wikidata_search_on":
+            # wikidata search
+            # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
+            p_nodes = datamart_id.split("___")
+            p_nodes = p_nodes[1: -1]
+            materialize_info = {"p_nodes_needed": p_nodes}
+            result_df = Utils.materialize(materialize_info)
 
-        if len(datamart_id) == 8 and datamart_id[0] == "D":
+        else: #  len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
@@ -457,15 +465,8 @@ def download_by_id(id):
             logger.debug("Start materialize the dataset...")
             result_df = Utils.materialize(metadata=results[0])
 
-        elif len(datamart_id) >= 20 and datamart_id[:18] == "wikidata_search_on":
-            # wikidata search
-            # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
-            p_nodes = datamart_id.split("___")
-            p_nodes = p_nodes[1: -1]
-            materialize_info = {"p_nodes_needed": p_nodes}
-            result_df = Utils.materialize(materialize_info)
-        else:
-            return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
+        # else:
+            # return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
 
         logger.debug("Materialize finished, start sending...")
         result_id = str(hash(result_df.values.tobytes()))
@@ -708,7 +709,7 @@ def upload():
 @cross_origin()
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
-    datamart_upload_test_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql")
+    datamart_upload_test_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql", query_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql")
     try:
         if request.values.get('url'):
             url = request.values.get('url')
