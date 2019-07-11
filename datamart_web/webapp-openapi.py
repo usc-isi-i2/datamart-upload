@@ -266,7 +266,7 @@ def search_by_keywords():
         if query:
             query = json.loads(query)
 
-        keywords_search: typing.List[str] = query["keywords"].split(' ') if "keywords" in query.keys() else []
+        keywords_search: typing.List[str] = query["keywords"] if "keywords" in query.keys() else []
         title_search: str = query["title"] if "title" in query.keys() else ''
 
         query_wrapped = DatamartQuery(keywords_search=keywords_search, title_search=title_search)
