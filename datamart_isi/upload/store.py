@@ -205,6 +205,12 @@ class Datamart_isi_upload:
             # TODO: It seems fill na with "" will change the column type!
             # cleaned_df = cleaned_df.fillna("")
             wikifier_res = wikifier.produce(cleaned_df)
+
+            # process datetime column to standard datetime, in order to add semantic type - datetime
+            for col_name in wikifier_res.columns.values.tolist():
+                if 'date' in col_name.lower() or 'time' in col_name.lower():
+                    wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+
             # TODO: need update profiler here to generate better semantic type
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
             
@@ -276,7 +282,7 @@ class Datamart_isi_upload:
         :param column_data: a pandas series data
         :param item: the target q node aimed to add on
         :param column_number: the column number
-        :param semantic_type: a list indicate the semantic tpye of this column
+        :param semantic_type: a list indicate the semantic type of this column
         :return: a bool indicate succeeded or not
         """
         translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
@@ -291,6 +297,8 @@ class Datamart_isi_upload:
             all_value_str = " ".join(all_value_str_set)
 
             statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
+
+
             statement.add_qualifier('C2006', StringValue(all_value_str))  # values
             if 'http://schema.org/Float' in semantic_type:
                 semantic_type_url = 'http://schema.org/Float'
@@ -301,6 +309,9 @@ class Datamart_isi_upload:
             elif 'http://schema.org/Text' in semantic_type:
                 data_type = "string"
                 semantic_type_url = 'http://schema.org/Text'
+            elif 'http://schema.org/DateTime' in semantic_type:
+                data_type = "datetime"
+                semantic_type_url = "http://schema.org/DateTime"
 
             statement.add_qualifier('C2007', Item(data_type))  # data structure type
             statement.add_qualifier('C2008', URLValue(semantic_type_url))  # semantic type identifier
@@ -395,4 +406,4 @@ class Datamart_isi_upload:
                 node, prop = l.strip().split('\t')
                 np_list.append((node, prop))
             tu.build_truthy(np_list)
-            print('Update truthy finished!')
+            print('Update truth finished!')
