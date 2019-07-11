@@ -3,6 +3,7 @@ import requests
 import string
 import wikifier
 import typing
+import uuid
 from requests.auth import HTTPBasicAuth
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
@@ -21,11 +22,12 @@ from datamart_isi.materializers.wikitables_materializer import WikitablesMateria
 from wikifier import config
 from io import StringIO
 from collections import defaultdict
+
 # WIKIDATA_QUERY_SERVER = config.endpoint_main
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
 # WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
 # WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
-DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql"
+DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
 
 class Datamart_isi_upload:
     def __init__(self, query_server=None, update_server=None):
@@ -232,6 +234,7 @@ class Datamart_isi_upload:
 
 
     def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int):
+        resource_id = str(uuid.uuid4())
         if metadata is None or metadata[number] is None:
             metadata = {}
         extra_information = {}
@@ -242,7 +245,7 @@ class Datamart_isi_upload:
         url = metadata[number].get("url") or "https://"
         if type(keywords) is list:
             keywords = " ".join(keywords)
-        node_id = 'D' + str(self.resource_id)
+        node_id = 'D' + str(resource_id)
         q = WDItem(node_id)
         if 'xpath' in metadata[number]:
             extra_information['xpath'] = metadata[number]['xpath']

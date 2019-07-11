@@ -17,6 +17,9 @@ all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master
 
 for input_dir in all_dir:
     # input_dir = "https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz"
+    print("*")*100
+    print("Now processing " + input_dir)
+    print("*")*100
     df,meta=a.load_and_preprocess(input_dir=input_dir,file_type="online_csv")
     # there should only have one table extracted from one online csv address
     a.model_data(df, meta, 0)
