@@ -35,7 +35,7 @@ from flasgger import Swagger
 dataset_paths = [ "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
-datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql")
+datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql")
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
