@@ -32,7 +32,7 @@ from datamart_isi.utilities.utils import Utils
 from flasgger import Swagger
 
 
-dataset_paths = ["/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation", "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_current", "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+dataset_paths = [ "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
 datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql")
@@ -424,13 +424,13 @@ def download_by_id(id):
     """
     download the dataset with given id
     """
-    logger.debug("Start downloading with id...")
     # datamart_id = request.values.get('id')
     datamart_id = id
+    logger.debug("Start downloading with id " + str(datamart_id))
     return_format = request.values.get('format')
     try:
         # general format datamart id
-        if len(datamart_id) >= 20 and datamart_id[:18] == "wikidata_search_on":
+        if datamart_id.startswith("wikidata_search_on"):
             # wikidata search
             # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
             p_nodes = datamart_id.split("___")

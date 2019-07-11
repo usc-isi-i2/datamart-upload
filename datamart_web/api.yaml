@@ -166,8 +166,8 @@ paths:
           in: path
           type: string
           required: true
-          description: "<p>ID of datamart<br> example1: D1000001<br> example2: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata</p>"
-          example: 'D1000001'
+          description: "<p>ID of datamart<br> example1: D20eb2d7f-aafb-443e-8bf2-132ef103e98b<br> example2: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata</p>"
+          example: 'D20eb2d7f-aafb-443e-8bf2-132ef103e98b'
         - name: format
           in: query
           type: string
