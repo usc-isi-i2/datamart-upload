@@ -29,6 +29,11 @@ from collections import defaultdict
 # WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
 DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
 
+def remove_punctuation(input_str) -> typing.List[str]:
+    translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+    words_processed = str(input_str).lower().translate(translator).split()
+    return words_processed
+
 class Datamart_isi_upload:
     def __init__(self, query_server=None, update_server=None):
         self.punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
@@ -202,11 +207,10 @@ class Datamart_isi_upload:
             clean_f.set_training_data(inputs=profiled_df)
             clean_f.fit()
             cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
-            # wikifier_res = wikifier.produce(loaded_data, target_columns=self.columns_are_string)
 
-            # TODO: It seems fill na with "" will change the column type!
-            # cleaned_df = cleaned_df.fillna("")
+
             wikifier_res = wikifier.produce(cleaned_df)
+            # wikifier_res = cleaned_df
             # TODO: need update profiler here to generate better semantic type
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
             
@@ -216,7 +220,9 @@ class Datamart_isi_upload:
                 
             if from_online_file:
                 metadata['url'] = input_dir
-                metadata['title'] = input_dir.split("/")[-1]
+                title_cleaned = input_dir.split("/")[-1]
+                words_processed = remove_punctuation(title_cleaned)
+                metadata['title'] = " ".join(words_processed)
                 metadata['file_type'] = file_type
             if file_type=="wikitable":
                 metadata['xpath'] = xpaths[df_count]
@@ -238,7 +244,14 @@ class Datamart_isi_upload:
         # TODO: if no url given?
         url = metadata[number].get("url") or "https://"
         if type(keywords) is list:
-            keywords = " ".join(keywords)
+            words_processed = []
+            for each in keywords:
+                words_processed.extend(remove_punctuation(each))
+            keywords = " ".join(words_processed)
+        else:
+            words_processed = remove_punctuation(keywords)
+            keywords = " ".join(words_processed)
+
         node_id = 'D' + str(self.modeled_data_id)
         q = WDItem(node_id)
         if 'xpath' in metadata[number]:
