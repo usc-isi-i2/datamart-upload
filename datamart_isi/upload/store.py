@@ -228,7 +228,7 @@ class Datamart_isi_upload:
 
 
     def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int):
-        resource_id = str(uuid.uuid4())
+        self.modeled_data_id = str(uuid.uuid4())
         if metadata is None or metadata[number] is None:
             metadata = {}
         extra_information = {}
@@ -239,7 +239,7 @@ class Datamart_isi_upload:
         url = metadata[number].get("url") or "https://"
         if type(keywords) is list:
             keywords = " ".join(keywords)
-        node_id = 'D' + str(resource_id)
+        node_id = 'D' + str(self.modeled_data_id)
         q = WDItem(node_id)
         if 'xpath' in metadata[number]:
             extra_information['xpath'] = metadata[number]['xpath']
@@ -324,9 +324,9 @@ class Datamart_isi_upload:
             serialize_change_record(fp)
         print('Serialization completed!')
 
-    def upload(self):
+    def upload(self) -> str:
         """
-            upload the dataset
+            upload the dataset. If success, return the uploaded dataset's id
         """
         # This special Q node is used to store the next count to store the new Q node
         sparql_query = """
@@ -399,3 +399,4 @@ class Datamart_isi_upload:
                 np_list.append((node, prop))
             tu.build_truthy(np_list)
             print('Update truthy finished!')
+        return self.modeled_data_id

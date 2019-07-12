@@ -703,8 +703,8 @@ def upload():
 
         for i in range(len(df)):
             datamart_upload_instance.model_data(df, meta, i)
-            datamart_upload_instance.upload()
-        return wrap_response('0000', msg="UPLOAD Success!")
+            response_id = datamart_upload_instance.upload()
+        return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
 
@@ -816,9 +816,9 @@ def upload_metadata():
             dataset_number = 0
 
         datamart_upload_instance.model_data(data_df, metadata_json, dataset_number)
-        datamart_upload_instance.upload()
+        response_id = datamart_upload_instance.upload()
 
-        return wrap_response('0000', msg="UPLOAD Success!")
+        return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
 

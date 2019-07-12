@@ -1,6 +1,7 @@
 from datamart_isi.upload.store import Datamart_isi_upload
 # this sample will save the following online csv datasets into datamart in blaze graph
-a = Datamart_isi_upload()
+a = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart4/sparql")
+
 all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Most-Recent-Cohorts-Scorecard-Elements.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Unemployment.csv", 
@@ -17,14 +18,15 @@ all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master
 
 for input_dir in all_dir:
     # input_dir = "https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz"
-    print("*")*100
+    print("*"*100)
     print("Now processing " + input_dir)
-    print("*")*100
+    print("*"*100)
     df,meta=a.load_and_preprocess(input_dir=input_dir,file_type="online_csv")
     # there should only have one table extracted from one online csv address
     a.model_data(df, meta, 0)
-    a.upload()
-
+    res = a.upload()
+    print("uploaded dataset's id is " + res)
+    
 all_dir_wikipedia_test = ["https://en.wikipedia.org/wiki/1962_Washington_Senators_season", "https://en.wikipedia.org/wiki/2017%E2%80%9318_New_Orleans_Privateers_women%27s_basketball_team"]
 
 for input_dir in all_dir_wikipedia_test:
