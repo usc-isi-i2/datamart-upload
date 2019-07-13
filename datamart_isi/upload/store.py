@@ -4,6 +4,7 @@ import string
 import wikifier
 import typing
 import uuid
+import time
 from requests.auth import HTTPBasicAuth
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
@@ -22,6 +23,7 @@ from datamart_isi.materializers.wikitables_materializer import WikitablesMateria
 from wikifier import config
 from io import StringIO
 from collections import defaultdict
+from datamart_isi.utilities.timeout import Timeout, timeout_call
 
 # WIKIDATA_QUERY_SERVER = config.endpoint_main
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
@@ -117,6 +119,11 @@ class Datamart_isi_upload:
         p.add_label('extra information', lang='en')
         p.add_description('some extra information that may needed for this dataset', lang='en')
         self.doc.kg.add_subject(p)
+
+        p = WDProperty('C2011', Datatype.TimeValue)
+        p.add_label('start time', lang='en')
+        p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset.', lang='en')
+        self.doc.kg.add_subject(p)
         # get the starting source id
         sparql_query = """
             prefix wdt: <http://www.wikidata.org/prop/direct/>
@@ -153,6 +160,8 @@ class Datamart_isi_upload:
             self.resource_id = int(results[0]['x']['value'])
 
     def load_and_preprocess(self, input_dir, file_type="csv"):
+        start = time.time()
+        print("Start loading...")
         from_online_file = False
         if file_type=="csv":
             try:
@@ -191,7 +200,8 @@ class Datamart_isi_upload:
             loaded_data, xpaths = materializer.get(input_dir)
         else:
             raise ValueError("Unsupported file type")
-
+        end1 = time.time()
+        print("Loading finished. Totally take " + str(end1 - start) + " seconds.")
         # loaded_data = loaded_data.fillna("")
 
         # run dsbox's profiler and cleaner
@@ -209,11 +219,13 @@ class Datamart_isi_upload:
             cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
 
 
-            wikifier_res = wikifier.produce(cleaned_df)
-            # wikifier_res = cleaned_df
+            # wikifier_res = wikifier.produce(cleaned_df)
+            end3 = time.time()
+            print("Cleaning and wikifier finished. Totally take " + str(end3 - end1) + " seconds.")
+            wikifier_res = cleaned_df
             # TODO: need update profiler here to generate better semantic type
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
-            
+            print("Shape is " + str(wikifier_res.shape))
             for i, each_column_meta in enumerate(metadata['variables']):
                 if 'http://schema.org/Text' in each_column_meta['semantic_type']:
                     self.columns_are_string[df_count].append(i)
@@ -230,10 +242,14 @@ class Datamart_isi_upload:
             all_wikifier_res.append(wikifier_res)
             all_metadata.append(metadata)
 
+        end2 = time.time()
+        print("Preprocess finished. Totally take " + str(end2 - end1) + " seconds.")
         return all_wikifier_res, all_metadata
 
 
     def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int):
+        print("Start modeling data into blazegraph format...")
+        start = time.time()
         self.modeled_data_id = str(uuid.uuid4())
         if metadata is None or metadata[number] is None:
             metadata = {}
@@ -250,7 +266,7 @@ class Datamart_isi_upload:
             keywords = " ".join(words_processed)
         else:
             words_processed = remove_punctuation(keywords)
-            keywords = " ".join(words_processed)
+            keywords = " ".join(set(words_processed))
 
         node_id = 'D' + str(self.modeled_data_id)
         q = WDItem(node_id)
@@ -276,16 +292,22 @@ class Datamart_isi_upload:
         q.add_statement('C2001', StringValue(node_id))  # datamart identifier
         q.add_statement('C2004', StringValue(keywords))  # keywords
         q.add_statement('C2010', StringValue(str(extra_information)))
+        end1 = time.time()
+        print("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
         # each columns
         for i in range(input_dfs[number].shape[1]):
             try: 
                 semantic_type = metadata[number]['variables'][i]['semantic_type']
             except IndexError:
                 semantic_type = 'http://schema.org/Text'
-            res = self.process_one_column(column_data=input_dfs[number].iloc[:,i], item=q, column_number=i, semantic_type=semantic_type)
+            res = timeout_call(600, self.process_one_column, [input_dfs[number].iloc[:,i], q, i, semantic_type])
+            # res = self.process_one_column(column_data=input_dfs[number].iloc[:,i], item=q, column_number=i, semantic_type=semantic_type)
             if not res:
                 print("Error when adding column " + str(i))
         self.doc.kg.add_subject(q)
+        end2 = time.time()
+        print("Modeling detail data finished. Totally take " + str(end2 - end1) + " seconds.")
+        
 
     def process_one_column(self, column_data: pd.Series, item: WDItem, column_number: int, semantic_type: typing.List[str]) -> bool:
         """
@@ -295,17 +317,19 @@ class Datamart_isi_upload:
         :param semantic_type: a list indicate the semantic tpye of this column
         :return: a bool indicate succeeded or not
         """
+        start = time.time()
+        print("Start processing No." +str(column_number) + " column.")
         translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
         try:
-            all_data = set(column_data.tolist())
             all_value_str_set = set()
-            for each in all_data:
+            for each in column_data:
                 # set to lower characters, remove punctuation and split by the space
                 words_processed = str(each).lower().translate(translator).split()
                 for word in words_processed:
                     all_value_str_set.add(word)
             all_value_str = " ".join(all_value_str_set)
-
+            end1 = time.time()
+            print("keywords generated, totally take " + str(end1 - start) + " seconds.")
             statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
             statement.add_qualifier('C2006', StringValue(all_value_str))  # values
             if 'http://schema.org/Float' in semantic_type:
@@ -321,11 +345,13 @@ class Datamart_isi_upload:
             statement.add_qualifier('C2007', Item(data_type))  # data structure type
             statement.add_qualifier('C2008', URLValue(semantic_type_url))  # semantic type identifier
             statement.add_qualifier('P1545', QuantityValue(column_number))  # column index
+            end2 = time.time()
+            print("Processing finished, totally take " + str(end2 - end1) + " seconds.")
             return True
         except:
             print("[ERROR] processing column No." + str(column_number) + " failed!")
             return False
-
+        
     def output_to_ttl(self, file_path: str, file_format="ttl"):                        
         """
             output the file only but not upload
@@ -342,6 +368,8 @@ class Datamart_isi_upload:
             upload the dataset. If success, return the uploaded dataset's id
         """
         # This special Q node is used to store the next count to store the new Q node
+        start = time.time()
+        print("Start uploading...")
         sparql_query = """
             prefix wdt: <http://www.wikidata.org/prop/direct/>
             prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/>
@@ -396,7 +424,8 @@ class Datamart_isi_upload:
         response = requests.post(self.update_server, data=extracted_data.encode('utf-8'), headers=headers,
                                  auth=HTTPBasicAuth(config.user, config.password))
         print('Upload file finished with status code: {}!'.format(response.status_code))
-
+        end1 = time.time()
+        print("Upload finished. Totally take " + str(end1 - start) + " seconds.")
         if response.status_code!=200:
             raise ValueError("Uploading file failed")
         else:
@@ -412,4 +441,6 @@ class Datamart_isi_upload:
                 np_list.append((node, prop))
             tu.build_truthy(np_list)
             print('Update truthy finished!')
+        end2 = time.time()
+        print("Upload truthy finished. Totally take " + str(end1 - end2) + " seconds.")
         return self.modeled_data_id
