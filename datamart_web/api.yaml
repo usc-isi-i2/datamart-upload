@@ -334,6 +334,30 @@ paths:
             type: file
         '404':
           description: Not found.
+  /embeddings/fb/{qnode}:
+    get:
+      tags:
+        - Embeddings API
+      summary: Fetch the FB embeddings for a QNODE
+      description: '<p>The method fetches the FB embeddings for a given qnode</p>'
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/text
+      parameters:
+        - name: qnode
+          in: path
+          type: string
+          required: true
+          description: "<p>Wikidata QNode</p>"
+          example: 'Q738200'
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            type: file
+        '404':
+          description: Not found.
 definitions:
   SearchResult:
     type: object
@@ -486,6 +510,7 @@ tags:
   - name: Download API
   - name: Augment API
   - name: Upload API
+  - name: Embeddings API
 #  Datamart:
 #    type: object
 #    properties:
