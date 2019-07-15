@@ -30,6 +30,7 @@ from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 
 from flasgger import Swagger
+import requests
 
 
 dataset_paths = [ "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
@@ -43,6 +44,13 @@ app.config['SWAGGER'] = {
     'title': 'Datamart Link Panel',
 }
 Swagger(app, template_file = 'api.yaml')
+
+
+config = json.load(open('config.json'))
+em_es_url = config['em_es_url']
+em_es_index = config['em_es_index']
+em_es_type = config['em_es_type']
+wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
 
 def retrieve_file_paths(dirName):
@@ -821,6 +829,28 @@ def upload_metadata():
         return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+
+@app.route('/embeddings/fb/<qnode>', methods=['GET'])
+def fetch_fb_embeddings(qnode):
+    qnode_uri = wikidata_uri_template.format(qnode.upper())
+    query = {
+        'query': {
+            'term': {
+                'key.keyword': qnode_uri
+            }
+        }
+    }
+    url = '{}/{}/{}/_search'.format(em_es_url, em_es_index, em_es_type)
+    resp = requests.get(url, json=query)
+    if resp.status_code == 200:
+        result = resp.json()
+        try:
+            return wrap_response(resp.status_code, data=result['hits']['hits'][0]['_source']['value'], msg="OK")
+        except:
+            return wrap_response(resp.status_code, msg="No embedding found for QNODE: {}".format(qnode), data=[])
+    return wrap_response(resp.status_code, msg=resp.text, data=[])
+
 
 
 if __name__ == '__main__':

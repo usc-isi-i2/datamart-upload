@@ -1,0 +1,5 @@
+{
+  "em_es_url": "http://sitaware.isi.edu:9200",
+  "em_es_index": "wiki_fb_embeddings_1",
+  "em_es_type": "vectors"
+}
