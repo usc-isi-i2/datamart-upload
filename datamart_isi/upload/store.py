@@ -453,4 +453,4 @@ class Datamart_isi_upload:
                 node, prop = l.strip().split('\t')
                 np_list.append((node, prop))
             tu.build_truthy(np_list)
-            print('Update truth finished!')
+            print('Update truthy finished!')
