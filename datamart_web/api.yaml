@@ -338,8 +338,8 @@ paths:
     get:
       tags:
         - Embeddings API
-      summary: Fetch the FB embeddings for a QNODE
-      description: '<p>The method fetches the FB embeddings for a given qnode</p>'
+      summary: Fetch the FB embeddings for QNODE(s)
+      description: '<p>The method fetches the FB embeddings for a given qnode(s)</p>'
       consumes:
         - multipart/form-data
       produces:
@@ -349,13 +349,13 @@ paths:
           in: path
           type: string
           required: true
-          description: "<p>Wikidata QNode</p>"
-          example: 'Q738200'
+          description: "<p>comma separated list of Wikidata QNodes</p>"
+          example: 'Q738200,Q717195'
       responses:
         '200':
           description: 'successful operation'
           schema:
-            type: file
+            type: csv
         '404':
           description: Not found.
 definitions:

@@ -833,23 +833,32 @@ def upload_metadata():
 
 @app.route('/embeddings/fb/<qnode>', methods=['GET'])
 def fetch_fb_embeddings(qnode):
-    qnode_uri = wikidata_uri_template.format(qnode.upper())
+    qnodes = qnode.split(',')
+    qnode_uris = [wikidata_uri_template.format(qnode.upper().strip()) for qnode in qnodes]
+
     query = {
         'query': {
-            'term': {
-                'key.keyword': qnode_uri
+            'terms': {
+                'key.keyword': qnode_uris
             }
-        }
+        },
+        "size": len(qnode_uris)
     }
+
     url = '{}/{}/{}/_search'.format(em_es_url, em_es_index, em_es_type)
     resp = requests.get(url, json=query)
+    result_csv = ""
     if resp.status_code == 200:
         result = resp.json()
-        try:
-            return wrap_response(resp.status_code, data=result['hits']['hits'][0]['_source']['value'], msg="OK")
-        except:
-            return wrap_response(resp.status_code, msg="No embedding found for QNODE: {}".format(qnode), data=[])
-    return wrap_response(resp.status_code, msg=resp.text, data=[])
+        hits = result['hits']['hits']
+        for hit in hits:
+            source = hit['_source']
+            _qnode = source['key'].split('/')[-1][:-1]
+
+            result_csv += '{},{}\n'.format(_qnode, ','.join(source['value']))
+
+        return result_csv
+    return None
 
 
 
