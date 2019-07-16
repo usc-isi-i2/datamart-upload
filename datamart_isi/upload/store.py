@@ -5,12 +5,13 @@ import wikifier
 import typing
 import uuid
 import time
+import datetime
 from requests.auth import HTTPBasicAuth
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 from etk.etk_module import ETKModule
 from etk.wikidata.entity import WDProperty, WDItem, change_recorder, serialize_change_record
-from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityValue, StringValue, URLValue, MonolingualText
+from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityValue, StringValue, URLValue, MonolingualText, Literal, LiteralType
 from etk.wikidata.statement import WDReference
 # from etk.wikidata import serialize_change_record
 from etk.wikidata.truthy import TruthyUpdater
@@ -121,9 +122,23 @@ class Datamart_isi_upload:
         self.doc.kg.add_subject(p)
 
         p = WDProperty('C2011', Datatype.TimeValue)
-        p.add_label('start time', lang='en')
-        p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset.', lang='en')
+        p.add_label('start date', lang='en')
+        p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset', lang='en')
+        p.add_statement('P31', Item('Q18616576'))
         self.doc.kg.add_subject(p)
+
+        p = WDProperty('C2012', Datatype.TimeValue)
+        p.add_label('end date', lang='en')
+        p.add_description('The latest time exist in this dataset, only valid when there exists time format data in this dataset', lang='en')
+        p.add_statement('P31', Item('Q18616576'))
+        self.doc.kg.add_subject(p)
+
+        p = WDProperty('C2013', Datatype.QuantityValue)
+        p.add_label('time granularity', lang='en')
+        p.add_description('time granularity in a dataset', lang='en')
+        p.add_statement('P31', Item('Q18616576'))
+        self.doc.kg.add_subject(p)
+
         # get the starting source id
         sparql_query = """
             prefix wdt: <http://www.wikidata.org/prop/direct/>
@@ -218,11 +233,15 @@ class Datamart_isi_upload:
             clean_f.fit()
             cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
 
-
-            # wikifier_res = wikifier.produce(cleaned_df)
+            wikifier_res = wikifier.produce(cleaned_df)
             end3 = time.time()
             print("Cleaning and wikifier finished. Totally take " + str(end3 - end1) + " seconds.")
-            wikifier_res = cleaned_df
+
+            # process datetime column to standard datetime
+            for col_name in wikifier_res.columns.values.tolist():
+                if 'date' in col_name.lower() or 'time' in col_name.lower():
+                    wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+
             # TODO: need update profiler here to generate better semantic type
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
             print("Shape is " + str(wikifier_res.shape))
@@ -314,33 +333,62 @@ class Datamart_isi_upload:
         :param column_data: a pandas series data
         :param item: the target q node aimed to add on
         :param column_number: the column number
-        :param semantic_type: a list indicate the semantic tpye of this column
+        :param semantic_type: a list indicate the semantic type of this column
         :return: a bool indicate succeeded or not
         """
         start = time.time()
         print("Start processing No." +str(column_number) + " column.")
         translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+        statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
-            all_value_str_set = set()
-            for each in column_data:
-                # set to lower characters, remove punctuation and split by the space
-                words_processed = str(each).lower().translate(translator).split()
-                for word in words_processed:
-                    all_value_str_set.add(word)
-            all_value_str = " ".join(all_value_str_set)
-            end1 = time.time()
-            print("keywords generated, totally take " + str(end1 - start) + " seconds.")
-            statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
-            statement.add_qualifier('C2006', StringValue(all_value_str))  # values
-            if 'http://schema.org/Float' in semantic_type:
-                semantic_type_url = 'http://schema.org/Float'
-                data_type = "float"
-            elif 'http://schema.org/Integer' in semantic_type:
-                data_type = "int"
-                semantic_type_url = 'http://schema.org/Integer'
-            elif 'http://schema.org/Text' in semantic_type:
-                data_type = "string"
-                semantic_type_url = 'http://schema.org/Text'
+            if 'http://schema.org/DateTime' in semantic_type:
+                data_type = "datetime"
+                semantic_type_url = "http://schema.org/DateTime"
+                start_date = min(column_data)
+                end_date = max(column_data)
+
+                TemporalGranularity = {'second': 14, 'minute': 13, 'hour': 12, 'day': 11, 'month': 10, 'year': 9}
+                if any(column_data.dt.second != 0):
+                    time_granularity = TemporalGranularity['second']
+                elif any(column_data.dt.minute != 0):
+                    time_granularity = TemporalGranularity['minute']
+                elif any(column_data.dt.hour != 0):
+                    time_granularity = TemporalGranularity['hour']
+                elif any(column_data.dt.day != 0):
+                    time_granularity = TemporalGranularity['day']
+                elif any(column_data.dt.month != 0):
+                    time_granularity = TemporalGranularity['month']
+                elif any(column_data.dt.year != 0):
+                    time_granularity = TemporalGranularity['year']
+                else:
+                    raise Exception('Dates do not in a right format.')
+
+                start_time = TimeValue(Literal(start_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'), time_granularity, 0)
+                end_time = TimeValue(Literal(end_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'), time_granularity, 0)
+
+                statement.add_qualifier('C2011', start_time)
+                statement.add_qualifier('C2012', end_time)
+                statement.add_qualifier('C2013', QuantityValue(time_granularity))
+            else:
+                all_data = set(column_data.tolist())
+                all_value_str_set = set()
+                for each in all_data:
+                    # set to lower characters, remove punctuation and split by the space
+                    words_processed = str(each).lower().translate(translator).split()
+                    for word in words_processed:
+                        all_value_str_set.add(word)
+                all_value_str = " ".join(all_value_str_set)
+
+                statement.add_qualifier('C2006', StringValue(all_value_str))  # values
+                if 'http://schema.org/Float' in semantic_type:
+                    semantic_type_url = 'http://schema.org/Float'
+                    data_type = "float"
+                elif 'http://schema.org/Integer' in semantic_type:
+                    data_type = "int"
+                    semantic_type_url = 'http://schema.org/Integer'
+                elif 'http://schema.org/Text' in semantic_type:
+                    data_type = "string"
+                    semantic_type_url = 'http://schema.org/Text'
 
             statement.add_qualifier('C2007', Item(data_type))  # data structure type
             statement.add_qualifier('C2008', URLValue(semantic_type_url))  # semantic type identifier
@@ -426,8 +474,9 @@ class Datamart_isi_upload:
         print('Upload file finished with status code: {}!'.format(response.status_code))
         end1 = time.time()
         print("Upload finished. Totally take " + str(end1 - start) + " seconds.")
-        if response.status_code!=200:
-            raise ValueError("Uploading file failed")
+
+        if response.status_code//100 !=2:
+            raise ValueError("Uploading file failed", str(response.status_code))
         else:
             # upload truthy
             temp_output = StringIO()

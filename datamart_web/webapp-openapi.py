@@ -32,25 +32,30 @@ from datamart_isi.utilities.utils import Utils
 from flasgger import Swagger
 import requests
 
-
-dataset_paths = [ "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
-WIKIDATA_QUERY_SERVER = wikidata_server
-DATAMART_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
-datamart_upload_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql")
-
-app = Flask(__name__)
-CORS(app, resources={r"/api": {"origins": "*"}})
-app.config['SWAGGER'] = {
-    'title': 'Datamart Link Panel',
-}
-Swagger(app, template_file = 'api.yaml')
-
-
 config = json.load(open('config.json'))
 em_es_url = config['em_es_url']
 em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
+
+dataset_paths =  ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
+WIKIDATA_QUERY_SERVER = wikidata_server
+DATAMART_SERVER = general_search_server
+datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
+
+
+app = Flask(__name__)
+CORS(app, resources={r"/api": {"origins": "*"}})
+app.config['SWAGGER'] = {
+    'title': 'Datamart Link Panel',
+    'openapi': '3.0.2'
+}
+swagger_config = Swagger.DEFAULT_CONFIG
+swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
+# swagger_config['swagger_ui_standalone_preset_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js'
+swagger_config['jquery_js'] = '//unpkg.com/jquery@2.2.4/dist/jquery.min.js'
+swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css'
+Swagger(app, template_file = 'api.yaml', config = swagger_config)
 
 
 def retrieve_file_paths(dirName):
@@ -269,20 +274,21 @@ def search():
 
 @app.route('/search_without_data', methods=['POST'])
 @cross_origin()
-def search_by_keywords():
+def search_without_data():
     try:
-        query = request.form.get('query_json')
-        if query:
-            query = json.loads(query)
+        keywords = request.values.get("keywords").strip(',')
+        variables = json.loads(str(request.data, "utf-8"))
 
-        keywords_search: typing.List[str] = query["keywords"] if "keywords" in query.keys() else []
-        title_search: str = query["title"] if "title" in query.keys() else ''
+        keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
+        # title_search: str = query["title"] if "title" in query.keys() else ''
+        variables_search: dict() = variables['variables'] if variables != None else {}
 
-        query_wrapped = DatamartQuery(keywords_search=keywords_search, title_search=title_search)
+        # query_wrapped = DatamartQuery(keywords_search=keywords_search)
+        query_wrapped = DatamartQuery(keywords_search=keywords_search, variables_search=variables_search)
 
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=DATAMART_SERVER)
-        res = datamart_instance.search_with_keywords(query=query_wrapped).get_next_page() or []
+        res = datamart_instance.search_without_data(query=query_wrapped).get_next_page() or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
@@ -294,6 +300,8 @@ def search_by_keywords():
                 'materialize_info': r.serialize()
             }
             results.append(cur)
+        if results == []:
+            return wrap_response(code='0000', msg="FAIL SEARCH - did not find the results")
         return json.dumps(results, indent=2)
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
@@ -586,7 +594,7 @@ def augment():
         else:
             columns = request.values.get('columns')
             if columns and type(columns) is not list:
-                columns = columns.split(", ")
+                columns = columns.split(",")
                 logger.info("Required columns found as: "+ str(columns))
             columns_formated = []
             if columns:
@@ -768,7 +776,6 @@ def upload_test():
         return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" %(str(e), str(traceback.format_exc())))
 
 
-
 @app.route('/upload/generateWD+Metadata', methods=['POST'])
 @cross_origin()
 def load_and_process():
@@ -854,13 +861,20 @@ def fetch_fb_embeddings(qnode):
         for hit in hits:
             source = hit['_source']
             _qnode = source['key'].split('/')[-1][:-1]
+            result_csv += '{}'.format(_qnode)
 
-            result_csv += '{},{}\n'.format(_qnode, ','.join(source['value']))
+            for i in range(len(source['value'])):
+                if(i%20 == 0):
+                    result_csv += '\n'
+                if i == len(source['value']) - 1:
+                    result_csv += '{}'.format(source['value'][i])
+                else:
+                    result_csv += '{},'.format(source['value'][i])
+            result_csv += '\n\n'
 
-        return result_csv
+        return Response(result_csv, mimetype="text/csv")
+
     return None
-
-
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=9000, debug=False, threaded=True)
