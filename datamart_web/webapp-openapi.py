@@ -288,7 +288,7 @@ def search_without_data():
 
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=DATAMART_SERVER)
-        res = datamart_instance.search_without_data(query=query_wrapped).get_next_page() or []
+        res = datamart_instance.search(query=query_wrapped).get_next_page() or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
