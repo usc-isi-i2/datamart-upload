@@ -2,5 +2,6 @@
   "em_es_url": "http://sitaware.isi.edu:9200",
   "em_es_index": "wiki_fb_embeddings_1",
   "em_es_type": "vectors",
-  "update_server": "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
+  "update_server": "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql",
+  "update_test_server": "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql"
 }

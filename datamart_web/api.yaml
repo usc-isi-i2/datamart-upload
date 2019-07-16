@@ -64,6 +64,8 @@ paths:
             schema:
               $ref: '#/components/schemas/VariablesOfSearchWithoutData'
             examples:
+              not_use_variables:
+                value: null
               temporal_variable:
                 value:
                   variables:
@@ -71,6 +73,7 @@ paths:
                       start: 2018-01-01T01
                       end: 2018-07-01T01
                       granularity: hour
+                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second' respectively"
       parameters:
         - in: query
           name: keywords

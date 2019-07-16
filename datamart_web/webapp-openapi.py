@@ -42,17 +42,15 @@ WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'])
 
-
-
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
 app.config['SWAGGER'] = {
     'title': 'Datamart Link Panel',
     'openapi': '3.0.2'
 }
+
 swagger_config = Swagger.DEFAULT_CONFIG
 swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
-# swagger_config['swagger_ui_standalone_preset_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js'
 swagger_config['jquery_js'] = '//unpkg.com/jquery@2.2.4/dist/jquery.min.js'
 swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css'
 Swagger(app, template_file = 'api.yaml', config = swagger_config)
@@ -277,14 +275,13 @@ def search():
 def search_without_data():
     try:
         keywords = request.values.get("keywords").strip(',')
-        variables = json.loads(str(request.data, "utf-8"))
-
         keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
-        # title_search: str = query["title"] if "title" in query.keys() else ''
-        variables_search: dict() = variables['variables'] if variables != None else {}
-
-        # query_wrapped = DatamartQuery(keywords_search=keywords_search)
-        query_wrapped = DatamartQuery(keywords_search=keywords_search, variables_search=variables_search)
+        if request.data:
+            variables = json.loads(str(request.data, "utf-8"))
+            variables_search: dict() = variables['variables'] if variables != None else {}
+            query_wrapped = DatamartQuery(keywords_search=keywords_search, variables_search=variables_search)
+        else:
+            query_wrapped = DatamartQuery(keywords_search=keywords_search)
 
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=DATAMART_SERVER)
@@ -725,7 +722,7 @@ def upload():
 @cross_origin()
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
-    datamart_upload_test_instance = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql")
+    datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'])
     try:
         if request.values.get('url'):
             url = request.values.get('url')
