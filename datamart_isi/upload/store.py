@@ -21,16 +21,12 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi.utilities.utils import Utils as datamart_utils
 from datamart_isi.materializers.general_materializer import GeneralMaterializer
 from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
-from wikifier import config
 from io import StringIO
 from collections import defaultdict
 from datamart_isi.config import general_search_server, wikidata_server
 from datamart_isi.utilities.timeout import Timeout, timeout_call
 
-# WIKIDATA_QUERY_SERVER = config.endpoint_main
-# WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
-# WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
-# WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
+
 DATAMRT_SERVER = general_search_server
 
 def remove_punctuation(input_str) -> typing.List[str]:
@@ -457,7 +453,6 @@ class Datamart_isi_upload:
             sparql.setReturnFormat(JSON)
             sparql.setMethod(POST)
             sparql.setRequestMethod(URLENCODED)
-            sparql.setCredentials(config.user, config.password)
             results = sparql.query()  #.convert()['results']['bindings']
         except:
             print("Updating the count for datamart failed!")
@@ -470,8 +465,7 @@ class Datamart_isi_upload:
         # upload
         extracted_data = self.doc.kg.serialize("ttl")
         headers = {'Content-Type': 'application/x-turtle',}
-        response = requests.post(self.update_server, data=extracted_data.encode('utf-8'), headers=headers,
-                                 auth=HTTPBasicAuth(config.user, config.password))
+        response = requests.post(self.update_server, data=extracted_data.encode('utf-8'), headers=headers)
         print('Upload file finished with status code: {}!'.format(response.status_code))
         end1 = time.time()
         print("Upload finished. Totally take " + str(end1 - start) + " seconds.")
@@ -483,7 +477,7 @@ class Datamart_isi_upload:
             temp_output = StringIO()
             serialize_change_record(temp_output)
             temp_output.seek(0)
-            tu = TruthyUpdater(self.update_server, False, config.user, config.password)
+            tu = TruthyUpdater(self.update_server, False)
             np_list = []
             for l in temp_output.readlines():
                 if not l: continue

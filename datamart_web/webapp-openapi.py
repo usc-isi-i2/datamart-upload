@@ -702,11 +702,11 @@ def upload():
         try:
             for i in range(len(df)):
                 if title:
-                    df[i]['title'] = title[i]
+                    meta[i]['title'] = title[i]
                 if description:
-                    df[i]['description'] = description[i]
+                    meta[i]['description'] = description[i]
                 if keywords:
-                    df[i]['keywords'] = keywords[i]
+                    meta[i]['keywords'] = keywords[i]
         except:
             msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only "
             if title:
@@ -753,11 +753,11 @@ def upload_test():
         try:
             for i in range(len(df)):
                 if title:
-                    df[i]['title'] = title[i]
+                    meta[i]['title'] = title[i]
                 if description:
-                    df[i]['description'] = description[i]
+                    meta[i]['description'] = description[i]
                 if keywords:
-                    df[i]['keywords'] = keywords[i]
+                    meta[i]['keywords'] = keywords[i]
         except:
             msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only "
             if title:
