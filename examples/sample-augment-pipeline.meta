@@ -1,0 +1,7 @@
+{
+    "problem": "DA_poverty_estimation_problem",
+    "full_inputs": ["185_baseball_dataset"],
+    "train_inputs": ["DA_poverty_estimation_dataset_TRAIN"],
+    "test_inputs": ["DA_poverty_estimation_dataset_TEST"],
+    "score_inputs": ["DA_poverty_estimation_dataset_SCORE"]
+}
