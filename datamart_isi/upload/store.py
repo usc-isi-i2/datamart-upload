@@ -24,13 +24,14 @@ from datamart_isi.materializers.wikitables_materializer import WikitablesMateria
 from wikifier import config
 from io import StringIO
 from collections import defaultdict
+from datamart_isi.config import general_search_server, wikidata_server
 from datamart_isi.utilities.timeout import Timeout, timeout_call
 
 # WIKIDATA_QUERY_SERVER = config.endpoint_main
 # WIKIDATA_UPDATE_SERVER = config.endpoint_update_main
 # WIKIDATA_QUERY_SERVER = config.endpoint_query_test  # this is testing wikidata
 # WIKIDATA_UPDATE_SERVER = config.endpoint_upload_test  # this is testing wikidata
-DATAMRT_SERVER = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql"
+DATAMRT_SERVER = general_search_server
 
 def remove_punctuation(input_str) -> typing.List[str]:
     translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))

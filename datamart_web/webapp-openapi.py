@@ -38,7 +38,7 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths =  ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
+dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
@@ -132,10 +132,13 @@ def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
     logger.debug("Trying to load dataset " + str(path))
     datasets_list = dict()
     for each_path in dataset_paths:
-        temp = os.listdir(each_path)
-        for each in temp:
-            datasets_list[each] = each_path
-
+        try:
+            temp = os.listdir(each_path)
+            for each in temp:
+                datasets_list[each] = each_path
+        except:
+            pass
+            
     if path not in datasets_list.keys():
         return None
     loader = D3MDatasetLoader()
