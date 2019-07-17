@@ -390,8 +390,8 @@ class Datamart_isi_upload:
             statement.add_qualifier('C2007', Item(data_type))  # data structure type
             statement.add_qualifier('C2008', URLValue(semantic_type_url))  # semantic type identifier
             statement.add_qualifier('P1545', QuantityValue(column_number))  # column index
-            end2 = time.time()
-            print("Processing finished, totally take " + str(end2 - end1) + " seconds.")
+            end1 = time.time()
+            print("Processing finished, totally take " + str(end1 - start) + " seconds.")
             return True
         except:
             print("[ERROR] processing column No." + str(column_number) + " failed!")
