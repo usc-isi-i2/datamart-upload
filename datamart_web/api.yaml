@@ -432,83 +432,33 @@ paths:
                  format: binary
         '404':
           description: Not found.
-  /embeddings/fb/{qnode}:
-    get:
-      tags:
-        - Embeddings API
-      summary: Fetch the FB embeddings for QNODE(s)
-      description: '<p>The method fetches the FB embeddings for a given qnode(s)</p>'
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/text
-      parameters:
-        - name: qnode
-          in: path
+components:
+  schemas:
+    SearchResult:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            title:
+              type: string
+            Datamart ID:
+              type: string
+            Score:
+              type: number
+            Url:
+              type: string
+            Columns:
+              type: array
+              items:
+                type: string
+            Recommend Join Columns:
+              type: string
+        datamart_id:
           type: string
-          required: true
-          description: "<p>comma separated list of Wikidata QNodes</p>"
-          example: 'Q738200,Q717195'
-      responses:
-        '200':
-          description: 'successful operation'
-          schema:
-            type: csv
-        '404':
-          description: Not found.
-definitions:
-  SearchResult:
-    type: object
-    properties:
-      summary:
-        type: string
-      datamart_id:
-        type: string
-      score:
-        type: number
-      materialize_info:
-        type: object
-        properties:
-          id:
-            type: string
-          score:
-            type: number
-          metadata:
-            type: object
-            properties:
-              connection_url:
-                type: string
-              search_result:
-                type: object
-                properties:
-                  p_nodes_needed:
-                    type: array
-                    items:
-                      type: string
-                  target_q_node_column_name:
-                    type: string
-              query_json:
-                type: string
-              search_type:
-                type: string
-          augmentation:
-            type: object
-            properties:
-              properties:
-                type: string
-              left_columns:
-                type: array
-                items:
-                  type: integer
-              right_columns:
-                type: array
-                items:
-                  type: integer
-              datamart_type:
-                type: string
-      metadata:
-        type: array
-        items:
+        score:
+          type: number
+        materialize_info:
           type: object
           properties:
             id:
@@ -677,23 +627,3 @@ tags:
   - name: Augment API
   - name: Upload API
   - name: Embeddings API
-#  Datamart:
-#    type: object
-#    properties:
-#      File Name:
-#        type: string
-#      Datamart ID:
-#        type: string
-#      Score:
-#        type: number
-#      Description:
-#        type: string
-#      URL:
-#        type: string
-#      Columns:
-#        type: array
-#        items:
-#          type: string
-#      Recommend Join Columns:
-#        type: string
-
