@@ -12,6 +12,7 @@ import tempfile
 import pathlib
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 from flask_cors import CORS, cross_origin
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 # import spacy
@@ -40,7 +41,7 @@ wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 dataset_paths =  ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
-datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'])
+datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -285,7 +286,7 @@ def search_without_data():
 
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=DATAMART_SERVER)
-        res = datamart_instance.search_without_data(query=query_wrapped).get_next_page() or []
+        res = datamart_instance.search(query=query_wrapped).get_next_page() or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
@@ -437,14 +438,21 @@ def download_by_id(id):
     """
     download the dataset with given id
     """
-    logger.debug("Start downloading with id...")
     # datamart_id = request.values.get('id')
     datamart_id = id
+    logger.debug("Start downloading with id " + str(datamart_id))
     return_format = request.values.get('format')
     try:
         # general format datamart id
+        if datamart_id.startswith("wikidata_search_on"):
+            # wikidata search
+            # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
+            p_nodes = datamart_id.split("___")
+            p_nodes = p_nodes[1: -1]
+            materialize_info = {"p_nodes_needed": p_nodes}
+            result_df = Utils.materialize(materialize_info)
 
-        if len(datamart_id) == 8 and datamart_id[0] == "D":
+        else: #  len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
@@ -471,15 +479,8 @@ def download_by_id(id):
             logger.debug("Start materialize the dataset...")
             result_df = Utils.materialize(metadata=results[0])
 
-        elif len(datamart_id) >= 20 and datamart_id[:18] == "wikidata_search_on":
-            # wikidata search
-            # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
-            p_nodes = datamart_id.split("___")
-            p_nodes = p_nodes[1: -1]
-            materialize_info = {"p_nodes_needed": p_nodes}
-            result_df = Utils.materialize(materialize_info)
-        else:
-            return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
+        # else:
+            # return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
 
         logger.debug("Materialize finished, start sending...")
         result_id = str(hash(result_df.values.tobytes()))
@@ -503,6 +504,10 @@ def download_by_id(id):
                 "source":{'license': 'Other'},
             }
             return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
+            # update structure type
+            update_part = {"structural_type":str}
+            for i in range(result_df.shape[1]):
+                return_ds.metadata = return_ds.metadata.update(metadata = update_part, selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
 
             with tempfile.TemporaryDirectory() as tmpdir:
                 absolute_path_part_length = len(str(tmpdir))
@@ -712,8 +717,8 @@ def upload():
 
         for i in range(len(df)):
             datamart_upload_instance.model_data(df, meta, i)
-            datamart_upload_instance.upload()
-        return wrap_response('0000', msg="UPLOAD Success!")
+            response_id = datamart_upload_instance.upload()
+        return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
 
@@ -722,7 +727,7 @@ def upload():
 @cross_origin()
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
-    datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'])
+    datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'],query_server=config['update_test_server'])
     try:
         if request.values.get('url'):
             url = request.values.get('url')
@@ -824,9 +829,9 @@ def upload_metadata():
             dataset_number = 0
 
         datamart_upload_instance.model_data(data_df, metadata_json, dataset_number)
-        datamart_upload_instance.upload()
+        response_id = datamart_upload_instance.upload()
 
-        return wrap_response('0000', msg="UPLOAD Success!")
+        return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
 
