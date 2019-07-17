@@ -109,15 +109,11 @@ def parse_search_result(search_res: DatamartSearchResult) -> str:
         url = search_res.search_result['url']['value']
     except:
         url = "None"
-    res = " - " + title + \
-          " -\n    * Datamart ID: " + datamart_id + \
-          "\n    * Score: " + score + \
-          "\n    * URL: " + url + "\n    " + "* Columns: "
 
+    res = {"title": title, "Datamart ID": datamart_id, "Score": score, "URL": url, 'Columns': []}
     for i, each in enumerate(columns_result):
-        res += "\n\t[" + str(i) + "] " + each
-
-    res += "\n    * Recommend Join Columns: " + join_columns + "\n"
+        res['Columns'].append("[" + str(i) + "] " + each)
+    res['Recommend Join Columns'] = join_columns
 
     print(res)
     sys.stdout.flush()
