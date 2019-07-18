@@ -11,8 +11,12 @@ import zipfile
 import tempfile
 import pathlib
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(
+    stream=sys.stdout,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.DEBUG,
+    datefmt='%Y-%m-%d %H:%M:%S')
+# logging.basicConfig(, level=logging.DEBUG)
 from flask_cors import CORS, cross_origin
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 # import spacy
@@ -38,7 +42,10 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", # this for dsbox server
+"/nfs1/dsbox-repo/data/datasets/seed_datasets_current", # this for dsbox server
+"/data", # this for docker
+"/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
@@ -138,7 +145,8 @@ def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
                 datasets_list[each] = each_path
         except:
             pass
-            
+    logger.info("Following datasets are found:")
+    logger.info(str(datasets_list.keys()))
     if path not in datasets_list.keys():
         return None
     loader = D3MDatasetLoader()
@@ -164,7 +172,6 @@ def load_csv_data(data) -> d3m_Dataset:
         data = data.astype(str)
     else:
         raise ValueError("Unknown input type.")
-
     # transform pd.DataFrame to d3m.Dataset
     d3m_df = d3m_DataFrame(data, generate_metadata=False)
     resources = {AUGMENT_RESOURCE_ID: d3m_df}
@@ -241,6 +248,18 @@ def search():
                 return wrap_response(code='1000',
                                      msg='FAIL SEARCH - Unable to load input supplied data',
                                      data=None)
+        if request.values.get('run_wikifier'):
+            need_wikifier = request.values.get('run_wikifier')
+            if need_wikifier.lower()=="false":
+                need_wikifier = False
+            elif need_wikifier.lower()=="true":
+                need_wikifier = True
+            else:
+                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                logger.error("Will set need_wikifier with default value as True.")
+                need_wikifier = True
+        else:
+            need_wikifier = True
 
         max_return_docs = int(request.args.get('max_return_docs')) if request.args.get('max_return_docs') else 20
 
@@ -249,27 +268,35 @@ def search():
         query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=DATAMART_SERVER)
-        logger.debug("Start running wikifier...")
-        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
-        logger.debug("Wikifier finished, start running download...")
-        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+        if need_wikifier:
+            logger.debug("Start running wikifier...")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+            logger.debug("Wikifier finished, start running download...")
+        else:
+            logger.debug("Wikifier skipped, start running download...")
+        
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
+
             cur = {
-                "summary": parse_search_result(r),
+                'augmentation': {'type':'join','left_columns': [[]],'right_columns': [[]]},
+                'summary': parse_search_result(r),
                 'score': r.score(),
                 'metadata': r.get_metadata().to_json_structure(),
-                'datamart_id': r.id(),
+                'id': r.id(),
                 'materialize_info': r.serialize()
             }
             results.append(cur)
+        json_return = dict()
+        json_return["results"] = results
         # return wrap_response(code='0000',
         #                           msg='Success',
         #                           data=results)
-        return json.dumps(results, indent=2)
+        return json.dumps(json_return, indent=2)
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
@@ -332,11 +359,11 @@ def download():
             if path.lower().endswith("csv"):
                 loaded_dataset = load_csv_data(path)
             else:
-                loaded_dataset = load_d3m_dataset(data)
+                loaded_dataset = load_d3m_dataset(path)
         else:
             loaded_dataset = None
 
-        return_format = request.values.get('format')
+        return_format = request.values.get('format') or request.files['format'].read().decode('UTF-8')
         if not return_format or return_format.lower() == "csv":
             return_format = "csv"
         elif return_format.lower() == "d3m":
@@ -345,7 +372,7 @@ def download():
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
-
+        logger.info("The requested download format is " + return_format)
         # search without supplied data, not implement yet
         # TODO: implement this part!
         if loaded_dataset is None:
@@ -401,13 +428,13 @@ def download():
             if return_format == "d3m":
                 # save dataset
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    absolute_path_part_length = len(str(tmpdir))
                     save_dir =os.path.join(str(tmpdir), result_id)
+                    absolute_path_part_length = len(str(save_dir))
                     # print(save_dir)
                     # sys.stdout.flush()
                     download_result.save("file://" + save_dir + "/datasetDoc.json")
                     # zip and send to client
-                    base_path = pathlib.Path(save_dir + '/')
+                    # base_path = pathlib.Path(save_dir + '/')
                     data = io.BytesIO()
                     filePaths = retrieve_file_paths(save_dir)
 
@@ -571,19 +598,20 @@ def augment():
             if path.lower().endswith("csv"):
                 loaded_dataset = load_csv_data(path)
             else:
-                loaded_dataset = load_d3m_dataset(data)
+                loaded_dataset = load_d3m_dataset(path)
         else:
             loaded_dataset = None
 
-        return_format = request.values.get('format')
-        if not return_format or return_format.lower() == "csv":
-            return_format = "csv"
-        elif return_format.lower() == "d3m":
+        return_format = request.values.get('format') #or request.files['format'].read().decode('UTF-8')
+        if not return_format or return_format.lower() == "d3m":
             return_format = "d3m"
+        elif return_format.lower() == "csv":
+            return_format = "csv"
         else:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
+        logger.info("The requested download format is " + return_format)
 
         # search without supplied data, not implement yet
         # TODO: implement this part!
@@ -593,9 +621,12 @@ def augment():
                                  data=None)
         # search with supplied data
         else:
-            columns = request.values.get('columns')
+            columns = request.values.get('columns') or request.files['columns'].read().decode('UTF-8')
             if columns and type(columns) is not list:
-                columns = columns.split(",")
+                try:
+                    columns = json.loads(columns)
+                except:
+                    columns = columns.split(",")
                 logger.info("Required columns found as: "+ str(columns))
             columns_formated = []
             if columns:
@@ -646,8 +677,8 @@ def augment():
                 # save dataset in temp directory
                 logger.info("Return the augment result directly required.")
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    absolute_path_part_length = len(str(tmpdir))
                     save_dir =os.path.join(str(tmpdir), result_id)
+                    absolute_path_part_length = len(str(save_dir))
                     # print(save_dir)
                     # sys.stdout.flush()
                     augment_result.save("file://" + save_dir + "/datasetDoc.json")
