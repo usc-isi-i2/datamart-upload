@@ -38,7 +38,8 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+# dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+dataset_paths = ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
@@ -318,20 +319,6 @@ def download():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        # if data is csv content
-        data = read_file(request.files, 'data', 'csv')
-        # if data is not a csv content but a str path
-        if data is not None:
-            loaded_dataset = load_csv_data(data)
-        elif request.values.get('data'):
-            path = request.values.get('data')
-            if path.lower().endswith("csv"):
-                loaded_dataset = load_csv_data(path)
-            else:
-                loaded_dataset = load_d3m_dataset(data)
-        else:
-            loaded_dataset = None
-
         return_format = request.values.get('format')
         if not return_format or return_format.lower() == "csv":
             return_format = "csv"
@@ -342,90 +329,109 @@ def download():
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        # search without supplied data, not implement yet
-        # TODO: implement this part!
-        if loaded_dataset is None:
-            return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - Unable to load input supplied data',
-                                 data=None)
-        # search with supplied data
-        else:
-            # preprocess on loaded_dataset
-            logger.debug("Start running wikifier...")
-            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
-            logger.debug("Wikifier finished, start running download...")
-            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
-            search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
-            download_result = search_result.download(supplied_data=loaded_dataset)
-            logger.debug("Download finished.")
-            res_id, result_df = d3m_utils.get_tabular_resource(dataset=download_result, resource_id=None)
+        # if data is csv content
+        data = read_file(request.files, 'data', 'csv')
+        # if data is not a csv content but a str path
+        if data is not None:
+            logger.debug("csv file input detected!")
+            loaded_dataset = load_csv_data(data)
+        elif request.values.get('data'):
+            path = request.values.get('data')
 
-            # print("--------------")
-            # print(loaded_dataset['learningData'])
-            # print("--------------")
-            # print(result_df)
-            # print("--------------")
-            # sys.stdout.flush()
-
-            non_empty_rows = []
-            for i, v in result_df.iterrows():
-                if len(v["joining_pairs"]) != 0:
-                    non_empty_rows.append(i)
-
-            if len(non_empty_rows) == 0:
-                return wrap_response(code='1000',
-                                     msg='FAIL DOWNLOAD - No joinable rows found!',
-                                     data=None)
-            logger.debug("Start saving the download results...")
-            result_df = result_df.iloc[non_empty_rows ,:]
-            result_df.reset_index(drop=True)
-            # set all cells to be str so that we can save correctly
-            download_result[res_id] = result_df.astype(str)
-            # update structure type
-            update_part = {"structural_type":str}
-            for i in range(result_df.shape[1]):
-                download_result.metadata = download_result.metadata.update(metadata = update_part, selector=(res_id, ALL_ELEMENTS, i))
-
-            # update row length
-            update_part = {"length":result_df.shape[0]}
-            download_result.metadata = download_result.metadata.update(metadata = update_part, selector=(res_id,))
-
-            result_id = str(hash(result_df.values.tobytes()))
-            # save_dir = "/tmp/download_result" + result_id
-            # if os.path.isdir(save_dir) or os.path.exists(save_dir):
-            #     shutil.rmtree(save_dir)
-            if return_format == "d3m":
-                # save dataset
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    absolute_path_part_length = len(str(tmpdir))
-                    save_dir =os.path.join(str(tmpdir), result_id)
-                    # print(save_dir)
-                    # sys.stdout.flush()
-                    download_result.save("file://" + save_dir + "/datasetDoc.json")
-                    # zip and send to client
-                    base_path = pathlib.Path(save_dir + '/')
-                    data = io.BytesIO()
-                    filePaths = retrieve_file_paths(save_dir)
-
-                    zip_file = zipfile.ZipFile(data, 'w')
-                    with zip_file:
-                        # write each file seperately
-                        for fileName in filePaths:
-                            shorter_path = fileName[absolute_path_part_length:]
-                            zip_file.write(fileName, shorter_path)
-                    data.seek(0)
-
-                    return send_file(
-                        data,
-                        mimetype='application/zip',
-                        as_attachment=True,
-                        attachment_filename='download_result' + result_id + '.zip'
-                    )
-
+            if path.lower().endswith(".csv"):
+                logger.debug("csv file path detected!")
+                loaded_dataset = load_csv_data(path)
             else:
-                data = io.StringIO()
-                result_df.to_csv(data, index=False)
-                return Response(data.getvalue(), mimetype="text/csv")
+                logger.debug("d3m path input detected!")
+                loaded_dataset = load_d3m_dataset(path)
+        else:
+            path = None
+            loaded_dataset = None
+
+        if loaded_dataset is None:
+            if path is None:
+                logger.error("No path given")
+                return wrap_response(code='1000',
+                                    msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
+                                    data=None)
+            else:
+                logger.error("Unable to load the input file with")
+                logger.error(str(path))
+                return wrap_response(code='1000',
+                                    msg='FAIL SEARCH - Unable to load input supplied data',
+                                    data=None)
+
+        # TODO: implement this part!
+        logger.debug("Start running wikifier...")
+        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                      search_type="wikifier")
+        logger.debug("Wikifier finished, start running download...")
+        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+        search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
+        download_result = search_result.download(supplied_data=loaded_dataset)
+        logger.debug("Download finished.")
+        res_id, result_df = d3m_utils.get_tabular_resource(dataset=download_result, resource_id=None)
+
+        non_empty_rows = []
+        for i, v in result_df.iterrows():
+            if len(v["joining_pairs"]) != 0:
+                non_empty_rows.append(i)
+
+        if len(non_empty_rows) == 0:
+            return wrap_response(code='1000',
+                                 msg='FAIL DOWNLOAD - No joinable rows found!',
+                                 data=None)
+        logger.debug("Start saving the download results...")
+        result_df = result_df.iloc[non_empty_rows, :]
+        result_df.reset_index(drop=True)
+        # set all cells to be str so that we can save correctly
+        download_result[res_id] = result_df.astype(str)
+        # update structure type
+        update_part = {"structural_type": str}
+        for i in range(result_df.shape[1]):
+            download_result.metadata = download_result.metadata.update(metadata=update_part,
+                                                                       selector=(res_id, ALL_ELEMENTS, i))
+
+        # update row length
+        update_part = {"length": result_df.shape[0]}
+        download_result.metadata = download_result.metadata.update(metadata=update_part, selector=(res_id,))
+
+        result_id = str(hash(result_df.values.tobytes()))
+        # save_dir = "/tmp/download_result" + result_id
+        # if os.path.isdir(save_dir) or os.path.exists(save_dir):
+        #     shutil.rmtree(save_dir)
+        if return_format == "d3m":
+            # save dataset
+            with tempfile.TemporaryDirectory() as tmpdir:
+                absolute_path_part_length = len(str(tmpdir))
+                save_dir = os.path.join(str(tmpdir), result_id)
+                # print(save_dir)
+                # sys.stdout.flush()
+                download_result.save("file://" + save_dir + "/datasetDoc.json")
+                # zip and send to client
+                base_path = pathlib.Path(save_dir + '/')
+                data = io.BytesIO()
+                filePaths = retrieve_file_paths(save_dir)
+
+                zip_file = zipfile.ZipFile(data, 'w')
+                with zip_file:
+                    # write each file seperately
+                    for fileName in filePaths:
+                        shorter_path = fileName[absolute_path_part_length:]
+                        zip_file.write(fileName, shorter_path)
+                data.seek(0)
+
+                return send_file(
+                    data,
+                    mimetype='application/zip',
+                    as_attachment=True,
+                    attachment_filename='download_result' + result_id + '.zip'
+                )
+
+        else:
+            data = io.StringIO()
+            result_df.to_csv(data, index=False)
+            return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
@@ -557,20 +563,6 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result',
                                  data=None)
 
-        # if data is csv content
-        data = read_file(request.files, 'data', 'csv')
-        # if data is not a csv content but a str path
-        if data is not None:
-            loaded_dataset = load_csv_data(data)
-        elif request.values.get('data'):
-            path = request.values.get('data')
-            if path.lower().endswith("csv"):
-                loaded_dataset = load_csv_data(path)
-            else:
-                loaded_dataset = load_d3m_dataset(data)
-        else:
-            loaded_dataset = None
-
         return_format = request.values.get('format')
         if not return_format or return_format.lower() == "csv":
             return_format = "csv"
@@ -581,96 +573,123 @@ def augment():
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        # search without supplied data, not implement yet
-        # TODO: implement this part!
-        if loaded_dataset is None:
-            return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - Unable to load input supplied data',
-                                 data=None)
-        # search with supplied data
-        else:
-            columns = request.values.get('columns')
-            if columns and type(columns) is not list:
-                columns = columns.split(",")
-                logger.info("Required columns found as: "+ str(columns))
-            columns_formated = []
-            if columns:
-                for each in columns:
-                    columns_formated.append(DatasetColumn(resource_id=AUGMENT_RESOURCE_ID, column_index=int(each)))
-            logger.debug("Start running wikifier...")
-            # preprocess on loaded_dataset
-            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
-            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
-            logger.debug("Wikifier running finished, start running augment...")
-            search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
-            augment_result = search_result.augment(supplied_data=loaded_dataset, augment_columns = columns_formated)
-            res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
-            augment_result[res_id] = result_df.astype(str)
+        # if data is csv content
+        data = read_file(request.files, 'data', 'csv')
+        # if data is not a csv content but a str path
+        if data is not None:
+            logger.debug("csv file input detected!")
+            loaded_dataset = load_csv_data(data)
+        elif request.values.get('data'):
+            path = request.values.get('data')
 
-            # update structural type
-            update_part = {"structural_type": str}
-            for i in range(result_df.shape[1]):
-                augment_result.metadata = augment_result.metadata.update(metadata = update_part, selector=(res_id, ALL_ELEMENTS, i))
-
-            result_id = str(hash(result_df.values.tobytes()))
-            # if required to store in disk and return the path
-            if request.values.get('destination'):
-                logger.info("Saving to a given destination required.")
-                save_dir = os.path.join(request.values.get('destination'), "augment_result" + result_id)
-                if os.path.isdir(save_dir) or os.path.exists(save_dir):
-                    shutil.rmtree(save_dir)
-                # save dataset
-                augment_result.save("file://" + save_dir + "/datasetDoc.json")
-                # zip and send to client
-                base_path = pathlib.Path(save_dir + '/')
-                data = io.BytesIO()
-                filePaths = retrieve_file_paths(save_dir)
-                # print('The following list of files will be zipped:')
-                for fileName in filePaths:
-                    # print(fileName)
-                    zip_file = zipfile.ZipFile(data, 'w')
-                with zip_file:
-                # write each file seperately
-                    for file in filePaths:
-                        zip_file.write(file)
-                data.seek(0)
-
-                return wrap_response(code='0000',
-                                     msg='Success',
-                                     data=save_dir)
+            if path.lower().endswith(".csv"):
+                logger.debug("csv file path detected!")
+                loaded_dataset = load_csv_data(path)
             else:
-                # save dataset in temp directory
-                logger.info("Return the augment result directly required.")
-                if return_format == "d3m":
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        absolute_path_part_length = len(str(tmpdir))
-                        save_dir =os.path.join(str(tmpdir), result_id)
-                        # print(save_dir)
-                        # sys.stdout.flush()
-                        augment_result.save("file://" + save_dir + "/datasetDoc.json")
-                        # zip and send to client
-                        base_path = pathlib.Path(save_dir + '/')
-                        data = io.BytesIO()
-                        filePaths = retrieve_file_paths(save_dir)
+                logger.debug("d3m path input detected!")
+                loaded_dataset = load_d3m_dataset(path)
+        else:
+            path = None
+            loaded_dataset = None
 
-                        zip_file = zipfile.ZipFile(data, 'w')
-                        with zip_file:
-                            # write each file seperately
-                            for fileName in filePaths:
-                                shorter_path = fileName[absolute_path_part_length:]
-                                zip_file.write(fileName, shorter_path)
-                        data.seek(0)
+        if loaded_dataset is None:
+            if path is None:
+                logger.error("No path given")
+                return wrap_response(code='1000',
+                                     msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
+                                     data=None)
+            else:
+                logger.error("Unable to load the input file with")
+                logger.error(str(path))
+                return wrap_response(code='1000',
+                                     msg='FAIL SEARCH - Unable to load input supplied data',
+                                     data=None)
 
-                        return send_file(
-                            data,
-                            mimetype='application/zip',
-                            as_attachment=True,
-                            attachment_filename='download_result' + result_id + '.zip'
-                        )
-                else:
-                    data = io.StringIO()
-                    result_df.to_csv(data, index=False)
-                    return Response(data.getvalue(), mimetype="text/csv")
+        # TODO: implement this part!
+        columns = request.values.get('columns')
+        if columns and type(columns) is not list:
+            columns = columns.split(",")
+            logger.info("Required columns found as: " + str(columns))
+        columns_formated = []
+        if columns:
+            for each in columns:
+                columns_formated.append(DatasetColumn(resource_id=AUGMENT_RESOURCE_ID, column_index=int(each)))
+        logger.debug("Start running wikifier...")
+        # preprocess on loaded_dataset
+        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                      search_type="wikifier")
+        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+        logger.debug("Wikifier running finished, start running augment...")
+        search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
+        augment_result = search_result.augment(supplied_data=loaded_dataset, augment_columns=columns_formated)
+        res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
+        augment_result[res_id] = result_df.astype(str)
+
+        # update structural type
+        update_part = {"structural_type": str}
+        for i in range(result_df.shape[1]):
+            augment_result.metadata = augment_result.metadata.update(metadata=update_part,
+                                                                     selector=(res_id, ALL_ELEMENTS, i))
+
+        result_id = str(hash(result_df.values.tobytes()))
+        # if required to store in disk and return the path
+        if request.values.get('destination'):
+            logger.info("Saving to a given destination required.")
+            save_dir = os.path.join(request.values.get('destination'), "augment_result" + result_id)
+            if os.path.isdir(save_dir) or os.path.exists(save_dir):
+                shutil.rmtree(save_dir)
+            # save dataset
+            augment_result.save("file://" + save_dir + "/datasetDoc.json")
+            # zip and send to client
+            base_path = pathlib.Path(save_dir + '/')
+            data = io.BytesIO()
+            filePaths = retrieve_file_paths(save_dir)
+            # print('The following list of files will be zipped:')
+            for fileName in filePaths:
+                # print(fileName)
+                zip_file = zipfile.ZipFile(data, 'w')
+            with zip_file:
+                # write each file seperately
+                for file in filePaths:
+                    zip_file.write(file)
+            data.seek(0)
+
+            return wrap_response(code='0000',
+                                 msg='Success',
+                                 data=save_dir)
+        else:
+            # save dataset in temp directory
+            logger.info("Return the augment result directly required.")
+            if return_format == "d3m":
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    absolute_path_part_length = len(str(tmpdir))
+                    save_dir = os.path.join(str(tmpdir), result_id)
+                    # print(save_dir)
+                    # sys.stdout.flush()
+                    augment_result.save("file://" + save_dir + "/datasetDoc.json")
+                    # zip and send to client
+                    base_path = pathlib.Path(save_dir + '/')
+                    data = io.BytesIO()
+                    filePaths = retrieve_file_paths(save_dir)
+
+                    zip_file = zipfile.ZipFile(data, 'w')
+                    with zip_file:
+                        # write each file seperately
+                        for fileName in filePaths:
+                            shorter_path = fileName[absolute_path_part_length:]
+                            zip_file.write(fileName, shorter_path)
+                    data.seek(0)
+
+                    return send_file(
+                        data,
+                        mimetype='application/zip',
+                        as_attachment=True,
+                        attachment_filename='download_result' + result_id + '.zip'
+                    )
+            else:
+                data = io.StringIO()
+                result_df.to_csv(data, index=False)
+                return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
