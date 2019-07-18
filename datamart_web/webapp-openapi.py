@@ -328,7 +328,7 @@ def download():
             if path.lower().endswith("csv"):
                 loaded_dataset = load_csv_data(path)
             else:
-                loaded_dataset = load_d3m_dataset(data)
+                loaded_dataset = load_d3m_dataset(path)
         else:
             loaded_dataset = None
 
@@ -567,7 +567,7 @@ def augment():
             if path.lower().endswith("csv"):
                 loaded_dataset = load_csv_data(path)
             else:
-                loaded_dataset = load_d3m_dataset(data)
+                loaded_dataset = load_d3m_dataset(path)
         else:
             loaded_dataset = None
 
