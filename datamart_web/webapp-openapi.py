@@ -38,7 +38,8 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+# dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+dataset_paths = ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
@@ -641,31 +642,36 @@ def augment():
             else:
                 # save dataset in temp directory
                 logger.info("Return the augment result directly required.")
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    absolute_path_part_length = len(str(tmpdir))
-                    save_dir =os.path.join(str(tmpdir), result_id)
-                    # print(save_dir)
-                    # sys.stdout.flush()
-                    augment_result.save("file://" + save_dir + "/datasetDoc.json")
-                    # zip and send to client
-                    base_path = pathlib.Path(save_dir + '/')
-                    data = io.BytesIO()
-                    filePaths = retrieve_file_paths(save_dir)
+                if return_format == "d3m":
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        absolute_path_part_length = len(str(tmpdir))
+                        save_dir =os.path.join(str(tmpdir), result_id)
+                        # print(save_dir)
+                        # sys.stdout.flush()
+                        augment_result.save("file://" + save_dir + "/datasetDoc.json")
+                        # zip and send to client
+                        base_path = pathlib.Path(save_dir + '/')
+                        data = io.BytesIO()
+                        filePaths = retrieve_file_paths(save_dir)
 
-                    zip_file = zipfile.ZipFile(data, 'w')
-                    with zip_file:
-                        # write each file seperately
-                        for fileName in filePaths:
-                            shorter_path = fileName[absolute_path_part_length:]
-                            zip_file.write(fileName, shorter_path)
-                    data.seek(0)
+                        zip_file = zipfile.ZipFile(data, 'w')
+                        with zip_file:
+                            # write each file seperately
+                            for fileName in filePaths:
+                                shorter_path = fileName[absolute_path_part_length:]
+                                zip_file.write(fileName, shorter_path)
+                        data.seek(0)
 
-                    return send_file(
-                        data,
-                        mimetype='application/zip',
-                        as_attachment=True,
-                        attachment_filename='download_result' + result_id + '.zip'
-                    )
+                        return send_file(
+                            data,
+                            mimetype='application/zip',
+                            as_attachment=True,
+                            attachment_filename='download_result' + result_id + '.zip'
+                        )
+                else:
+                    data = io.StringIO()
+                    result_df.to_csv(data, index=False)
+                    return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
