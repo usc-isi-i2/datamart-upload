@@ -10,10 +10,29 @@ import io
 import zipfile
 import tempfile
 import pathlib
+import logging
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-FORMAT = "%(asctime)s [%(levelname)s] %(name)s -- %(message)s"
-logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
+# logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
+
+# set up logging to file - see previous section for more details
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s [%(levelname)s] %(name)s -- %(message)s",
+                    datefmt='%m-%d %H:%M',
+                    filename='datamart_openapi.log',
+                    filemode='w')
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+# set a format which is simpler for console use
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s -- %(message)s")
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+
+
+
 from flask_cors import CORS, cross_origin
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 # import spacy
