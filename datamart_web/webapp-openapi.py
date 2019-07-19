@@ -12,7 +12,8 @@ import tempfile
 import pathlib
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+FORMAT = "%(asctime)s [%(levelname)s] %(name)s -- %(message)s"
+logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
 from flask_cors import CORS, cross_origin
 # When load spacy in a route, it will raise error. So do not remove "import spacy" here:
 # import spacy
@@ -38,7 +39,7 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current"]
+dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current", "/data", "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"]
 WIKIDATA_QUERY_SERVER = wikidata_server
 DATAMART_SERVER = general_search_server
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
