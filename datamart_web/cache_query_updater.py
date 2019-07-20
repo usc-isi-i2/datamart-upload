@@ -8,6 +8,7 @@ import logging
 import time
 import pickle
 from datamart_isi import config
+from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.DEBUG)
@@ -73,12 +74,12 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE
                 if not response_code:
                     _logger.error("Update query results for hash tag " + query_key + " failed!")
                 else:
-                    _logger.error("Update query results for hash tag " + query_key + " success!")
+                    _logger.info("Update query results for hash tag " + query_key + " success!")
                     response_code = mc.set("timestamp_" + query_key, str(datetime.datetime.now().timestamp()))
                     if not response_code:
                         _logger.error("Update timestamp for hash tag " + query_key + " failed!")
                     else:
-                        _logger.error("Update timestamp for hash tag " + query_key + " success!")
+                        _logger.info("Update timestamp for hash tag " + query_key + " success!")
 
     used_time = time.time() - start
     _logger.info("Updating all queries finished. Totally take {time_used} seconds.".format(time_used=str(used_time)))
@@ -144,6 +145,7 @@ def main(update_time:str):
             now = datetime.datetime.now()
             seconds_to_time_update = (now.replace(hour=0, minute=0, second=0, microsecond=0) - now).total_seconds() + 3600 * (24 + update_hour)
             time.sleep(seconds_to_time_update)
+            self._logger.info("Will strat update on " + str(update_time) + ":00:00")
         except:
             _logger.error("Wrong update time format given, will update now!")
     while True:
