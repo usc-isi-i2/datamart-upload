@@ -143,9 +143,10 @@ def main(update_time:str):
     else:
         try:
             now = datetime.datetime.now()
-            seconds_to_time_update = (now.replace(hour=0, minute=0, second=0, microsecond=0) - now).total_seconds() + 3600 * (24 + update_hour)
+            seconds_to_time_update = (now.replace(hour=0, minute=0, second=0, microsecond=0) - now).total_seconds() + 3600 * (24 + int(update_time))
+            _logger.info("Specialize updating time given, will wait until then...")
+            _logger.info("Will strat update on " + str(update_time) + ":00:00")
             time.sleep(seconds_to_time_update)
-            self._logger.info("Will strat update on " + str(update_time) + ":00:00")
         except:
             _logger.error("Wrong update time format given, will update now!")
     while True:
