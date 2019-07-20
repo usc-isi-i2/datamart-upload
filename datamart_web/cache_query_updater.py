@@ -1,4 +1,5 @@
 import memcache
+import argparse
 import subprocess
 from collections import defaultdict
 import traceback
@@ -16,7 +17,7 @@ _logger.setLevel(logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s [%(levelname)s] %(name)s -- %(message)s",
                     datefmt='%m-%d %H:%M',
-                    filename='datamart_openapi.log',
+                    filename='memcache_updater.log',
                     filemode='w')
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
@@ -33,7 +34,7 @@ CACHE_EXIPRE_TIME_LENGTH = config.cache_expire_time
 MEMACHE_SERVER = config.memcache_server
 WIKIDATA_QUERY_SERVER = config.wikidata_server
 
-def update_wikidata_query(query_dict: dict, expire_time_length: int=EXIPRE_TIME_LENGTH, client_ip: str=MEMACHE_SERVER) -> None:
+def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE_TIME_LENGTH, client_ip: str=MEMACHE_SERVER) -> None:
     """
     The function used to check whether a query cache in memcache need to be run again to ensure the content are up-to-date
     It will check the timestamp of the query results uploaded to determine whether to update or not
@@ -79,8 +80,8 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=EXIPRE_TIME_
                     else:
                         _logger.error("Update timestamp for hash tag " + query_key + " success!")
 
-    end = time.time() - start
-    _logger.info("Updating all queries finished. Totally take {time_used} seconds.".format(time_used=str(start - end)))
+    used_time = time.time() - start
+    _logger.info("Updating all queries finished. Totally take {time_used} seconds.".format(time_used=str(used_time)))
 
 def save_all_keys(client_ip: str="localhost", client_port:str="11211", maximum_key_amount=100000, file_loc:str="all_keys.out") -> None:
     """
@@ -88,8 +89,7 @@ def save_all_keys(client_ip: str="localhost", client_port:str="11211", maximum_k
     Default setting will get all keys from local memcache server with default port, and maximum 100,000 keys will get
     """
     _logger.info("Starting saving all keys...")
-    bash_command = """MEMCHOST={client_ip}; printf "stats items\n" | nc $MEMCHOST {port} | grep ":number" | awk -F":" '{print $2}' | xargs -I % printf "stats cachedump % {maximum_key_amount}\r\n" | nc $MEMCHOST {port} > {file_loc}""".format(client_ip=client_ip, port=client_port, maximum_key_amount = maximum_key_amount, file_loc=file_loc)
-
+    bash_command = "MEMCHOST=" + client_ip + """; printf "stats items\n" | nc $MEMCHOST """ + client_port + """ | grep ":number" | awk -F":" '{print $2}' | xargs -I % printf "stats cachedump % """ + str(maximum_key_amount) + """\r\n" | nc $MEMCHOST """ + client_port + " > " + file_loc #format(client_ip=client_ip, port=client_port, maximum_key_amount = maximum_key_amount, file_loc=file_loc)
     p = subprocess.Popen(bash_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
     while p.poll() == None:
         out = p.stdout.readline().strip()
@@ -122,6 +122,9 @@ def load_all_wikidata_keys_from_file(file_loc:str="all_keys.out", client_ip: str
         except:
             _logger.error("ERROR when processing " + each)
             traceback.print_exc()
+    _logger.info("Following query hash tag found in memcache:")
+    for i, each in enumerate(query_dict.keys()):
+        _logger.info("No." + str(i) + " " + each)
     return query_dict
 
 def run_sparql_query(sparql_query):
@@ -133,23 +136,28 @@ def run_sparql_query(sparql_query):
     result = sparql.query().convert()['results']['bindings']
     return result
 
-def main(update_time:int):
-    now = datetime.datetime.now()
-    seconds_to_time_update = (now.replace(hour=0, minute=0, second=0, microsecond=0) - now).total_seconds() + 3600 * (24 + update_hour)
-    time.sleep(seconds_to_time_update)
+def main(update_time:str):
+    if update_time == "now":
+        pass
+    else:
+        try:
+            now = datetime.datetime.now()
+            seconds_to_time_update = (now.replace(hour=0, minute=0, second=0, microsecond=0) - now).total_seconds() + 3600 * (24 + update_hour)
+            time.sleep(seconds_to_time_update)
+        except:
+            _logger.error("Wrong update time format given, will update now!")
     while True:
         save_all_keys()
-        memcache_keys = load_all_keys_from_file()
+        memcache_keys = load_all_wikidata_keys_from_file()
         update_wikidata_query(memcache_keys)
-        
+
         # sleep 24 hours to do next time running
         time.sleep(3600*24)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='The auto query updater service')
     parser.add_argument('update_time', help='The time of hour that want it to run update service.')
     args = parser.parse_args()
-    update_time = Path(args.update_time)
-    main(update_time=int(update_time))
+    update_time = args.update_time
+    main(update_time=update_time)
         
