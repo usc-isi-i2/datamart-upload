@@ -46,7 +46,7 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE
     for query_key, query_value in query_dict.items():
         timestamp = query_value.get("timestamp")
         query = query_value.get("query")
-        result = pickle.loads(query_value.get("result"))
+        result = query_value.get("result")
         need_rerun_query = False
         if query is None:
             _logger.error("Query hash tag " + query_key + " do not have query content!")
@@ -54,7 +54,7 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE
         elif timestamp is None or datetime.datetime.now().timestamp() - float(timestamp) > expire_time_length:
             _logger.info("Query hash tag " + query_key + " is out-dated, will update.")
             need_rerun_query = True
-        elif not query.get("results"):
+        elif not result:
             _logger.warning("Query hash " + query_key + " do not have results, will update.")
             need_rerun_query = True
 
@@ -64,7 +64,7 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE
                 new_result = run_sparql_query(query)
             except:
                 _logger.error("Running query for hash tag " + query_key + " failed!")
-            if len(new_result) == 0 and len(result) != 0:
+            if result and not new_result:
                 _logger.error("Query return no results but old query have! Is that correct?")
                 _logger.error("Not update query this time for query tag " + query_key)
             else:
