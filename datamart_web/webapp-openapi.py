@@ -109,7 +109,7 @@ def read_file(files, key, _type):
             pass
 
 
-def parse_search_result(search_res: DatamartSearchResult) -> str:
+def parse_search_result(search_res: DatamartSearchResult) -> dict:
     """
     function to parse the search result into a str for better display
     :param search_res: a DatamartSearchResult
@@ -154,7 +154,7 @@ def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
                 datasets_list[each] = each_path
         except:
             pass
-            
+
     if path not in datasets_list.keys():
         return None
     loader = D3MDatasetLoader()
@@ -242,9 +242,9 @@ def hello():
 def search():
     try:
         # check that each parameter meets the requirements
-        query = json.loads(request.args.get('query')) if request.args.get('query') else None
-        max_return_docs = int(request.args.get('max_return_docs')) if request.args.get('max_return_docs') else 20
-        data, loaded_dataset = load_input_supplied_data(request.args.get('data'))
+        query = json.loads(request.values.get('query')) if request.values.get('query') else None
+        max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
+        data, loaded_dataset = load_input_supplied_data(request.values.get('data'))
         if loaded_dataset is None:
             if data is None:
                 logger.error("No path given")
@@ -290,7 +290,7 @@ def search():
 @cross_origin()
 def search_without_data():
     try:
-        keywords = request.args.get("keywords").strip(',')
+        keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
         keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
         if request.data:
             variables = json.loads(str(request.data, "utf-8"))
@@ -326,19 +326,19 @@ def download():
     try:
         logger.debug("Start datamart downloading...")
         # check that each parameter meets the requirements
-        search_result = json.loads(request.form.get('task'))
+        search_result = json.loads(request.values.get('task')) if request.values.get('task') else None
         if search_result is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        return_format = check_return_format(request.args.get('format'))
+        return_format = check_return_format(request.values.get('format'))
         if return_format is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        _, loaded_dataset = load_input_supplied_data(request.args.get('data'))
+        _, loaded_dataset = load_input_supplied_data(request.values.get('data'))
         if loaded_dataset is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
@@ -426,7 +426,7 @@ def download():
 def download_by_id(id):
     datamart_id = id
     logger.debug("Start downloading with id " + str(datamart_id))
-    return_format = check_return_format(request.args.get('format'))
+    return_format = check_return_format(request.values.get('format'))
     if return_format is None:
         return wrap_response(code='1000',
                              msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
@@ -539,25 +539,25 @@ def augment():
     try:
         logger.debug("Start running augment...")
         # check that each parameter meets the requirements
-        search_result = json.loads(request.form.get('task'))
+        search_result = json.loads(request.values.get('task')) if request.values.get('task') else None
         if search_result is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        return_format = check_return_format(request.args.get('format'))
+        return_format = check_return_format(request.values.get('format'))
         if return_format is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        _, loaded_dataset = load_input_supplied_data(request.args.get('data'))
+        _, loaded_dataset = load_input_supplied_data(request.values.get('data'))
         if loaded_dataset is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
 
-        columns = request.args.get('columns')
+        columns = request.values.get('columns')
         if columns and type(columns) is not list:
             columns = columns.split(",")
             logger.info("Required columns found as: " + str(columns))
@@ -566,7 +566,7 @@ def augment():
             for each in columns:
                 columns_formated.append(DatasetColumn(resource_id=AUGMENT_RESOURCE_ID, column_index=int(each)))
 
-        destination = request.args.get('destination')
+        destination = request.values.get('destination')
 
         logger.debug("Start running wikifier...")
         # preprocess on loaded_dataset
@@ -654,21 +654,21 @@ def augment():
 def upload():
     logger.debug("Start uploading in one step...")
     try:
-        url = request.agrs.get('url')
+        url = request.values.get('url')
         if url is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Url can not be None',
                                  data=None)
 
-        file_type = request.args.get('file_type')
+        file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - file_type can not be None',
                                  data=None)
 
-        title = request.args.get('title').split("||") if request.args.get('title') else None
-        description = request.args.get('description').split("||") if request.args.get('description') else None
-        keywords = request.args.get('keywords').split("||") if request.args.get('keywords') else None
+        title = request.values.get('title').split("||") if request.values.get('title') else None
+        description = request.values.get('description').split("||") if request.values.get('description') else None
+        keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
         df, meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
         try:
@@ -704,21 +704,21 @@ def upload_test():
     logger.debug("Start uploading(test version) in one step...")
     datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'],query_server=config['update_test_server'])
     try:
-        url = request.agrs.get('url')
+        url = request.values.get('url')
         if url is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Url can not be None',
                                  data=None)
 
-        file_type = request.args.get('file_type')
+        file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - file_type can not be None',
                                  data=None)
 
-        title = request.args.get('title').split("||") if request.args.get('title') else None
-        description = request.args.get('description').split("||") if request.args.get('description') else None
-        keywords = request.args.get('keywords').split("||") if request.args.get('keywords') else None
+        title = request.values.get('title').split("||") if request.values.get('title') else None
+        description = request.values.get('description').split("||") if request.values.get('description') else None
+        keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
         df, meta = datamart_upload_test_instance.load_and_preprocess(input_dir=url, file_type=file_type)
         try:
@@ -753,13 +753,13 @@ def upload_test():
 def load_and_process():
     logger.debug("Start loading and process the upload data")
     try:
-        url = request.agrs.get('url')
+        url = request.values.get('url')
         if url is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Url can not be None',
                                  data=None)
 
-        file_type = request.args.get('file_type')
+        file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - file_type can not be None',
@@ -782,14 +782,14 @@ def load_and_process():
 def upload_metadata():
     logger.debug("Start uploading...")
     try:
-        if request.form.get('metadata'):
-            metadata = request.form.get('metadata')
+        if request.values.get('metadata'):
+            metadata = request.values.get('metadata')
             metadata_json = json.loads(metadata)
         else:
             return wrap_response('1000', msg="FAIL UPLOAD - No metadata input found")
 
-        if request.form.get('data_input'):
-            data_input = request.form.get('data_input')
+        if request.values.get('data_input'):
+            data_input = request.values.get('data_input')
             data_input = json.loads(data_input)
         else:
             return wrap_response('1000', msg="FAIL UPLOAD - No dataset input found")
