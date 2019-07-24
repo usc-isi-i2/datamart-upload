@@ -11,6 +11,22 @@ import zipfile
 import tempfile
 import pathlib
 import logging
+import requests
+from flask_cors import CORS, cross_origin
+# sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
+from d3m.base import utils as d3m_utils
+from d3m.container import DataFrame as d3m_DataFrame
+from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
+from d3m.metadata.base import ALL_ELEMENTS
+from flask import Flask, request, render_template, send_file, Response, redirect
+from datamart_isi import config as config_datamart
+from datamart_isi.utilities import connection
+from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
+from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
+from datamart_isi.upload.store import Datamart_isi_upload
+from datamart_isi.utilities.utils import Utils
+from flasgger import Swagger
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
@@ -31,36 +47,18 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 
-
-
-from flask_cors import CORS, cross_origin
-# When load spacy in a route, it will raise error. So do not remove "import spacy" here:
-# import spacy
-
-# sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
-from d3m.base import utils as d3m_utils
-from d3m.container import DataFrame as d3m_DataFrame
-from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
-from d3m.metadata.base import ALL_ELEMENTS
-from flask import Flask, request, render_template, send_file, Response, redirect
-from datamart_isi.config import general_search_server, wikidata_server
-from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
-from datamart_isi.upload.store import Datamart_isi_upload
-from datamart_isi.utilities.utils import Utils
-
-from flasgger import Swagger
-import requests
-
 config = json.load(open('config.json'))
 em_es_url = config['em_es_url']
 em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation", "/nfs1/dsbox-repo/data/datasets/seed_datasets_current", "/data", "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"]
-WIKIDATA_QUERY_SERVER = wikidata_server
-DATAMART_SERVER = general_search_server
+dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
+                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
+                 "/data",  # for docker using
+                 "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
+                 ]
+DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
 
 app = Flask(__name__)
@@ -264,7 +262,7 @@ def search():
         variables: typing.List['VariableConstraint'] = []
         query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
         logger.debug("Starting datamart search service...")
-        datamart_instance = Datamart(connection_url=DATAMART_SERVER)
+        datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         logger.debug("Start running wikifier...")
         search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
         logger.debug("Wikifier finished, start running download...")
@@ -304,7 +302,7 @@ def search_without_data():
             query_wrapped = DatamartQuery(keywords_search=keywords_search)
 
         logger.debug("Starting datamart search service...")
-        datamart_instance = Datamart(connection_url=DATAMART_SERVER)
+        datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         res = datamart_instance.search(query=query_wrapped).get_next_page() or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
@@ -897,6 +895,7 @@ def fetch_fb_embeddings(qnode):
         return Response(result_csv, mimetype="text/csv")
 
     return None
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=9000, debug=False, threaded=True)
