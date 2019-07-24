@@ -131,8 +131,9 @@ def parse_search_result(search_res: DatamartSearchResult) -> str:
     for i, each in enumerate(columns_result):
         res['Columns'].append("[" + str(i) + "] " + each)
     res['Recommend Join Columns'] = join_columns
+    if 'number_of_vectors' in display_df.columns.tolist():
+        res['Number of Vectors'] = display_df['number_of_vectors'][0]
 
-    print(res)
     sys.stdout.flush()
     return res
 
