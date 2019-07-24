@@ -65,6 +65,8 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE
                 new_result = run_sparql_query(query)
             except:
                 _logger.error("Running query for hash tag " + query_key + " failed!")
+                # if query failed, skip
+                continue
             if result and not new_result:
                 _logger.error("Query return no results but old query have! Is that correct?")
                 _logger.error("Not update query this time for query tag " + query_key)
@@ -150,10 +152,11 @@ def main(update_time:str):
         except:
             _logger.error("Wrong update time format given, will update now!")
     while True:
+        _logger.info("-"*50 + "Start updating" + "-" * 50)
         save_all_keys()
         memcache_keys = load_all_wikidata_keys_from_file()
         update_wikidata_query(memcache_keys)
-
+        _logger.info("-"*50 + "End of update!" + "-" * 50)
         # sleep 24 hours to do next time running
         time.sleep(3600*24)
 
