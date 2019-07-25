@@ -136,7 +136,6 @@ def parse_search_result(search_res: DatamartSearchResult) -> dict:
     if 'number_of_vectors' in display_df.columns.tolist():
         res['Number of Vectors'] = display_df['number_of_vectors'][0]
 
-    sys.stdout.flush()
     return res
 
 
@@ -359,9 +358,14 @@ def download():
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
-
-        return_format = check_return_format(request.values.get('format'))
+        try:
+            request.files['format'].read().decode('UTF-8')
+        except:
+            return_format = check_return_format(request.values.get('format'))
+        # if not get return format, set defauld as csv
         if return_format is None:
+            return_format = "csv"
+        if return_format != "csv" and return_format != "d3m":
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
@@ -574,11 +578,18 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        return_format = check_return_format(request.values.get('format'))
+        try:
+            request.files['format'].read().decode('UTF-8')
+        except:
+            return_format = check_return_format(request.values.get('format'))
+        # if not get return format, set defauld as csv
         if return_format is None:
+            return_format = "d3m"
+        if return_format != "csv" and return_format != "d3m":
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
+
         logger.info("The requested download format is " + return_format)
 
         _, loaded_dataset = load_input_supplied_data(request.values.get('data'))
@@ -587,7 +598,10 @@ def augment():
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
 
-        columns = request.values.get('columns')
+        try:
+            columns = request.files['columns'].read().decode('UTF-8')
+        except:
+            columns = request.values.get('columns')
         if columns and type(columns) is not list:
             columns = columns.split(",")
             logger.info("Required columns found as: " + str(columns))
