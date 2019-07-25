@@ -204,9 +204,11 @@ def load_csv_data(data) -> d3m_Dataset:
     logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
-
-def load_input_supplied_data(data):
-    if data:
+def load_input_supplied_data(data_from_value, data_from_file):
+    if data_from_file:
+        data = pd.read_csv(data_from_file).infer_objects()
+        loaded_dataset = load_csv_data(data)
+    elif data_from_value:
         if data.lower().endswith(".csv"):
             logger.debug("csv file path detected!")
             loaded_dataset = load_csv_data(data)
@@ -219,10 +221,10 @@ def load_input_supplied_data(data):
     return data, loaded_dataset
 
 
-def check_return_format(format):
-    if not format or format.lower() == "csv":
+def check_return_format(format_):
+    if format_.lower() == "csv":
         return_format = "csv"
-    elif format.lower() == "d3m":
+    elif format_.lower() == "d3m":
         return_format = "d3m"
     else:
         return None
@@ -241,7 +243,8 @@ def search():
         # check that each parameter meets the requirements
         query = json.loads(request.values.get('query')) if request.values.get('query') else None
         max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
-        data, loaded_dataset = load_input_supplied_data(request.values.get('data'))
+        data, loaded_dataset = load_input_supplied_data(request.values.get('data'), request.files.get('data'))
+
         if loaded_dataset is None:
             if data is None:
                 logger.error("No path given")
@@ -370,7 +373,7 @@ def download():
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        _, loaded_dataset = load_input_supplied_data(request.values.get('data'))
+        _, loaded_dataset = load_input_supplied_data(request.values.get('data'), request.files.get('data'))
 
         if loaded_dataset is None:
             return wrap_response(code='1000',
@@ -420,8 +423,8 @@ def download():
         if return_format == "d3m":
             # save dataset
             with tempfile.TemporaryDirectory() as tmpdir:
-                absolute_path_part_length = len(str(tmpdir))
-                save_dir = os.path.join(str(tmpdir), result_id)
+                save_dir =os.path.join(str(tmpdir), result_id)
+                absolute_path_part_length = len(str(save_dir))
                 # print(save_dir)
                 # sys.stdout.flush()
                 download_result.save("file://" + save_dir + "/datasetDoc.json")
@@ -532,8 +535,8 @@ def download_by_id(id):
                 return_ds.metadata = return_ds.metadata.update(metadata = update_part, selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
 
             with tempfile.TemporaryDirectory() as tmpdir:
-                absolute_path_part_length = len(str(tmpdir))
                 save_dir =os.path.join(str(tmpdir), result_id)
+                absolute_path_part_length = len(str(save_dir))
                 # print(save_dir)
                 # sys.stdout.flush()
                 return_ds.save("file://" + save_dir + "/datasetDoc.json")
@@ -571,28 +574,31 @@ def download_by_id(id):
 def augment():
     try:
         logger.debug("Start running augment...")
+        
         # check that each parameter meets the requirements
-        search_result = json.loads(request.values.get('task')) if request.values.get('task') else None
+        try:
+            search_result = json.loads(request.files['task'].read().decode('UTF-8'))
+        except:
+            search_result = json.loads(request.values.get('task')) if request.values.get('task') else None
         if search_result is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        try:
-            request.files['format'].read().decode('UTF-8')
-        except:
-            return_format = check_return_format(request.values.get('format'))
+        return_format = request.values.get('format')
         # if not get return format, set defauld as csv
         if return_format is None:
             return_format = "d3m"
-        if return_format != "csv" and return_format != "d3m":
+        else:
+            check_return_format = check_return_format(return_format)
+        if not return_format:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
         logger.info("The requested download format is " + return_format)
 
-        _, loaded_dataset = load_input_supplied_data(request.values.get('data'))
+        _, loaded_dataset = load_input_supplied_data(request.values.get('data'), request.files.get('data'))
         if loaded_dataset is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
@@ -600,6 +606,8 @@ def augment():
 
         try:
             columns = request.files['columns'].read().decode('UTF-8')
+            if columns == "" or columns == "[]":
+                columns = None
         except:
             columns = request.values.get('columns')
         if columns and type(columns) is not list:
@@ -660,8 +668,8 @@ def augment():
             logger.info("Return the augment result directly required.")
             if return_format == "d3m":
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    absolute_path_part_length = len(str(tmpdir))
-                    save_dir = os.path.join(str(tmpdir), result_id)
+                    save_dir =os.path.join(str(tmpdir), result_id)
+                    absolute_path_part_length = len(str(save_dir))
                     # print(save_dir)
                     # sys.stdout.flush()
                     augment_result.save("file://" + save_dir + "/datasetDoc.json")
