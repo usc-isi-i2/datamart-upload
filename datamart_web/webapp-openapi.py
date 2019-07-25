@@ -599,7 +599,7 @@ def augment():
         if return_format is None:
             return_format = "d3m"
         else:
-            check_return_format = check_return_format(return_format)
+            return_format = check_return_format(return_format)
         if not return_format:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
