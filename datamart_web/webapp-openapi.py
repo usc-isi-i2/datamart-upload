@@ -209,12 +209,13 @@ def load_input_supplied_data(data_from_value, data_from_file):
         data = pd.read_csv(data_from_file).infer_objects()
         loaded_dataset = load_csv_data(data)
     elif data_from_value:
-        if data.lower().endswith(".csv"):
+        data = None
+        if data_from_value.lower().endswith(".csv"):
             logger.debug("csv file path detected!")
-            loaded_dataset = load_csv_data(data)
+            loaded_dataset = load_csv_data(data_from_value)
         else:
-            logger.debug("d3m path input detected!")
-            loaded_dataset = load_d3m_dataset(data)
+            logger.debug("d3m path maybe?")
+            loaded_dataset = load_d3m_dataset(data_from_value)
     else:
         data = None
         loaded_dataset = None
@@ -243,7 +244,11 @@ def search():
         # check that each parameter meets the requirements
         query = json.loads(request.values.get('query')) if request.values.get('query') else None
         max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
-        data, loaded_dataset = load_input_supplied_data(request.values.get('data'), request.files.get('data'))
+        try:
+            data_file = request.files.get('data')
+        except:
+            data_file = None
+        data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
             if data is None:
@@ -373,7 +378,11 @@ def download():
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        _, loaded_dataset = load_input_supplied_data(request.values.get('data'), request.files.get('data'))
+        try:
+            data_file = request.files.get('data')
+        except:
+            data_file = None
+        data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
             return wrap_response(code='1000',
@@ -574,7 +583,7 @@ def download_by_id(id):
 def augment():
     try:
         logger.debug("Start running augment...")
-        
+
         # check that each parameter meets the requirements
         try:
             search_result = json.loads(request.files['task'].read().decode('UTF-8'))
@@ -598,7 +607,12 @@ def augment():
 
         logger.info("The requested download format is " + return_format)
 
-        _, loaded_dataset = load_input_supplied_data(request.values.get('data'), request.files.get('data'))
+        try:
+            data_file = request.files.get('data')
+        except:
+            data_file = None
+        data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
+
         if loaded_dataset is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
