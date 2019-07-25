@@ -273,7 +273,7 @@ def search():
         query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
         logger.debug("Starting datamart search service...")
 
-        datamart_instance = Datamart(connection_url=DATAMART_SERVER)
+        datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         if need_wikifier:
             logger.debug("Start running wikifier...")
             search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
@@ -300,8 +300,9 @@ def search():
         json_return = dict()
         json_return["results"] = results
         # return wrap_response(code='0000',
-        #                           msg='Success',
-        #                           data=results)
+        #                       msg='Success',
+        #                       data=json.dumps(json_return, indent=2)
+        #                       )
         return json.dumps(json_return, indent=2)
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
@@ -627,7 +628,12 @@ def augment():
                                  data=None)
         # search with supplied data
         else:
-            columns = request.values.get('columns') or request.files['columns'].read().decode('UTF-8')
+            try:
+                # for nyu's interface
+                columns = request.files['columns'].read().decode('UTF-8')
+            except:
+                columns = request.values.get('columns')
+
             if columns and type(columns) is not list:
                 try:
                     columns = json.loads(columns)
