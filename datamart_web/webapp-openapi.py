@@ -218,9 +218,9 @@ def load_input_supplied_data(data_from_value, data_from_file):
             logger.debug("d3m path maybe?")
             loaded_dataset = load_d3m_dataset(data_from_value)
     else:
-        path = None
+        data = None
         loaded_dataset = None
-    return path, loaded_dataset
+    return data, loaded_dataset
 
 
 def check_return_format(format_):
@@ -256,14 +256,14 @@ def search():
         data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
-            if path is None:
+            if data is None:
                 logger.error("No path given")
                 return wrap_response(code='1000',
                                  msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
                                  data=None)
             else:
                 logger.error("Unable to load the input file with")
-                logger.error(str(path))
+                logger.error(str(data))
                 return wrap_response(code='1000',
                                      msg='FAIL SEARCH - Unable to load input supplied data',
                                      data=None)
