@@ -204,6 +204,7 @@ def load_csv_data(data) -> d3m_Dataset:
     logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
+  
 def load_input_supplied_data(data_from_value, data_from_file):
     if data_from_file:
         data = pd.read_csv(data_from_file).infer_objects()
@@ -242,8 +243,12 @@ def hello():
 def search():
     try:
         # check that each parameter meets the requirements
-        query = json.loads(request.values.get('query')) if request.values.get('query') else None
+        query = read_file(request.files, 'query', 'json')
+        # if not send the json via file
+        if not query and request.form.get('query_json'):
+            query = json.loads(request.form.get('query_json'))
         max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
+        
         try:
             data_file = request.files.get('data')
         except:
@@ -361,7 +366,10 @@ def download():
     try:
         logger.debug("Start datamart downloading...")
         # check that each parameter meets the requirements
-        search_result = json.loads(request.values.get('task')) if request.values.get('task') else None
+        search_result = read_file(request.files, 'task', 'json')
+        # if not send the json via file
+        if not search_result and request.values.get('task'):
+            search_result = json.loads(request.values.get('task'))
         if search_result is None:
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
@@ -578,12 +586,79 @@ def download_by_id(id):
         return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
 
 
+@app.route('/download_metadata/<id>', methods=['GET'])
+@cross_origin()
+def download_metadata_by_id(id):
+    datamart_id = id
+    logger.debug("Start downloading metadata with id " + str(datamart_id))
+    try:
+        # general format datamart id
+        if datamart_id.startswith("wikidata_search_on"):
+            # wikidata search
+            # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
+            p_nodes = datamart_id.split("___")
+            p_nodes = p_nodes[1: -1]
+            materialize_info = {"p_nodes_needed": p_nodes}
+            result_df = Utils.materialize(materialize_info)
+        else:
+            #  len(datamart_id) == 8 and datamart_id[0] == "D":
+            sparql_query = '''
+                prefix ps: <http://www.wikidata.org/prop/statement/> 
+                prefix pq: <http://www.wikidata.org/prop/qualifier/> 
+                prefix p: <http://www.wikidata.org/prop/>
+                SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
+                WHERE 
+                {
+                  ?dataset p:C2001/ps:C2001 ?title .
+                 filter regex(str(?title), "''' + datamart_id + '''").
+                 ?dataset p:P2699/ps:P2699 ?url.
+                 ?dataset p:P2701/ps:P2701 ?file_type.
+                 ?dataset p:C2010/ps:C2010 ?extra_information.
+                }
+            '''
+            sparql = SPARQLWrapper(DATAMART_SERVER)
+            sparql.setQuery(sparql_query)
+            sparql.setReturnFormat(JSON)
+            sparql.setMethod(POST)
+            sparql.setRequestMethod(URLENCODED)
+            results = sparql.query().convert()['results']['bindings']
+            logger.debug("Totally " + str(len(results)) + " results found with given id.")
+            if len(results) == 0:
+                return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
+            logger.debug("Start materialize the dataset...")
+            result_df = Utils.materialize(metadata=results[0])
+
+        logger.debug("Materialize finished, start generating metadata...")
+
+        # generate metadata
+        d3m_df = d3m_DataFrame(result_df, generate_metadata=False)
+        resources = {AUGMENT_RESOURCE_ID: d3m_df}
+        return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
+        return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
+        metadata_all_level = {
+            "id": datamart_id,
+            "version": "2.0",
+            "name": "datamart_dataset_" + datamart_id,
+            "digest":"",
+            "description":"",
+            "source":{'license': 'Other'},
+        }
+        return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
+        # update structure type
+        update_part = {"structural_type": str}
+        for i in range(result_df.shape[1]):
+            return_ds.metadata = return_ds.metadata.update(metadata = update_part, selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
+
+        return json.dumps(return_ds.metadata.to_json_structure(), indent=2)
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
+
+
 @app.route('/augment', methods=['POST'])
 @cross_origin()
 def augment():
     try:
         logger.debug("Start running augment...")
-
         # check that each parameter meets the requirements
         try:
             search_result = json.loads(request.files['task'].read().decode('UTF-8'))

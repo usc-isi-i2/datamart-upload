@@ -62,7 +62,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VariablesOfSearchWithoutData'
+              $ref: '#/components/schemas/Query'
             examples:
               not_use_variables:
                 value: null
@@ -205,6 +205,36 @@ paths:
               schema:
                  type: string
                  format: binary
+        '404':
+          description: Not found.
+
+  /download_metadata/{id}:
+    get:
+      tags:
+        - Download API
+      summary: Download the dataset metadata with given id
+      description: 'The method downloads the datamart dataset metadata associated with the datamart id. Different from the /download/{id} method, this method returns the dataset metadata. <br>If a wikidata format id is given, it will return maximum 100 random Q nodes with those properties metadata. <br><br>One parameter is required: <br> **id**: The datamart id, can be found from search result.'
+      parameters:
+        - in: path
+          name: id
+          description: ID of datamart
+          required: true
+          schema:
+            type: string
+          examples:
+            example 1:
+              value: D20eb2d7f-aafb-443e-8bf2-132ef103e98b
+            example 2:
+              value: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
+      responses:
+        '200':
+          description: array
+          content:
+            application/json:
+              schema:
+                 type: array
+                 items:
+                  $ref: '#/components/schemas/Metadata'
         '404':
           description: Not found.
 
@@ -499,36 +529,38 @@ components:
                 datamart_type:
                   type: string
         metadata:
-          type: array
-          items:
+          $ref: '#/components/schemas/Metadata'
+    Metadata:
+      type: array
+      items:
+        type: object
+        properties:
+          selector:
+            type: array
+            items:
+              type: string
+          metadata:
             type: object
             properties:
-              selector:
+              structural_type:
+                type: string
+              semantic_types:
                 type: array
                 items:
                   type: string
-              metadata:
+              dimension:
                 type: object
                 properties:
-                  structural_type:
+                  name:
                     type: string
                   semantic_types:
                     type: array
                     items:
                       type: string
-                  dimension:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      semantic_types:
-                        type: array
-                        items:
-                          type: string
-                      length:
-                        type: integer
-                  schema:
-                    type: string
+                  length:
+                    type: integer
+              name:
+                type: string
     ProcessResult:
       type: object
       properties:
@@ -595,7 +627,7 @@ components:
                 type: string
               xpath:
                 type: string
-    VariablesOfSearchWithoutData:
+    Query:
       type: object
       properties:
         variables:
@@ -603,10 +635,9 @@ components:
           items:
             oneOf:
               - $ref: '#/components/schemas/TemporalVariable'
-              # - $ref: '#/components/definitions/geospatial_variable'
-              # - $ref: '#/components/definitions/tabular_variable'
-              # - $ref: '#/components/definitions/named_entity_variable'
-
+              # - $ref: '#/components/schemas/geospatial_variable'
+              # - $ref: '#/components/schemas/tabular_variable'
+              # - $ref: '#/components/schemas/named_entity_variable'
     TemporalVariable:
       type: object
       description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second'"
