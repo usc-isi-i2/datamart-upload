@@ -22,8 +22,7 @@ from flask import Flask, request, render_template, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, \
-    DatasetColumn
+from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from flasgger import Swagger
@@ -60,8 +59,7 @@ dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
-datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'],
-                                               query_server=config['update_server'])
+datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server=config['update_server'])
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -70,11 +68,12 @@ app.config['SWAGGER'] = {
     'openapi': '3.0.2'
 }
 
+# swagger-UI configuration
 swagger_config = Swagger.DEFAULT_CONFIG
 swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
 swagger_config['jquery_js'] = '//unpkg.com/jquery@2.2.4/dist/jquery.min.js'
 swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css'
-Swagger(app, template_file='api.yaml', config=swagger_config)
+Swagger(app, template_file = 'api.yaml', config = swagger_config)
 
 
 def retrieve_file_paths(dirName):
@@ -268,8 +267,7 @@ def search():
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         logger.debug("Start running wikifier...")
-        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
-                                                      search_type="wikifier")
+        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
         logger.debug("Wikifier finished, start running download...")
         loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
