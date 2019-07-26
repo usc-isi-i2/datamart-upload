@@ -328,6 +328,7 @@ def search():
 @cross_origin()
 def search_without_data():
     try:
+        logger.debug("Start running search_without_data...")
         keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
         keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
         if request.data:
@@ -398,14 +399,30 @@ def download():
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
+        if request.values.get('run_wikifier'):
+            need_wikifier = request.values.get('run_wikifier')
+            if need_wikifier.lower() == "false":
+                need_wikifier = False
+            elif need_wikifier.lower() == "true":
+                need_wikifier = True
+            else:
+                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                logger.error("Will set need_wikifier with default value as True.")
+                need_wikifier = True
+        else:
+            need_wikifier = True
 
         # search with supplied data
         # preprocess on loaded_dataset
-        logger.debug("Start running wikifier...")
-        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
-                                                      search_type="wikifier")
-        logger.debug("Wikifier finished, start running download...")
-        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+        if need_wikifier:
+            logger.debug("Start running wikifier...")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+            logger.debug("Wikifier finished, start running download...")
+        else:
+            logger.debug("Wikifier skipped, start running download...")
+
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         download_result = search_result.download(supplied_data=loaded_dataset)
         logger.debug("Download finished.")
@@ -602,6 +619,7 @@ def download_metadata_by_id(id):
             p_nodes = datamart_id.split("___")
             p_nodes = p_nodes[1: -1]
             materialize_info = {"p_nodes_needed": p_nodes}
+            logger.debug("Start materialize the dataset for wikidata...")
             result_df = Utils.materialize(materialize_info)
         else:
             #  len(datamart_id) == 8 and datamart_id[0] == "D":
@@ -628,7 +646,7 @@ def download_metadata_by_id(id):
             logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
                 return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
-            logger.debug("Start materialize the dataset...")
+            logger.debug("Start materialize the dataset for general..")
             result_df = Utils.materialize(metadata=results[0])
 
         logger.debug("Materialize finished, start generating metadata...")
@@ -638,6 +656,7 @@ def download_metadata_by_id(id):
         resources = {AUGMENT_RESOURCE_ID: d3m_df}
         return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
         return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
+        logger.debug("Updating metadata...")
         metadata_all_level = {
             "id": datamart_id,
             "version": "2.0",
@@ -652,7 +671,7 @@ def download_metadata_by_id(id):
         for i in range(result_df.shape[1]):
             return_ds.metadata = return_ds.metadata.update(metadata=update_part,
                                                            selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
-
+        logger.debug("Generating metadata finished...")
         return json.dumps(return_ds.metadata.to_json_structure(), indent=2)
     except Exception as e:
         return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
@@ -713,12 +732,28 @@ def augment():
 
         destination = request.values.get('destination')
 
-        logger.debug("Start running wikifier...")
-        # preprocess on loaded_dataset
-        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
-                                                      search_type="wikifier")
-        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
-        logger.debug("Wikifier running finished, start running augment...")
+        if request.values.get('run_wikifier'):
+            need_wikifier = request.values.get('run_wikifier')
+            if need_wikifier.lower() == "false":
+                need_wikifier = False
+            elif need_wikifier.lower() == "true":
+                need_wikifier = True
+            else:
+                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                logger.error("Will set need_wikifier with default value as True.")
+                need_wikifier = True
+        else:
+            need_wikifier = True
+
+        if need_wikifier:
+            logger.debug("Start running wikifier...")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+            logger.debug("Wikifier finished, start running download...")
+        else:
+            logger.debug("Wikifier skipped, start running download...")
+
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         augment_result = search_result.augment(supplied_data=loaded_dataset, augment_columns=columns_formated)
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
@@ -1003,4 +1038,3 @@ def fetch_fb_embeddings(qnode):
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=9000, debug=False, threaded=True)
-    
