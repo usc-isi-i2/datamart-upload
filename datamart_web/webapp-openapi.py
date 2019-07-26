@@ -291,7 +291,8 @@ def search():
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         if need_wikifier:
             logger.debug("Start running wikifier...")
-            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
             logger.debug("Wikifier finished, start running download...")
         else:
@@ -302,9 +303,8 @@ def search():
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
-
             cur = {
-                'augmentation': {'type':'join','left_columns': [[]],'right_columns': [[]]},
+                'augmentation': {'type': 'join', 'left_columns': [[]], 'right_columns': [[]]},
                 'summary': parse_search_result(r),
                 'score': r.score(),
                 'metadata': r.get_metadata().to_json_structure(),
