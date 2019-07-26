@@ -20,10 +20,12 @@ RUN cd ..
 RUN git clone https://github.com/usc-isi-i2/dsbox-primitives.git && cd dsbox-primitives && pip install -e .
 RUN cd ..
 
-RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && pip install -e .
+RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && git checkout 7fc2e38feb52e16fc12b4f075d568fc476b42e5d && pip install -e .
 RUN cd ..
 
-RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && pip install -e .
+RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout 4be844e53e2b18fed160af895a00960d8db41f85 && pip install -e .
+
+COPY /Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation/ /data/
 
 RUN python -m spacy download en
 WORKDIR /app/datamart-upload/datamart_web
