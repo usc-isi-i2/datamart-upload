@@ -22,8 +22,7 @@ from flask import Flask, request, render_template, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, \
-    DatasetColumn
+from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from flasgger import Swagger
@@ -31,18 +30,17 @@ from flasgger import Swagger
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
-
 # set up logging to file - see previous section for more details
 logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s [%(levelname)s] %(name)s -- %(message)s",
-                    datefmt='%m-%d %H:%M',
+                    format="%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s",
+                    datefmt='%m-%d %H:%M:%S',
                     filename='datamart_openapi.log',
                     filemode='w')
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
 # set a format which is simpler for console use
-formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s -- %(message)s")
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
 # tell the handler to use this format
 console.setFormatter(formatter)
 # add the handler to the root logger
@@ -173,7 +171,7 @@ def load_csv_data(data) -> d3m_Dataset:
     :return: a d3m style Dataset
     """
     logger.debug("Trying to load csv data with first 100 characters as:")
-    logger.debug(str(data[:100]))
+    logger.debug(str(data[:10]))
     if type(data) is str:
         data = pd.read_csv(data, dtype=str)
     elif type(data) is pd.DataFrame:
