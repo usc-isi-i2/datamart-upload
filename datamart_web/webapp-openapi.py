@@ -22,7 +22,8 @@ from flask import Flask, request, render_template, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
+from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, \
+    DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from flasgger import Swagger
@@ -59,7 +60,8 @@ dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
-datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'], query_server = config['update_server'])
+datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'],
+                                               query_server=config['update_server'])
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -73,7 +75,7 @@ swagger_config = Swagger.DEFAULT_CONFIG
 swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
 swagger_config['jquery_js'] = '//unpkg.com/jquery@2.2.4/dist/jquery.min.js'
 swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css'
-Swagger(app, template_file = 'api.yaml', config = swagger_config)
+Swagger(app, template_file='api.yaml', config=swagger_config)
 
 
 def retrieve_file_paths(dirName):
@@ -82,7 +84,7 @@ def retrieve_file_paths(dirName):
     # Read all directory, subdirectories and file lists
     for root, directories, files in os.walk(dirName):
         for filename in files:
-        # Create the full filepath by using os module.
+            # Create the full filepath by using os module.
             filePath = os.path.join(root, filename)
             filePaths.append(filePath)
     # return all paths
@@ -195,16 +197,16 @@ def load_csv_data(data) -> d3m_Dataset:
         "id": "datamart_search_" + str(hash(data.values.tobytes())),
         "version": "2.0",
         "name": "user given input from datamart userend",
-        "location_uris":('file:///tmp/datasetDoc.json',),
-        "digest":"",
-        "description":"",
-        "source":{'license': 'Other'},
+        "location_uris": ('file:///tmp/datasetDoc.json',),
+        "digest": "",
+        "description": "",
+        "source": {'license': 'Other'},
     }
     return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
     logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
-  
+
 def load_input_supplied_data(data_from_value, data_from_file):
     if data_from_file:
         data = pd.read_csv(data_from_file).infer_objects()
@@ -248,7 +250,7 @@ def search():
         if not query and request.form.get('query_json'):
             query = json.loads(request.form.get('query_json'))
         max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
-        
+
         try:
             data_file = request.files.get('data')
         except:
@@ -259,8 +261,8 @@ def search():
             if data is None:
                 logger.error("No path given")
                 return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
-                                 data=None)
+                                     msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
+                                     data=None)
             else:
                 logger.error("Unable to load the input file with")
                 logger.error(str(data))
@@ -269,9 +271,9 @@ def search():
                                      data=None)
         if request.values.get('run_wikifier'):
             need_wikifier = request.values.get('run_wikifier')
-            if need_wikifier.lower()=="false":
+            if need_wikifier.lower() == "false":
                 need_wikifier = False
-            elif need_wikifier.lower()=="true":
+            elif need_wikifier.lower() == "true":
                 need_wikifier = True
             else:
                 logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
@@ -289,20 +291,20 @@ def search():
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         if need_wikifier:
             logger.debug("Start running wikifier...")
-            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={}, search_type="wikifier")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
             logger.debug("Wikifier finished, start running download...")
         else:
             logger.debug("Wikifier skipped, start running download...")
-        
+
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
-
             cur = {
-                'augmentation': {'type':'join','left_columns': [[]],'right_columns': [[]]},
+                'augmentation': {'type': 'join', 'left_columns': [[]], 'right_columns': [[]]},
                 'summary': parse_search_result(r),
                 'score': r.score(),
                 'metadata': r.get_metadata().to_json_structure(),
@@ -326,6 +328,7 @@ def search():
 @cross_origin()
 def search_without_data():
     try:
+        logger.debug("Start running search_without_data...")
         keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
         keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
         if request.data:
@@ -396,14 +399,30 @@ def download():
             return wrap_response(code='1000',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
+        if request.values.get('run_wikifier'):
+            need_wikifier = request.values.get('run_wikifier')
+            if need_wikifier.lower() == "false":
+                need_wikifier = False
+            elif need_wikifier.lower() == "true":
+                need_wikifier = True
+            else:
+                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                logger.error("Will set need_wikifier with default value as True.")
+                need_wikifier = True
+        else:
+            need_wikifier = True
 
         # search with supplied data
         # preprocess on loaded_dataset
-        logger.debug("Start running wikifier...")
-        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
-                                                      search_type="wikifier")
-        logger.debug("Wikifier finished, start running download...")
-        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+        if need_wikifier:
+            logger.debug("Start running wikifier...")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+            logger.debug("Wikifier finished, start running download...")
+        else:
+            logger.debug("Wikifier skipped, start running download...")
+
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         download_result = search_result.download(supplied_data=loaded_dataset)
         logger.debug("Download finished.")
@@ -440,7 +459,7 @@ def download():
         if return_format == "d3m":
             # save dataset
             with tempfile.TemporaryDirectory() as tmpdir:
-                save_dir =os.path.join(str(tmpdir), result_id)
+                save_dir = os.path.join(str(tmpdir), result_id)
                 absolute_path_part_length = len(str(save_dir))
                 # print(save_dir)
                 # sys.stdout.flush()
@@ -471,7 +490,7 @@ def download():
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/download/<id>', methods=['GET'])
@@ -494,7 +513,7 @@ def download_by_id(id):
             materialize_info = {"p_nodes_needed": p_nodes}
             result_df = Utils.materialize(materialize_info)
 
-        else: #  len(datamart_id) == 8 and datamart_id[0] == "D":
+        else:  # len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
@@ -522,7 +541,7 @@ def download_by_id(id):
             result_df = Utils.materialize(metadata=results[0])
 
         # else:
-            # return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
+        # return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
 
         logger.debug("Materialize finished, start sending...")
         result_id = str(hash(result_df.values.tobytes()))
@@ -541,18 +560,19 @@ def download_by_id(id):
                 "version": "2.0",
                 "name": "datamart_dataset_" + datamart_id,
                 # "location_uris":('file:///tmp/datasetDoc.json',),
-                "digest":"",
-                "description":"",
-                "source":{'license': 'Other'},
+                "digest": "",
+                "description": "",
+                "source": {'license': 'Other'},
             }
             return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
             # update structure type
-            update_part = {"structural_type":str}
+            update_part = {"structural_type": str}
             for i in range(result_df.shape[1]):
-                return_ds.metadata = return_ds.metadata.update(metadata = update_part, selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
+                return_ds.metadata = return_ds.metadata.update(metadata=update_part,
+                                                               selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
 
             with tempfile.TemporaryDirectory() as tmpdir:
-                save_dir =os.path.join(str(tmpdir), result_id)
+                save_dir = os.path.join(str(tmpdir), result_id)
                 absolute_path_part_length = len(str(save_dir))
                 # print(save_dir)
                 # sys.stdout.flush()
@@ -574,7 +594,7 @@ def download_by_id(id):
                     data,
                     mimetype='application/zip',
                     as_attachment=True,
-                    attachment_filename= datamart_id + '.zip'
+                    attachment_filename=datamart_id + '.zip'
                 )
 
         else:
@@ -583,7 +603,7 @@ def download_by_id(id):
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/download_metadata/<id>', methods=['GET'])
@@ -599,6 +619,7 @@ def download_metadata_by_id(id):
             p_nodes = datamart_id.split("___")
             p_nodes = p_nodes[1: -1]
             materialize_info = {"p_nodes_needed": p_nodes}
+            logger.debug("Start materialize the dataset for wikidata...")
             result_df = Utils.materialize(materialize_info)
         else:
             #  len(datamart_id) == 8 and datamart_id[0] == "D":
@@ -625,7 +646,7 @@ def download_metadata_by_id(id):
             logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
                 return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
-            logger.debug("Start materialize the dataset...")
+            logger.debug("Start materialize the dataset for general..")
             result_df = Utils.materialize(metadata=results[0])
 
         logger.debug("Materialize finished, start generating metadata...")
@@ -635,23 +656,25 @@ def download_metadata_by_id(id):
         resources = {AUGMENT_RESOURCE_ID: d3m_df}
         return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
         return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
+        logger.debug("Updating metadata...")
         metadata_all_level = {
             "id": datamart_id,
             "version": "2.0",
             "name": "datamart_dataset_" + datamart_id,
-            "digest":"",
-            "description":"",
-            "source":{'license': 'Other'},
+            "digest": "",
+            "description": "",
+            "source": {'license': 'Other'},
         }
         return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
         # update structure type
         update_part = {"structural_type": str}
         for i in range(result_df.shape[1]):
-            return_ds.metadata = return_ds.metadata.update(metadata = update_part, selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
-
+            return_ds.metadata = return_ds.metadata.update(metadata=update_part,
+                                                           selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
+        logger.debug("Generating metadata finished...")
         return json.dumps(return_ds.metadata.to_json_structure(), indent=2)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/augment', methods=['POST'])
@@ -709,12 +732,28 @@ def augment():
 
         destination = request.values.get('destination')
 
-        logger.debug("Start running wikifier...")
-        # preprocess on loaded_dataset
-        search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
-                                                      search_type="wikifier")
-        loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
-        logger.debug("Wikifier running finished, start running augment...")
+        if request.values.get('run_wikifier'):
+            need_wikifier = request.values.get('run_wikifier')
+            if need_wikifier.lower() == "false":
+                need_wikifier = False
+            elif need_wikifier.lower() == "true":
+                need_wikifier = True
+            else:
+                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                logger.error("Will set need_wikifier with default value as True.")
+                need_wikifier = True
+        else:
+            need_wikifier = True
+
+        if need_wikifier:
+            logger.debug("Start running wikifier...")
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+            logger.debug("Wikifier finished, start running download...")
+        else:
+            logger.debug("Wikifier skipped, start running download...")
+
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         augment_result = search_result.augment(supplied_data=loaded_dataset, augment_columns=columns_formated)
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
@@ -757,7 +796,7 @@ def augment():
             logger.info("Return the augment result directly required.")
             if return_format == "d3m":
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    save_dir =os.path.join(str(tmpdir), result_id)
+                    save_dir = os.path.join(str(tmpdir), result_id)
                     absolute_path_part_length = len(str(save_dir))
                     # print(save_dir)
                     # sys.stdout.flush()
@@ -787,7 +826,7 @@ def augment():
                 return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload', methods=['POST'])
@@ -821,14 +860,15 @@ def upload():
                 if keywords:
                     meta[i]['keywords'] = keywords[i]
         except:
-            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only "
+            msg = "ERROR set the user defined title / description / keywords: " + str(
+                len(meta)) + " tables detected but only "
             if title:
-                msg += str(len(title)) +" title, "
+                msg += str(len(title)) + " title, "
             if description:
                 msg += str(len(description)) + " description, "
             if keywords:
                 msg += str(len(keywords)) + "keywords"
-            msg+= " given."
+            msg += " given."
             return wrap_response('1000', msg=msg)
 
         for i in range(len(df)):
@@ -836,14 +876,15 @@ def upload():
             response_id = datamart_upload_instance.upload()
         return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
-    datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'],query_server=config['update_test_server'])
+    datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'],
+                                                        query_server=config['update_test_server'])
     try:
         url = request.values.get('url')
         if url is None:
@@ -871,14 +912,15 @@ def upload_test():
                 if keywords:
                     meta[i]['keywords'] = keywords[i]
         except:
-            msg = "ERROR set the user defined title / description / keywords: " + str(len(meta)) + " tables detected but only "
+            msg = "ERROR set the user defined title / description / keywords: " + str(
+                len(meta)) + " tables detected but only "
             if title:
-                msg += str(len(title)) +" title, "
+                msg += str(len(title)) + " title, "
             if description:
                 msg += str(len(description)) + " description, "
             if keywords:
                 msg += str(len(keywords)) + "keywords"
-            msg+= " given."
+            msg += " given."
             return wrap_response('1000', msg=msg)
 
         for i in range(len(df)):
@@ -886,7 +928,7 @@ def upload_test():
             datamart_upload_test_instance.upload()
         return wrap_response('0000', msg="UPLOAD TEST Success!")
     except Exception as e:
-        return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/generateWD+Metadata', methods=['POST'])
@@ -906,7 +948,7 @@ def load_and_process():
                                  msg='FAIL SEARCH - file_type can not be None',
                                  data=None)
 
-        df,meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
+        df, meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
         df_returned = []
         for each in df:
             data = io.StringIO()
@@ -915,7 +957,7 @@ def load_and_process():
         # return wrap_response('0000', data=(df_returned, meta))
         return json.dumps({"data": df_returned, "metadata": meta}, indent=2)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/uploadWD+Metadata', methods=['POST'])
@@ -952,7 +994,7 @@ def upload_metadata():
 
         return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" %(str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/embeddings/fb/<qnode>', methods=['GET'])
@@ -981,7 +1023,7 @@ def fetch_fb_embeddings(qnode):
             result_csv += '{}'.format(_qnode)
 
             for i in range(len(source['value'])):
-                if(i%20 == 0):
+                if (i % 20 == 0):
                     result_csv += '\n'
                 if i == len(source['value']) - 1:
                     result_csv += '{}'.format(source['value'][i])
