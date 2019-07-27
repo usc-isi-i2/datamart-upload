@@ -179,6 +179,7 @@ def load_csv_data(data) -> d3m_Dataset:
     else:
         raise ValueError("Unknown input type.")
     # transform pd.DataFrame to d3m.Dataset
+    data.fillna("",inplace=True)
     d3m_df = d3m_DataFrame(data, generate_metadata=False)
     resources = {AUGMENT_RESOURCE_ID: d3m_df}
     return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
