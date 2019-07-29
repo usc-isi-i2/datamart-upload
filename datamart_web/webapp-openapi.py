@@ -307,8 +307,8 @@ def search():
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
             logger.debug("Wikifier finished, start running download...")
         else:
+            logger.debug("Wikifier skipped, start running download...")
 
- 
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
