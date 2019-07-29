@@ -76,6 +76,17 @@ swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css
 Swagger(app, template_file='api.yaml', config=swagger_config)
 
 
+class StringConverter(dict):
+    def __contains__(self, item):
+        return True
+
+    def __getitem__(self, item):
+        return str
+
+    def get(self, default=None):
+        return str
+
+
 def retrieve_file_paths(dirName):
     # setup file paths variable
     filePaths = []
@@ -102,7 +113,7 @@ def read_file(files, key, _type):
     if files and key in files:
         try:
             if _type == 'csv':
-                return pd.read_csv(files[key]).infer_objects()
+                return pd.read_csv(files[key], converters=StringConverter()).infer_objects()
             elif _type == 'json':
                 return json.load(files[key])
         except:
@@ -173,13 +184,14 @@ def load_csv_data(data) -> d3m_Dataset:
     logger.debug("Trying to load csv data with first 100 characters as:")
     logger.debug(str(data[:10]))
     if type(data) is str:
-        data = pd.read_csv(data, dtype=str)
+        data = pd.read_csv(data, converters=StringConverter())
     elif type(data) is pd.DataFrame:
+        data.fillna("",inplace=True)
         data = data.astype(str)
     else:
         raise ValueError("Unknown input type.")
     # transform pd.DataFrame to d3m.Dataset
-    data.fillna("",inplace=True)
+
     d3m_df = d3m_DataFrame(data, generate_metadata=False)
     resources = {AUGMENT_RESOURCE_ID: d3m_df}
     return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
@@ -205,10 +217,10 @@ def load_csv_data(data) -> d3m_Dataset:
     logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
-
 def load_input_supplied_data(data_from_value, data_from_file):
     if data_from_file:
-        data = pd.read_csv(data_from_file).infer_objects()
+        logger.debug("Detected a file from post body!")
+        data = pd.read_csv(data_from_file, converters=StringConverter()).infer_objects()
         loaded_dataset = load_csv_data(data)
     elif data_from_value:
         data = None
@@ -295,8 +307,8 @@ def search():
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
             logger.debug("Wikifier finished, start running download...")
         else:
-            logger.debug("Wikifier skipped, start running download...")
 
+ 
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
@@ -981,7 +993,7 @@ def upload_metadata():
             if di[-1] == "\n":
                 di = di[:-1]
             loaded_data = io.StringIO(di)
-            data_df.append(pd.read_csv(loaded_data, dtype="str"))
+            data_df.append(pd.read_csv(loaded_data, converters=StringConverter()))
 
         if request.values.get('dataset_number'):
             dataset_number = request.values.get('dataset_number')
@@ -1022,7 +1034,7 @@ def fetch_fb_embeddings(qnode):
             result_csv += '{}'.format(_qnode)
 
             for i in range(len(source['value'])):
-                if (i % 20 == 0):
+                if i % 20 == 0:
                     result_csv += '\n'
                 if i == len(source['value']) - 1:
                     result_csv += '{}'.format(source['value'][i])
