@@ -628,20 +628,24 @@ def download_metadata_by_id(id):
             # wikidata search
             # wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
             p_nodes = datamart_id.split("___")
+            target_q_node = "_".join(p_nodes[-1].split('_')[2:])
             p_nodes = p_nodes[1: -1]
-            materialize_info = {"p_nodes_needed": p_nodes}
-            logger.debug("Start materialize the dataset for wikidata...")
-            result_df = Utils.materialize(materialize_info)
+            search_result = {"p_nodes_needed": p_nodes, "target_q_node_column_name": target_q_node}
+            logger.debug("Start searching the metadata for wikidata...")
+            metadata = DatamartSearchResult(search_result=search_result, supplied_data=None, query_json={},
+                                                          search_type="wikidata").d3m_metadata
+
         else:
             #  len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
                 prefix ps: <http://www.wikidata.org/prop/statement/> 
                 prefix pq: <http://www.wikidata.org/prop/qualifier/> 
                 prefix p: <http://www.wikidata.org/prop/>
-                SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
+                SELECT distinct ?dataset ?datasetLabel ?title ?url ?file_type ?extra_information
                 WHERE 
                 {
-                  ?dataset p:C2001/ps:C2001 ?title .
+                 ?dataset rdfs:label ?datasetLabel.
+                 ?dataset p:C2001/ps:C2001 ?title .
                  filter regex(str(?title), "''' + datamart_id + '''").
                  ?dataset p:P2699/ps:P2699 ?url.
                  ?dataset p:P2701/ps:P2701 ?file_type.
@@ -657,17 +661,12 @@ def download_metadata_by_id(id):
             logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
                 return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
-            logger.debug("Start materialize the dataset for general..")
-            result_df = Utils.materialize(metadata=results[0])
-
-        logger.debug("Materialize finished, start generating metadata...")
-
-        # generate metadata
-        d3m_df = d3m_DataFrame(result_df, generate_metadata=False)
-        resources = {AUGMENT_RESOURCE_ID: d3m_df}
-        return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
-        return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
-        logger.debug("Updating metadata...")
+            logger.debug("Start searching the metadata for general..")
+            results[0]['score'] = {"value": 0}
+            metadata = DatamartSearchResult(search_result=results[0], supplied_data=None, query_json={},
+                                            search_type="general").d3m_metadata
+        logger.debug("Searching metadata finished...")
+        # update metadata
         metadata_all_level = {
             "id": datamart_id,
             "version": "2.0",
@@ -676,14 +675,8 @@ def download_metadata_by_id(id):
             "description": "",
             "source": {'license': 'Other'},
         }
-        return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
-        # update structure type
-        update_part = {"structural_type": str}
-        for i in range(result_df.shape[1]):
-            return_ds.metadata = return_ds.metadata.update(metadata=update_part,
-                                                           selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
-        logger.debug("Generating metadata finished...")
-        return json.dumps(return_ds.metadata.to_json_structure(), indent=2)
+        metadata = metadata.update(metadata=metadata_all_level, selector=())
+        return json.dumps(metadata.to_json_structure(), indent=2)
     except Exception as e:
         return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
