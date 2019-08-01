@@ -314,13 +314,16 @@ def search():
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for r in res:
+            materialize_info = r.serialize()
+            materialize_info_decoded = json.loads(materialize_info)
+            augmentation_part = materialize_info_decoded['augmentation']
             cur = {
-                'augmentation': {'type': 'join', 'left_columns': [[]], 'right_columns': [[]]},
+                'augmentation': {'type': augmentation_part['properties'], 'left_columns': [augmentation_part['left_columns']], 'right_columns': [augmentation_part['right_columns']]},
                 'summary': parse_search_result(r),
                 'score': r.score(),
                 'metadata': r.get_metadata().to_json_structure(),
                 'id': r.id(),
-                'materialize_info': r.serialize()
+                'materialize_info': materialize_info
             }
             results.append(cur)
         json_return = dict()
@@ -1048,4 +1051,4 @@ def fetch_fb_embeddings(qnode):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=9000, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=9000, debug=False)
