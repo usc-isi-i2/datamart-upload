@@ -665,6 +665,7 @@ def download_metadata_by_id(id):
             results[0]['score'] = {"value": 0}
             metadata = DatamartSearchResult(search_result=results[0], supplied_data=None, query_json={},
                                             search_type="general").d3m_metadata
+
         logger.debug("Searching metadata finished...")
         # update metadata
         metadata_all_level = {
