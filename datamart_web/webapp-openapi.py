@@ -363,8 +363,6 @@ def wikifier():
                             Q_NODE_SEMANTIC_TYPE
                         )}
             output_ds.metadata = output_ds.metadata.update(selector, metadata)
-        import pdb
-        pdb.set_trace()
 
         logger.info("Return the wikifier result.")
         result_id = str(hash(wikifier_res.values.tobytes()))
