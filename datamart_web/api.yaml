@@ -11,6 +11,74 @@ info:
   # - url: http://staging-api.example.com
   #   description: Optional server description, e.g. Internal staging server for testing
 paths:
+  /wikifier:
+    post:
+      tags:
+        - Search API
+      summary: Do wikifier before search
+      description: 'The method chooses which column and which method you want to do wikifier. <br><br> One parameters is required: <br> **data**: The supplied data (a path to the csv file or a d3m dataset id). <br> <br> Four parameters are optional: <br> **format**: Return format (csv format or d3m format with metadata). <br> **column**: specifies which column from the complementary datamart dataset to append to the supplied data. If not given, all columns are append. <br> **wikifier_choice**: specifies which method you want to wikify a column. If columns not given, it will choose automatic by default. If you want to wikify a numeric column, please choose identifier. If you want to wikify a text column, please choose new_wikifier. If you do not know which one to use, please choose automatic. <br> **threshold**: minimum coverage ratio for a wikidata columns to be appended.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  column:
+                    type: integer
+                  wikifier_choice:
+                    type: string
+            examples:
+              example_for_not_specified:
+                value: null
+              example_for_test_search_data:
+                value:
+                  - column: 1
+                    wikifier_choice: identifier
+                  - column: 2
+                    wikifier_choice: new_wikifier
+                  - column: 3
+                    wikifier_choice: new_wikifier
+                  - column: 5
+                    wikifier_choice: identifier
+                description: 'column is an optional parameter, an integer indicates the list of column indices from the Datamart dataset that should be appended. If not given, all possible columns will be appended and it will choose automatic wikifier method by default.<br> wikifier_choice is an optional parameter, it includes three choices: identifier, new_wikifier and automatic. If you want to wikify a numeric column, please choose identifier. If you want to wikify a text column, please choose new_wikifier. If you do not know which one to use, please choose automatic.'
+      parameters:
+        - in: query
+          name: data
+          description: '<p>Supplied data file. It could be a filepath or a d3m dataset id (for example: "DA_poverty_estimation"). </p>'
+          schema:
+            type: string
+          required: true
+          examples:
+            filepath:
+              value: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_search_data.csv
+            d3m-dataset-id:
+              value: DA_poverty_estimation
+        - in: query
+          name: format
+          description: Optional parameter, download format(general csv format or d3m format), default is csv.
+          required: false
+          schema:
+            type: string
+            enum: [csv, d3m]
+        - in: query
+          name: threshold
+          description: Optional parameter, minimum coverage ratio for a wikidata columns to be appended. The range is (0,1) and default is 0.7.
+          required: false
+          schema:
+            type: number
+          example: 0.7
+      responses:
+        '200':
+          description: A zip file
+          content:
+            application/zip:
+              schema:
+                 type: string
+                 format: binary
+        '404':
+          description: Not found.
   /search:
     post:
       tags:

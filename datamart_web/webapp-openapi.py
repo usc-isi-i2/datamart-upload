@@ -12,12 +12,15 @@ import tempfile
 import pathlib
 import logging
 import requests
+import copy
+import frozendict
+from wikifier.wikifier import produce
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
-from d3m.metadata.base import ALL_ELEMENTS
+from d3m.metadata.base import DataMetadata, ALL_ELEMENTS
 from flask import Flask, request, render_template, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
@@ -52,14 +55,16 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
-                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
-                 "/data",  # for docker using
-                 "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
-                 ]
+# dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
+#                  "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
+#                  "/data",  # for docker using
+#                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
+#                  ]
+dataset_paths = ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
 DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'],
                                                query_server=config['update_server'])
+Q_NODE_SEMANTIC_TYPE = config['q_node_semantic_type']
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -217,6 +222,7 @@ def load_csv_data(data) -> d3m_Dataset:
     logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
+
 def load_input_supplied_data(data_from_value, data_from_file):
     if data_from_file:
         logger.debug("Detected a file from post body!")
@@ -249,6 +255,149 @@ def check_return_format(format_):
 @app.route('/')
 def hello():
     return redirect('/apidocs')
+
+
+@app.route('/wikifier', methods=['POST'])
+@cross_origin()
+def wikifier():
+    try:
+        logger.debug("Start running wikifier...")
+        # check that each parameter meets the requirements
+        try:
+            data_file = request.files.get('data')
+        except:
+            data_file = None
+        data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
+
+        if loaded_dataset is None:
+            return wrap_response(code='1000',
+                                 msg='FAIL SEARCH - Unable to load input supplied data',
+                                 data=None)
+
+        return_format = request.values.get('format')
+        # if not get return format, set defauld as csv
+        if return_format is None:
+            return_format = "csv"
+        else:
+            return_format = check_return_format(return_format)
+        if not return_format:
+            return wrap_response(code='1000',
+                                 msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
+                                 data=None)
+
+        logger.info("The requested download format is " + return_format)
+
+        columns_formated, choice = [], []
+
+        try:
+            if request.data:
+                col_cho = json.loads(str(request.data, "utf-8"))
+                for x in col_cho:
+                    if "column" in x.keys() and "wikifier_choice" in x.keys():
+                        columns_formated.append(int(x['column']))
+                        if x['wikifier_choice'] in ["identifier", "new_wikifier", "automatic"]:
+                            choice.append(x['wikifier_choice'])
+                        else:
+                            return wrap_response(code='1000',
+                                                 msg='FAIL SEARCH - Unknown wikifier choice, please follow the examples: ' + str(x['wikifier_choice']),
+                                                 data=None)
+                    else:
+                        return wrap_response(code='1000',
+                                             msg='FAIL SEARCH - Missed column or wikifier_choice, please follow the examples: ' + str(x),
+                                             data=None)
+            else:
+                columns_formated = None
+                choice = ['automatic']
+        except:
+            return wrap_response(code='1000',
+                                msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
+                                data=None)
+        logger.info("Required columns found as: " + str(columns_formated))
+        logger.info("Wikifier choice is: " + str(choice))
+
+        threshold = request.values.get("threshold")
+        if not threshold:
+            threshold = 0.7
+        else:
+            try:
+                threshold = float(threshold)
+            except:
+                threshold = 0.7
+        logger.info("Threshold for converage is: " + str(threshold))
+
+
+        logger.debug("Start changing dataset to dataframe...")
+        # DA = load_d3m_dataset("DA_poverty_estimation")
+        # Utils.save_metadata_from_dataset(DA)
+        # try to update with more correct metadata if possible
+        updated_result = Utils.check_and_get_dataset_real_metadata(loaded_dataset)
+        if updated_result[0]:  # [0] store whether it success find the metadata
+            loaded_dataset = updated_result[1]
+        res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset,
+                                                                    resource_id=None,has_hyperparameter=False)
+        output_ds = copy.copy(loaded_dataset)
+        logger.debug("Start running wikifier...")
+        wikifier_res = produce(inputs=supplied_dataframe, target_columns=columns_formated, target_p_nodes=None,
+                                                    wikifier_choice=choice, threshold=threshold)
+        logger.debug("Wikifier finished, Start to update metadata...")
+        output_ds[res_id] = d3m_DataFrame(wikifier_res, generate_metadata=False)
+
+        # update metadata on column length
+        selector = (res_id, ALL_ELEMENTS)
+        old_meta = dict(output_ds.metadata.query(selector))
+        old_meta_dimension = dict(old_meta['dimension'])
+        old_column_length = old_meta_dimension['length']
+        old_meta_dimension['length'] = wikifier_res.shape[1]
+        old_meta['dimension'] = frozendict.FrozenOrderedDict(old_meta_dimension)
+        new_meta = frozendict.FrozenOrderedDict(old_meta)
+        output_ds.metadata = output_ds.metadata.update(selector, new_meta)
+
+        # update new column's metadata
+        for i in range(old_column_length, wikifier_res.shape[1]):
+            selector = (res_id, ALL_ELEMENTS, i)
+            metadata = {"name": wikifier_res.columns[i],
+                        "structural_type": str,
+                        'semantic_types': (
+                            "http://schema.org/Text",
+                            'https://metadata.datadrivendiscovery.org/types/Attribute',
+                            Q_NODE_SEMANTIC_TYPE
+                        )}
+            output_ds.metadata = output_ds.metadata.update(selector, metadata)
+        import pdb
+        pdb.set_trace()
+
+        logger.info("Return the wikifier result.")
+        result_id = str(hash(wikifier_res.values.tobytes()))
+        if return_format == "d3m":
+            with tempfile.TemporaryDirectory() as tmpdir:
+                save_dir = os.path.join(str(tmpdir), result_id)
+                absolute_path_part_length = len(str(save_dir))
+                output_ds.save("file://" + save_dir + "/datasetDoc.json")
+                base_path = pathlib.Path(save_dir + '/')
+                data = io.BytesIO()
+                filePaths = retrieve_file_paths(save_dir)
+
+                zip_file = zipfile.ZipFile(data, 'w')
+                with zip_file:
+                    # write each file seperately
+                    for fileName in filePaths:
+                        shorter_path = fileName[absolute_path_part_length:]
+                        zip_file.write(fileName, shorter_path)
+                data.seek(0)
+
+                return send_file(
+                    data,
+                    mimetype='application/zip',
+                    as_attachment=True,
+                    attachment_filename='download_result' + result_id + '.zip'
+                )
+        else:
+            data = io.StringIO()
+            wikifier_res.to_csv(data, index=False)
+            return Response(data.getvalue(), mimetype="text/csv")
+
+    except Exception as e:
+        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/search', methods=['POST'])
@@ -636,7 +785,7 @@ def download_metadata_by_id(id):
             search_result = {"p_nodes_needed": p_nodes, "target_q_node_column_name": target_q_node}
             logger.debug("Start searching the metadata for wikidata...")
             metadata = DatamartSearchResult(search_result=search_result, supplied_data=None, query_json={},
-                                                          search_type="wikidata").d3m_metadata
+                                                          search_type="wikidata").get_metadata()
 
         else:
             #  len(datamart_id) == 8 and datamart_id[0] == "D":
@@ -667,7 +816,7 @@ def download_metadata_by_id(id):
             logger.debug("Start searching the metadata for general..")
             results[0]['score'] = {"value": 0}
             metadata = DatamartSearchResult(search_result=results[0], supplied_data=None, query_json={},
-                                            search_type="general").d3m_metadata
+                                            search_type="general").get_metadata()
 
         logger.debug("Searching metadata finished...")
         # update metadata
