@@ -55,12 +55,11 @@ em_es_index = config['em_es_index']
 em_es_type = config['em_es_type']
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-# dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
-#                  "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
-#                  "/data",  # for docker using
-#                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
-#                  ]
-dataset_paths = ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]
+dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
+                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
+                 "/data",  # for docker using
+                 "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
+                 ]
 DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
 datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'],
                                                query_server=config['update_server'])
