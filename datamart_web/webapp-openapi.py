@@ -299,11 +299,11 @@ def wikifier():
                             choice.append(x['wikifier_choice'])
                         else:
                             return wrap_response(code='1000',
-                                                 msg='FAIL SEARCH - Unknown wikifier choice, please follow the examples: ' + str(x['wikifier_choice']),
+                                                 msg='FAIL SEARCH - Unknown wikifier choice, please follow the examples!!! ' + str(x['wikifier_choice']),
                                                  data=None)
                     else:
                         return wrap_response(code='1000',
-                                             msg='FAIL SEARCH - Missed column or wikifier_choice, please follow the examples: ' + str(x),
+                                             msg='FAIL SEARCH - Missed column or wikifier_choice, please follow the examples!!! ' + str(x),
                                              data=None)
             else:
                 columns_formated = None
@@ -323,7 +323,7 @@ def wikifier():
                 threshold = float(threshold)
             except:
                 threshold = 0.7
-        logger.info("Threshold for converage is: " + str(threshold))
+        logger.info("Threshold for coverage is: " + str(threshold))
 
 
         logger.debug("Start changing dataset to dataframe...")
