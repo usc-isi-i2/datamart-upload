@@ -35,6 +35,7 @@ CACHE_EXIPRE_TIME_LENGTH = config.cache_expire_time
 MEMACHE_SERVER = config.memcache_server
 WIKIDATA_QUERY_SERVER = config.wikidata_server
 
+
 def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE_TIME_LENGTH, client_ip: str=MEMACHE_SERVER) -> None:
     """
     The function used to check whether a query cache in memcache need to be run again to ensure the content are up-to-date
@@ -86,6 +87,7 @@ def update_wikidata_query(query_dict: dict, expire_time_length: int=CACHE_EXIPRE
     used_time = time.time() - start
     _logger.info("Updating all queries finished. Totally take {time_used} seconds.".format(time_used=str(used_time)))
 
+
 def save_all_keys(client_ip: str="localhost", client_port:str="11211", maximum_key_amount=100000, file_loc:str="all_keys.out") -> None:
     """
     function to use shell command to save all keys from mecache
@@ -99,6 +101,37 @@ def save_all_keys(client_ip: str="localhost", client_port:str="11211", maximum_k
         if out:
             print (bytes.decode(out))
     _logger.info("All keys of memcache save finished at " + file_loc)
+
+
+def save_all_values_from_key_file(key_file_loc:str="all_keys.out", client_ip: str=MEMACHE_SERVER, save_loc:str="memcache_backup.pkl"):
+    mc = memcache.Client([client_ip], debug=True)
+    save_dict = dict()
+    with open(key_file_loc) as f:
+        content = [line.rstrip('\n') for line in f]
+    for each in content:
+        try:
+            if each.startswith("ITEM"):
+                each_key = each.split(" ")[1]
+                each_value = mc.get(each_key)
+                save_dict[each_key] = each_value
+        except:
+            _logger.error("ERROR when processing " + each)
+            traceback.print_exc()
+    with open(save_loc,'wb') as f:
+        pickle.dump(save_dict, f)
+
+
+def load_all_saved_key_value_pairs(client_ip: str=MEMACHE_SERVER, save_loc:str="memcache_backup.pkl"):
+    mc = memcache.Client([client_ip], debug=True)
+    save_dict = dict()
+    with open(save_loc,'rb') as f:
+        loaded_dict = pickle.load(f)
+    for each_key, each_value in loaded_dict.items():
+        try:
+            mc.set(each_key, each_value)
+        except:
+            _logger.error("ERROR when loading " + each_key)
+            traceback.print_exc()
 
 def load_all_wikidata_keys_from_file(file_loc:str="all_keys.out", client_ip: str=MEMACHE_SERVER):
     mc = memcache.Client([client_ip], debug=True)
@@ -139,7 +172,8 @@ def run_sparql_query(sparql_query):
     result = sparql.query().convert()['results']['bindings']
     return result
 
-def main(update_time:str):
+
+def main(update_time: str, update_frequency: str):
     if update_time == "now":
         pass
     else:
@@ -151,19 +185,32 @@ def main(update_time:str):
             time.sleep(seconds_to_time_update)
         except:
             _logger.error("Wrong update time format given, will update now!")
+
+    try:
+        update_frequency = float(update_frequency)
+    except:
+        _logger.error("Wrong update frequency format given, will use default value as 24 hours")
+        update_frequency = 24
+
     while True:
         _logger.info("-"*50 + "Start updating" + "-" * 50)
         save_all_keys()
         memcache_keys = load_all_wikidata_keys_from_file()
         update_wikidata_query(memcache_keys)
+        save_all_values_from_key_file()
         _logger.info("-"*50 + "End of update!" + "-" * 50)
+        _logger.info("Start waiting for " + str(update_frequency) + " hours.")
         # sleep 24 hours to do next time running
-        time.sleep(3600*24)
+        time.sleep(3600 * update_frequency)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='The auto query updater service')
-    parser.add_argument('update_time', help='The time of hour that want it to run update service.')
+    parser.add_argument('update_time', help='The time of hour that want it to run update service. Default is running update now')
+    parser.add_argument('update_frequency', help='The update frequency, how long in hour should the system to update the query. Default is running each 24 hours')
     args = parser.parse_args()
-    update_time = args.update_time
-    main(update_time=update_time)
+    update_time = Path(args.update_time)
+    update_frequency = Path(args.update_frequency)
+    main(update_time=update_time, update_frequency=update_frequency)
+        
         
