@@ -3,6 +3,5 @@
   "em_es_index": "wiki_fb_embeddings_1",
   "em_es_type": "vectors",
   "update_server": "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql",
-  "update_test_server": "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql",
-  "q_node_semantic_type": "http://wikidata.org/qnode"
+  "update_test_server": "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart_test/sparql"
 }
