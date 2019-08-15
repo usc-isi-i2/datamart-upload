@@ -209,8 +209,8 @@ if __name__ == '__main__':
     parser.add_argument('update_time', help='The time of hour that want it to run update service. Default is running update now')
     parser.add_argument('update_frequency', help='The update frequency, how long in hour should the system to update the query. Default is running each 24 hours')
     args = parser.parse_args()
-    update_time = Path(args.update_time)
-    update_frequency = Path(args.update_frequency)
+    update_time = args.update_time
+    update_frequency = args.update_frequency
     main(update_time=update_time, update_frequency=update_frequency)
         
         

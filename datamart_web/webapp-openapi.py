@@ -584,7 +584,7 @@ def download():
             logger.debug("Wikifier skipped, start running download...")
 
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
-        download_result = search_result.download(supplied_data=loaded_dataset)
+        download_result = search_result.download(supplied_data=loaded_dataset, run_wikifier=need_wikifier)
         logger.debug("Download finished.")
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=download_result, resource_id=None)
 

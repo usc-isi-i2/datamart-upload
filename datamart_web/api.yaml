@@ -110,7 +110,7 @@ paths:
               value: DA_poverty_estimation
         - in: query
           name: run_wikifier
-          description: whether to set need_wikifier. Default value is true.
+          description: whether to run wikifier on supplied data or not. Default value is true. If not run wikifier, the search speed will be quicker but the wikidata related parts will be missed.
           schema:
             type: string
             enum: [true, false]
@@ -226,7 +226,7 @@ paths:
           example: /Users/claire/Desktop
         - in: query
           name: run_wikifier
-          description: whether to set need_wikifier. Default value is true.
+          description: whether to run wikifier on supplied data and search result(only applied for genearl search results) or not. Default value is true. The download will failed if the joining hint columns are adapted from wikifier's columns.
           schema:
             type: string
             enum: [true, false]
@@ -279,7 +279,7 @@ paths:
             enum: [csv, d3m]
         - in: query
           name: run_wikifier
-          description: whether to set need_wikifier. Default value is true.
+          description: whether to run wikifier on supplied data and search result(only applied for genearl search results) or not. Default value is true. The download will failed if the joining hint columns are adapted from wikifier's columns.
           schema:
             type: string
             enum: [true, false]
