@@ -50,10 +50,9 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 
-config = json.load(open('config.json'))
-em_es_url = config['em_es_url']
-em_es_index = config['em_es_index']
-em_es_type = config['em_es_type']
+em_es_url = config_datamart.em_es_url
+em_es_index = config_datamart.em_es_index
+em_es_type = config_datamart.em_es_type
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
 dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
@@ -62,8 +61,8 @@ dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
-datamart_upload_instance = Datamart_isi_upload(update_server=config['update_server'],
-                                               query_server=config['update_server'])
+datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
+                                               query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
 
 app = Flask(__name__)
@@ -1038,8 +1037,8 @@ def upload():
 @cross_origin()
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
-    datamart_upload_test_instance = Datamart_isi_upload(update_server=config['update_test_server'],
-                                                        query_server=config['update_test_server'])
+    datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
+                                                        query_server=DATAMART_SERVER)
     try:
         url = request.values.get('url')
         if url is None:
