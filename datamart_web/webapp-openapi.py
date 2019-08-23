@@ -28,7 +28,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
-from datamart_isi.utilities.metadata_cache import MetadataCache
+from datamart_isi.cache.metadata_cache import MetadataCache
 from flasgger import Swagger
 
 logger = logging.getLogger()
