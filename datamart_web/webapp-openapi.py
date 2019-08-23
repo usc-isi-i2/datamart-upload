@@ -28,6 +28,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
+from datamart_isi.utilities.metadata_cache import MetadataCache
 from flasgger import Swagger
 
 logger = logging.getLogger()
@@ -327,9 +328,9 @@ def wikifier():
 
         logger.debug("Start changing dataset to dataframe...")
         # DA = load_d3m_dataset("DA_poverty_estimation")
-        # Utils.save_metadata_from_dataset(DA)
+        # MetadataCache.save_metadata_from_dataset(DA)
         # try to update with more correct metadata if possible
-        updated_result = Utils.check_and_get_dataset_real_metadata(loaded_dataset)
+        updated_result = MetadataCache.check_and_get_dataset_real_metadata(loaded_dataset)
         if updated_result[0]:  # [0] store whether it success find the metadata
             loaded_dataset = updated_result[1]
         res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset,
