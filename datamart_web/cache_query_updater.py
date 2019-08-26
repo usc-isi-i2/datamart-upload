@@ -18,6 +18,7 @@ from d3m.container import Dataset as d3m_Dataset
 from d3m.base import utils as d3m_utils
 from datamart_isi.utilities import d3m_wikifier
 from datamart_isi.utilities.utils import Utils
+from datamart_isi.utilities import connection
 
 # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
 _logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ logging.getLogger('').addHandler(console)
 
 # set default update query each day
 CACHE_EXIPRE_TIME_LENGTH = config.cache_expire_time
-MEMACHE_SERVER = config.memcache_server
+MEMACHE_SERVER = connection.get_memcache_server_url()
 MEMACHE_SERVER_PORT = config.memcache_server_suffix[1:]
 WIKIDATA_QUERY_SERVER = "http://" + config.default_datamart_url + config.wikidata_server_suffix
 
