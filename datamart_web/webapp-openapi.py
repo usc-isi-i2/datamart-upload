@@ -60,7 +60,7 @@ dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation
                  "/data",  # for docker using
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
-DATAMART_SERVER = connection.get_genearl_search_server_url(config_datamart.default_datamart_url)
+DATAMART_SERVER = connection.get_general_search_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type

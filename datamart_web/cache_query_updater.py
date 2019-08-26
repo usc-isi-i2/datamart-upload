@@ -42,7 +42,7 @@ logging.getLogger('').addHandler(console)
 CACHE_EXIPRE_TIME_LENGTH = config.cache_expire_time
 MEMACHE_SERVER = config.memcache_server
 MEMACHE_SERVER_PORT = config.memcache_server_suffix[1:]
-WIKIDATA_QUERY_SERVER = config.wikidata_server
+WIKIDATA_QUERY_SERVER = "http://" + config.default_datamart_url + config.wikidata_server_suffix
 
 
 class DatamartCacheUpdater:
@@ -327,10 +327,10 @@ def main(update_time: str, update_frequency: str):
         _logger.info("-"*50 + "Start updating" + "-" * 50)
         cache_updater.save_all_keys()
         memcache_keys = cache_updater.load_all_cache_keys_from_file()
-        # cache_updater.update_wikidata_query(memcache_keys)
-        # cache_updater.update_wikifier_query(memcache_keys)
-        cache_updater.update_wikifier_for_datasets_in_datamart()
-        # cache_updater.save_all_values_from_key_file()
+        cache_updater.update_wikidata_query(memcache_keys)
+        cache_updater.update_wikifier_query(memcache_keys)
+        # cache_updater.update_wikifier_for_datasets_in_datamart()
+        cache_updater.save_all_values_from_key_file()
         _logger.info("-"*50 + "End of update!" + "-" * 50)
         _logger.info("Start waiting for " + str(update_frequency) + " hours.")
         # sleep 24 hours to do next time running

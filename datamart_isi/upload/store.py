@@ -26,11 +26,10 @@ from datamart_isi.materializers.general_materializer import GeneralMaterializer
 from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
 from io import StringIO
 from collections import defaultdict
-from datamart_isi.config import general_search_server, wikidata_server
 from datamart_isi.utilities.timeout import Timeout, timeout_call
+from datamart_isi.utilities import connection
 
-
-DATAMRT_SERVER = general_search_server
+DATAMRT_SERVER = connection.get_general_search_server_url()
 
 def remove_punctuation(input_str) -> typing.List[str]:
     translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
