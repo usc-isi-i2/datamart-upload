@@ -448,21 +448,21 @@ def search():
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         if need_wikifier:
             logger.debug("Start running wikifier...")
-            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
-                                                          search_type="wikifier")
             # Save specific p/q nodes in cache files
+            meta_for_wikifier = None
             if query and "keywords" in query.keys():
                 for kw in query["keywords"]:
-                    try:
+                    if config_datamart.wikifier_column_mark in kw:
                         meta_for_wikifier = json.loads(kw)[config_datamart.wikifier_column_mark]
                         break
-                    except:
-                        pass
                 if meta_for_wikifier:
-                    logger.info("Get specific column<->p_nodes relationship from previous TRAIN run. Will only wikifier those columns!")
+                    logger.info(
+                        "Get specific column<->p_nodes relationship from previous TRAIN run. Will only wikifier those columns!")
                     _, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset, resource_id=None)
                     save_specific_p_nodes(supplied_dataframe, meta_for_wikifier)
 
+            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+                                                          search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
             logger.debug("Wikifier finished, start running download...")
         else:
