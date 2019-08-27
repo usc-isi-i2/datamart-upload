@@ -64,5 +64,8 @@ This is the cache system used for datamart. For details, please refer to [here](
 To run the cache system, it is required to install mecache service. Currently  memcached version is 1.5.16, with dependency package libevent as 2.1.10.
 The config file for memcache is stored at `/data00/dsbox/datamart/redis/src/memcached.conf` Currently it is running on `dsbox02.isi.edu:11211`.The maximum allowed cached value size is 100MB.
 To start the memcache, run `./memcached.conf start`
+
+#### Memcache Updater
 There is also a memcache updater program that used to update the wikidata queries to ensure the cached results of the wikidata quries are up-to-date. The detail codes are over [here](https://github.com/usc-isi-i2/datamart-upload/tree/rest_api_test/datamart_web "here")
+To run the updater, `nc` (NetCat) is required to be installed. For cent os, just need to run `yum install nc`
 Currently, the system is scheduled to run the query updater on 2:00 AM each day.
