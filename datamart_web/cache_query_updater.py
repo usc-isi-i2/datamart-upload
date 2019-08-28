@@ -41,7 +41,7 @@ logging.getLogger('').addHandler(console)
 
 # set default update query each day
 CACHE_EXIPRE_TIME_LENGTH = config.cache_expire_time
-MEMACHE_SERVER = connection.get_memcache_server_url()
+MEMACHE_SERVER = config.default_datamart_url
 MEMACHE_SERVER_PORT = config.memcache_server_suffix[1:]
 WIKIDATA_QUERY_SERVER = "http://" + config.default_datamart_url + config.wikidata_server_suffix
 
