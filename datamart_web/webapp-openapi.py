@@ -251,6 +251,68 @@ def check_return_format(format_):
     return return_format
 
 
+def check_geospatial_variable(geo_var):
+    """
+        Function used to check the format of geospatial variable
+        :param geo_var: a dict, including the keys which are granularity, latitude1, longitude1, latitude2 and longitude2.
+        :return: response
+    """
+    keys = geo_var.keys()
+    if "granularity" not in keys or geo_var["granularity"] not in ["country", "state", "city", "county", "postal_code"]:
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - granularity not in geospatial_variable or the value of '
+                                 'granularity is not in [country, state, city, county, postal_code]',
+                             data=None)
+    if "latitude1" not in keys or "latitude2" not in keys or float(geo_var["latitude1"]) >= float(geo_var["latitude2"]):
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - latitude1 or latitude2 not in geospatial_variable or the value of '
+                                 'latitude1 is more than latitude2. ',
+                             data=None)
+    elif float(geo_var["latitude1"]) < -90 or float(geo_var["latitude1"]) > 90 or \
+            float(geo_var["latitude2"]) < -90 or float(geo_var["latitude2"]) > 90:
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - latitude1 or latitude2 should be range form -90 to 90',
+                             data=None)
+
+    if "longitude1" not in keys or "longitude2" not in keys or float(geo_var["longitude1"]) <= float(geo_var["longitude2"]):
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - longitude1 or longitude2 not in geospatial_variable or the value of '
+                                 'longitude1 is less than longitude2. ',
+                             data=None)
+    elif float(geo_var["longitude1"]) < -180 or float(geo_var["longitude1"]) > 180 or \
+            float(geo_var["longitude2"]) < -180 or float(geo_var["longitude2"]) > 180:
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - longitude1 or longitude2 should be range form -180 to 180',
+                             data=None)
+    return True
+
+
+def check_temporal_variable(temp_var):
+    """
+        Function used to check the format of temporal variable
+        :param temp_var: a dict, including the keys which are granularity, start and end.
+        :return: response
+    """
+    keys = temp_var.keys()
+    if "granularity" not in keys or temp_var["granularity"] not in ['second', 'minute', 'hour', 'day', 'month', 'year']:
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - granularity not in temporal_variable or the value of '
+                                 'granularity is not in [second, minute, hour, day, month, year]',
+                             data=None)
+    if "start" in keys and "end" in keys:
+        start_date = pd.to_datetime(temp_var["start"]).isoformat()
+        end_date = pd.to_datetime(temp_var["end"]).isoformat()
+        if start_date >= end_date:
+            return wrap_response(code='1000',
+                                 msg='FAIL SEARCH - start is greater than end. ',
+                                 data=None)
+    else:
+        return wrap_response(code='1000',
+                             msg='FAIL SEARCH - start or end is not in temporal_variable. ',
+                             data=None)
+    return True
+
+
 @app.route('/')
 def hello():
     return redirect('/apidocs')
@@ -323,7 +385,6 @@ def wikifier():
             except:
                 threshold = 0.7
         logger.info("Threshold for coverage is: " + str(threshold))
-
 
         logger.debug("Start changing dataset to dataframe...")
         # DA = load_d3m_dataset("DA_poverty_estimation")
@@ -502,14 +563,41 @@ def search():
 def search_without_data():
     try:
         logger.debug("Start running search_without_data...")
-        keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
-        keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
         if request.data:
-            variables = json.loads(str(request.data, "utf-8"))
-            variables_search: dict() = variables['variables'] if variables != None else {}
+            query = json.loads(str(request.data, "utf-8"))
+            variables_search: dict = query['variables'] if 'variables' in query.keys() else {}
+            keywords_search: typing.List[str] = query['keywords'] if 'keywords' in query.keys() else []
+
+            if variables_search == {} and keywords_search == []:
+                return wrap_response(code='1000',
+                                     msg='FAIL SEARCH - variables and keywords cannot be empty at the same time',
+                                     data=None)
+
+            if variables_search != {}:
+                variables_keys = set(["geospatial_variable", "temporal_variable", "TabularVariable", "NamedEntityVariable"])
+                if not variables_keys.intersection(set(variables_search.keys())):
+                    return wrap_response(code='1000',
+                                         msg='FAIL SEARCH - keys of variables should be one of [geospatial_variable, temporal_variable]',
+                                         data=None)
+
+                if "temporal_variable" in variables_search.keys():
+                    temp_var = variables_search["temporal_variable"]
+                    return_msg = check_temporal_variable(temp_var)
+                    if isinstance(return_msg, str):
+                        return return_msg
+
+                if "geospatial_variable" in variables_search.keys():
+                    geo_var = variables_search["geospatial_variable"]
+                    return_msg = check_geospatial_variable(geo_var)
+                    if isinstance(return_msg, str):
+                        return return_msg
+
+
             query_wrapped = DatamartQuery(keywords_search=keywords_search, variables_search=variables_search)
         else:
-            query_wrapped = DatamartQuery(keywords_search=keywords_search)
+            return wrap_response(code='1000',
+                                 msg='FAIL SEARCH - query is not given, please run "/search_with_data" instead',
+                                 data=None)
 
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)

@@ -131,35 +131,39 @@ paths:
       tags:
         - Search API
       summary: Search by keywords or variables
-      description: 'Searching datasets by keywords or variables. <br> <br>One parameter is required: <br> **keywords**: Keywords that match a dataset. <br> <br>One parameter is optional: <br> **variables**: It could be one of temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. For now, just temporal_variable could be used.'
+      description: 'Searching datasets by keywords or variables. <br> <br>Two parameters are optional: <br>**keywords**: Keywords that match a dataset. <br> **variables**: Describes a set of features (variables) that a matching dataset must have. It could be one of temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. For now, just temporal_variable and geospatial_variable could be used.'
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Query'
             examples:
-              not_use_variables:
-                value: null
-              temporal_variable:
+              keywords_search:
                 value:
+                  keywords: ['Date', 'Dewpoint', 'Wind']
+                  variables: {}
+                description: "keywords (Date, Dewpoint, Wind) are from the columns' name of New York's weather data."
+              temporal_search:
+                value:
+                  keywords: []
                   variables:
                     temporal_variable:
                       start: 2018-01-01T01
                       end: 2018-07-01T01
                       granularity: hour
-                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second' respectively"
-      parameters:
-        - in: query
-          name: keywords
-          description: Keywords that match a dataset. In each item, input one keyword.
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: false
-          example: ['Date', 'Dewpoint', 'Wind']
+                description: "Describes columns containing temporal information. <br> DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second' respectively"
+              geospatial_search:
+                value:
+                  keywords: []
+                  variables:
+                    geospatial_variable:
+                      latitude1: 32.7174209
+                      longitude1: -117.1627714
+                      latitude2: 34.0536
+                      longitude2: -118.243
+                      granularity: "city"
+                description: "Describes columns containing geospatial entities. <br>The latitude1 and longitude1 are the latitude and longitude of the top left point. <br> The latitude2 and longitude2 mean the latitude and longitude of the bottom right point. <br> The granularity is the entities contained in a bounding box, including country, state, city, county, postal_code."
+
       responses:
         '200':
           description: successful operation
@@ -171,7 +175,6 @@ paths:
                   $ref: '#/components/schemas/SearchResult'
         '404':
           description: Not found.
-
   /augment:
     post:
       tags:
@@ -240,7 +243,6 @@ paths:
                  format: binary
         '404':
           description: Not found.
-
   /download:
     post:
       tags:
@@ -293,7 +295,6 @@ paths:
                  format: binary
         '404':
           description: Not found.
-
   /download_metadata/{id}:
     get:
       tags:
@@ -323,7 +324,6 @@ paths:
                   $ref: '#/components/schemas/Metadata'
         '404':
           description: Not found.
-
   /download/{id}:
     get:
       tags:
@@ -359,7 +359,6 @@ paths:
                  format: base64
         '404':
           description: Not found.
-
   /upload:
     post:
       tags:
@@ -486,7 +485,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProcessResult'
+                $ref: '#/components/schemas/UploadProcessResult'
         '404':
           description: Not found.
   /upload/uploadWD+Metadata:
@@ -519,7 +518,6 @@ paths:
                 type: string
         '404':
           description: Not found.
-
   /embeddings/fb/{qnode}:
     get:
       tags:
@@ -647,7 +645,7 @@ components:
                     type: integer
               name:
                 type: string
-    ProcessResult:
+    UploadProcessResult:
       type: object
       properties:
         data:
@@ -716,12 +714,17 @@ components:
     Query:
       type: object
       properties:
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Keywords that match a dataset.
         variables:
           type: array
           items:
             oneOf:
               - $ref: '#/components/schemas/TemporalVariable'
-              # - $ref: '#/components/schemas/geospatial_variable'
+              - $ref: '#/components/schemas/GeospatialVariable'
               # - $ref: '#/components/schemas/tabular_variable'
               # - $ref: '#/components/schemas/named_entity_variable'
     TemporalVariable:
@@ -738,6 +741,26 @@ components:
           type: string
           description: "Requested dates should match the requested granularity. For example, if 'day' is requested, the best match is a dataset with dates; however a dataset with hours is relevant too as hourly data can be aggregated into days."
           enum: [year, month,day,hour,minute,second]
+    GeospatialVariable:
+      type: object
+      description: "Describes columns containing geospatial entities."
+      properties:
+        latitude1:
+          type: number
+          description: "The latitude of the top left point."
+        longitude1:
+          type: number
+          description: "The longitude of the top left point."
+        latitude2:
+          type: number
+          description: "The latitude of the bottom right point."
+        longitude2:
+          type: number
+          description: "The longitude of the bottom right point."
+        granularity:
+          type: string
+          description: "The granularity of the entities contained in a bounding box."
+          enum: [country, state, city, county, postal_code]
 tags:
   - name: Search API
   - name: Download API
