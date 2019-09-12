@@ -69,3 +69,11 @@ To start the memcache, run `./memcached.conf start`
 There is also a memcache updater program that used to update the wikidata queries to ensure the cached results of the wikidata quries are up-to-date. The detail codes are over [here](https://github.com/usc-isi-i2/datamart-upload/tree/rest_api_test/datamart_web "here")
 To run the updater, `nc` (NetCat) is required to be installed. For cent os, just need to run `yum install nc`
 Currently, the system is scheduled to run the query updater on 2:00 AM each day.
+
+#### Upload Manager
+This is a service that can do upload service on background so that user don't have to keep connection to datamart webpage until the upload finished. This is a `rq`(Redis queue) service running based on redis server.
+To run the service, `supervisor` is required. Need to run `sudo yum install supervisor` for installation.
+For detail introudction, please refer to [here](https://srijithr.gitlab.io/post/rq/ "here")
+Currently the config file is stored at `/etc/supervisord.conf `
+To start/stop the manager, run `sudo supervisorctl start all` or `sudo supervisorctl stop all`
+To check the status of the manager on shell, run `rq info` (python enviroment and package `rq-dashboard` , `rq` required)

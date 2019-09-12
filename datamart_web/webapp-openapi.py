@@ -13,7 +13,11 @@ import pathlib
 import logging
 import requests
 import copy
+import time
+import redis
 import frozendict
+import rq
+
 from wikifier.wikifier import produce, save_specific_p_nodes
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
@@ -29,7 +33,10 @@ from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AU
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.metadata_cache import MetadataCache
+from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
 from flasgger import Swagger
+from rq import Queue,job 
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -61,6 +68,7 @@ dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 DATAMART_SERVER = connection.get_general_search_server_url()
+DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
@@ -999,49 +1007,37 @@ def augment():
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload():
+    start_time = time.time()
     logger.debug("Start uploading in one step...")
     try:
         url = request.values.get('url')
         if url is None:
             return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - Url can not be None',
+                                 msg='FAIL UPLOAD - Url can not be None',
                                  data=None)
 
         file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - file_type can not be None',
+                                 msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
         title = request.values.get('title').split("||") if request.values.get('title') else None
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        df, meta = datamart_upload_instance.load_and_preprocess(input_dir=url, file_type=file_type)
-        try:
-            for i in range(len(df)):
-                if title:
-                    meta[i]['title'] = title[i]
-                if description:
-                    meta[i]['description'] = description[i]
-                if keywords:
-                    meta[i]['keywords'] = keywords[i]
-        except:
-            msg = "ERROR set the user defined title / description / keywords: " + str(
-                len(meta)) + " tables detected but only "
-            if title:
-                msg += str(len(title)) + " title, "
-            if description:
-                msg += str(len(description)) + " description, "
-            if keywords:
-                msg += str(len(keywords)) + "keywords"
-            msg += " given."
-            return wrap_response('1000', msg=msg)
-
-        for i in range(len(df)):
-            datamart_upload_instance.model_data(df, meta, i)
-            response_id = datamart_upload_instance.upload()
-        return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, 
+                                    port=config_datamart.redis_server_port)
+        redis_conn = redis.Redis(connection_pool=pool)
+        rq_queue = Queue(connection=redis_conn)
+        job = rq_queue.enqueue(upload_to_datamart, 
+                               args=(url, file_type, DATAMART_SERVER, title, description, keywords,),
+                               # no timeout for job, result expire after 1 day
+                               job_timeout=-1,result_ttl=86400) 
+        job_id = job.get_id()
+        job_status = job.get_status()
+        return wrap_response('0000', msg="UPLOAD job schedule succeed! The id is: " + str(job_id) + "\n Current status is: " + str(job_status))
+        
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" % (str(e), str(traceback.format_exc())))
 
@@ -1050,8 +1046,9 @@ def upload():
 @cross_origin()
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
-    datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
-                                                        query_server=DATAMART_SERVER)
+    # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
+                                                        # query_server=DATAMART_TEST_SERVER)
+    start_time = time.time()
     try:
         url = request.values.get('url')
         if url is None:
@@ -1069,31 +1066,20 @@ def upload_test():
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        df, meta = datamart_upload_test_instance.load_and_preprocess(input_dir=url, file_type=file_type)
-        try:
-            for i in range(len(df)):
-                if title:
-                    meta[i]['title'] = title[i]
-                if description:
-                    meta[i]['description'] = description[i]
-                if keywords:
-                    meta[i]['keywords'] = keywords[i]
-        except:
-            msg = "ERROR set the user defined title / description / keywords: " + str(
-                len(meta)) + " tables detected but only "
-            if title:
-                msg += str(len(title)) + " title, "
-            if description:
-                msg += str(len(description)) + " description, "
-            if keywords:
-                msg += str(len(keywords)) + "keywords"
-            msg += " given."
-            return wrap_response('1000', msg=msg)
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        redis_conn = redis.Redis(connection_pool=pool)
+        rq_queue = Queue(connection=redis_conn)
+        job = rq_queue.enqueue(upload_to_datamart, 
+                               args=(url, file_type, DATAMART_TEST_SERVER, title, description, keywords,),
+                               # no timeout for job, result expire after 1 day
+                               job_timeout=-1,result_ttl=86400) 
+        job_id = job.get_id()
+        # waif for 1 seconds to ensure the initialization finished
+        time.sleep(1)
+        job.refresh()
+        job_status = job.get_status()
 
-        for i in range(len(df)):
-            datamart_upload_test_instance.model_data(df, meta, i)
-            datamart_upload_test_instance.upload()
-        return wrap_response('0000', msg="UPLOAD TEST Success!")
+        return wrap_response('0000', msg="UPLOAD job schedule succeed! The id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
 
@@ -1162,6 +1148,51 @@ def upload_metadata():
         return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
+@app.route('/check_upload_status', methods=['POST'])
+@cross_origin()
+def check_upload_status():
+    try:
+        logger.debug("Start checking upload status...")
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        redis_conn = redis.Redis(connection_pool=pool)
+        job_ids = request.values.get("job_ids") if request.values.get("job_ids") else None
+
+        # if user specify the job id
+        if job_ids:
+            job_status = {}
+            job_ids = job_ids.replace(" ","").split(",")
+            for each_job_id in job_ids:
+                if rq.job.Job.exists(each_job_id, redis_conn):
+                    current_job = rq.job.Job(each_job_id, redis_conn)
+                    current_job.refresh()
+                    current_status = current_job.meta
+                    job_status[each_job_id] = current_status
+                else:
+                    job_status[each_job_id] = "Job does not exist!"
+            
+        # if not job id given, get all status of the workers
+        else:
+            job_status = {}
+            workers = rq.Worker.all(connection=redis_conn)
+            job_status['worker amount'] = len(workers)
+            for i, each_worker in enumerate(workers):
+                each_worker_status = {}
+                each_worker_status['state'] = each_worker.state
+                if each_worker_status['state'] == "busy":
+                    current_job = each_worker.get_current_job()
+                    each_worker_status['running_job_id'] = str(current_job.id)
+                    each_worker_status['started_at'] = str(current_job.started_at)
+                    current_job.refresh()
+                    each_worker_status['meta'] = current_job.meta
+                job_status["worker_" + str(i)] = each_worker_status
+        return wrap_response(code='0000',
+                                 msg='Success',
+                                 data=json.dumps(job_status, indent=2)
+                                )
+    except Exception as e:
+        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/embeddings/fb/<qnode>', methods=['GET'])

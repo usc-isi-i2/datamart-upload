@@ -409,6 +409,30 @@ paths:
                 type: string
         '404':
           description: Not found.
+
+  /check_upload_status:
+    post:
+      tags:
+        - Upload API
+      summary: an api used to check the uploading status
+      description: 'This function is used for user to check the processes of uploading'
+      parameters:
+        - in: query
+          name: job_ids
+          schema:
+            type: string
+          example: 'c6b7b967-aa75-47e4-b206-ec3447fbc90c'
+          required: false
+          description: the job ids of the uploading processes
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/text:
+              schema:
+                type: string
+        '404':
+          description: Not found.
   /upload/test:
     post:
       tags:
