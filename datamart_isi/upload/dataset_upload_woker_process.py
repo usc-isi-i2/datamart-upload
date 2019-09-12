@@ -1,6 +1,7 @@
 
 import time
 import logging
+import os
 from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
 
@@ -12,6 +13,8 @@ logger.setLevel(logging.DEBUG)
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s",
                     datefmt='%m-%d %H:%M:%S',
+                    filename='datamart_upload_worker_{}.log'.format(os.getpid()),
+                    filemode='w'
                     )
 # define a Handler which writes INFO messages or higher to the sys.stderr
 console = logging.StreamHandler()
@@ -61,16 +64,20 @@ def upload_to_datamart(url, file_type, datamart_upload_address, title=None, desc
             job.save_meta()
             return
 
+        dataset_ids = []
         for i in range(len(df)):
             job.meta['step'] = "Start modeling and uploading No.{} dataset".format(str(i))
             job.meta['progress'] = str(50 + len(df) / i * 50) + "%"
             job.save_meta()
             datamart_upload_instance.model_data(df, meta, i)
+            dataset_ids.append(datamart_upload_instance.modeled_data_id)
             response_id = datamart_upload_instance.upload()
+
         time_used = time.time() - start_time
         job.meta['step'] = "Upload finished!"
         job.meta['progress'] = "100%"
         job.meta['total time used'] = str(datetime.timedelta(seconds=time_used))
+        job.meta['dataset_ids'] = dataset_ids
         job.save_meta()
 
     except Exception as e:

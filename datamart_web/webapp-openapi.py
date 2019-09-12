@@ -1036,7 +1036,7 @@ def upload():
                                job_timeout=-1,result_ttl=86400) 
         job_id = job.get_id()
         job_status = job.get_status()
-        return wrap_response('0000', msg="UPLOAD job schedule succeed! The id is: " + str(job_id) + "\n Current status is: " + str(job_status))
+        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + "\n Current status is: " + str(job_status))
         
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" % (str(e), str(traceback.format_exc())))
@@ -1079,7 +1079,7 @@ def upload_test():
         job.refresh()
         job_status = job.get_status()
 
-        return wrap_response('0000', msg="UPLOAD job schedule succeed! The id is: " + str(job_id) + " Current status is: " + str(job_status))
+        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
 
