@@ -3,6 +3,7 @@ import time
 import logging
 import os
 import traceback
+import datetime
 from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
 
@@ -68,7 +69,7 @@ def upload_to_datamart(url, file_type, datamart_upload_address, title=None, desc
         dataset_ids = []
         for i in range(len(df)):
             job.meta['step'] = "Start modeling and uploading No.{} dataset".format(str(i))
-            job.meta['progress'] = str(50 + len(df) / i * 50) + "%"
+            job.meta['progress'] = str(50 + (i+1) / len(df) * 50) + "%"
             job.save_meta()
             datamart_upload_instance.model_data(df, meta, i)
             dataset_ids.append(datamart_upload_instance.modeled_data_id)
