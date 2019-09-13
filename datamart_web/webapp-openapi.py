@@ -1007,8 +1007,10 @@ def augment():
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload():
-    start_time = time.time()
     logger.debug("Start uploading in one step...")
+    # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
+                                                        # query_server=DATAMART_TEST_SERVER)
+    start_time = time.time()
     try:
         url = request.values.get('url')
         if url is None:
@@ -1026,8 +1028,7 @@ def upload():
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, 
-                                    port=config_datamart.redis_server_port)
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
         job = rq_queue.enqueue(upload_to_datamart, 
@@ -1035,11 +1036,14 @@ def upload():
                                # no timeout for job, result expire after 1 day
                                job_timeout=-1,result_ttl=86400) 
         job_id = job.get_id()
+        # waif for 1 seconds to ensure the initialization finished
+        time.sleep(1)
+        job.refresh()
         job_status = job.get_status()
-        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + "\n Current status is: " + str(job_status))
-        
+
+        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
-        return wrap_response('1000', msg="FAIL UPLOAD - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/test', methods=['POST'])
@@ -1053,13 +1057,13 @@ def upload_test():
         url = request.values.get('url')
         if url is None:
             return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - Url can not be None',
+                                 msg='FAIL UPLOAD - Url can not be None',
                                  data=None)
 
         file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
-                                 msg='FAIL SEARCH - file_type can not be None',
+                                 msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
         title = request.values.get('title').split("||") if request.values.get('title') else None

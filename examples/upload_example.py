@@ -1,6 +1,6 @@
 from datamart_isi.upload.store import Datamart_isi_upload
 # this sample will save the following online csv datasets into datamart in blaze graph
-a = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql", query_server = "http://dsbox02.isi.edu:9001/blazegraph/namespace/datamart3/sparql")
+a = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9002/blazegraph/namespace/datamart3/sparql", query_server = "http://dsbox02.isi.edu:9002/blazegraph/namespace/datamart3/sparql")
 
 all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv", 
     "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Most-Recent-Cohorts-Scorecard-Elements.csv", 
