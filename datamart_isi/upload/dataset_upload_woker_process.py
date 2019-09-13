@@ -2,6 +2,7 @@
 import time
 import logging
 import os
+import traceback
 from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
 

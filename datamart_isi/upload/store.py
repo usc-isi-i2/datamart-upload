@@ -246,7 +246,10 @@ class Datamart_isi_upload:
             # process datetime column to standard datetime
             for col_name in wikifier_res.columns.values.tolist():
                 if 'date' in col_name.lower() or 'time' in col_name.lower():
-                    wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+                    try:
+                        wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+                    except:
+                        pass
 
             # TODO: need update profiler here to generate better semantic type
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
@@ -268,10 +271,10 @@ class Datamart_isi_upload:
             all_metadata.append(metadata)
 
         end2 = time.time()
-        self._logger.info("Preprocess finished. Totally take " + str(end3 - end2) + " seconds.")
+        self._logger.info("Preprocess finished. Totally take " + str(end2 - end1) + " seconds.")
         if job is not None:
             job.meta['step'] = "metadata generating finished..."
-            job.meta['metadata generating used'] = str(datetime.timedelta(seconds=end3 - end2))
+            job.meta['metadata generating used'] = str(datetime.timedelta(seconds=end2 - end1))
             job.save_meta()
         return all_wikifier_res, all_metadata
 
