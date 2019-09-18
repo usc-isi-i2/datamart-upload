@@ -7,29 +7,26 @@ import datetime
 from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
 
-
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-# logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
-# set up logging to file - see previous section for more details
-logging.basicConfig(level=logging.DEBUG,
-                    format="%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s",
-                    datefmt='%m-%d %H:%M:%S',
-                    filename='datamart_upload_worker_{}.log'.format(os.getpid()),
-                    filemode='w'
-                    )
-# define a Handler which writes INFO messages or higher to the sys.stderr
-console = logging.StreamHandler()
-console.setLevel(logging.DEBUG)
-# set a format which is simpler for console use
-formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
-# tell the handler to use this format
-console.setFormatter(formatter)
-# add the handler to the root logger
-logging.getLogger('').addHandler(console)
-
-
 def upload_to_datamart(url, file_type, datamart_upload_address, title=None, description=None, keywords=None):
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
+    # set up logging to file - see previous section for more details
+    logging.basicConfig(level=logging.DEBUG,
+                        format="%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s",
+                        datefmt='%m-%d %H:%M:%S',
+                        filename='datamart_upload_worker_{}.log'.format(os.getpid()),
+                        filemode='w'
+                        )
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
     start_time = time.time()
     job = get_current_job()
     job.meta['condition'] = "OK"
