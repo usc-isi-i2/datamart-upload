@@ -1012,7 +1012,7 @@ def get_identifiers():
     logger.debug("Start running wikifier identifier...")
     request_data = json.loads(request.data)
     ids = request_data['ids'] if 'ids' in request_data.keys() else {}
-    logger.info("Totally " + str(len(id)) + " ids received.")
+    logger.info("Totally " + str(len(ids)) + " ids received.")
     # Check empty
     if not ids:
         return {}
