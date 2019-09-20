@@ -33,6 +33,7 @@ from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AU
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.metadata_cache import MetadataCache
+from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
 from flasgger import Swagger
 from rq import Queue,job 
@@ -72,6 +73,7 @@ DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
+REDIS_MANAGER = RedisManager(config_datamart.default_datamart_url, config_datamart.redis_server_port)
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -1002,6 +1004,31 @@ def augment():
 
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
+@app.route('/get_identifiers', methods=['POST'])
+@cross_origin()
+def get_identifiers():
+    logger.debug("Start running wikifier identifier...")
+    request_data = json.loads(request.data)
+    ids = request_data['ids'] if 'ids' in request_data.keys() else {}
+    logger.info("Totally " + str(len(id)) + " ids received.")
+    # Check empty
+    if not ids:
+        return {}
+    start_time = time.time()
+    data = REDIS_MANAGER.getKeys(keys=ids, prefix="identifiers:")
+    logger.debug("Identifier totally running used " + str(time.time() - start_time) + " seconds.")
+    return_data = dict()
+    for key in data:
+        return_data[key] = list(data[key])
+
+    response = app.response_class(
+        response=json.dumps(return_data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
 
 
 @app.route('/upload', methods=['POST'])
