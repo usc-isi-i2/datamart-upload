@@ -1,32 +1,18 @@
-
-FROM python:3.6.9
+# Base docker images contains d3m core and common primitives from Summer 2019 evaluation
+FROM registry.datadrivendiscovery.org/jpl/docker_images/complete:ubuntu-bionic-python36-v2019.6.7-20190622-073225
 
 WORKDIR /app
 
-RUN mkdir github
-RUN cd github
+RUN git clone https://github.com/usc-isi-i2/dsbox-primitives.git && cd dsbox-primitives && git checkout e13beaff175171a5f4d0b9aafb69f8c2159470b3 && pip install -e .
 
-RUN python3 -m venv datamart_env
-RUN /bin/bash -c "source datamart_env/bin/activate"
-RUN pip install --upgrade pip
+RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && git checkout a383ee510001a31de414dbf62d52112a8ffb995e && pip install -e .
 
+RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout 9a6842930042eed752cd161c32d48d5d9b3df37b && pip install -e .
 
-RUN git clone https://gitlab.com/datadrivendiscovery/d3m.git && cd d3m && git checkout v2019.6.7 && pip install -e .
-RUN cd ..
+RUN python3 -m spacy download en_core_web_sm
 
-RUN git clone https://gitlab.com/datadrivendiscovery/common-primitives.git && cd common-primitives && pip install -e .
-RUN cd ..
-
-RUN git clone https://github.com/usc-isi-i2/dsbox-primitives.git && cd dsbox-primitives && pip install -e .
-RUN cd ..
-
-RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && git checkout 7fc2e38feb52e16fc12b4f075d568fc476b42e5d && pip install -e .
-RUN cd ..
-
-RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout 4be844e53e2b18fed160af895a00960d8db41f85 && pip install -e .
-
-COPY /Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation/ /data/
-
-RUN python -m spacy download en
 WORKDIR /app/datamart-upload/datamart_web
-CMD python3 webapp-openapi.py
+
+# COPY datasets-2019-summer/seed_datasets_data_augmentation /data
+
+CMD ["python3", "webapp-openapi.py"]
