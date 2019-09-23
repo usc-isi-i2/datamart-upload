@@ -37,6 +37,9 @@ def remove_punctuation(input_str) -> typing.List[str]:
     return words_processed
 
 class Datamart_isi_upload:
+    """
+    Main class for uploading part
+    """
     def __init__(self, query_server=None, update_server=None):
         self._logger = logging.getLogger(__name__)
         self.punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
@@ -174,9 +177,12 @@ class Datamart_isi_upload:
                 self._logger.warning("Something wrong with the dataset counter! Totally " + str(len(results)) + " counter found instead of 1!")
             self.resource_id = int(results[0]['x']['value'])
 
-    def load_and_preprocess(self, input_dir, file_type="csv"):
+    def load_and_preprocess(self, input_dir, file_type="csv", job=None):
         start = time.time()
         self._logger.debug("Start loading from " + input_dir)
+        if job is not None:
+            job.meta['step'] = "materializing the dataset..."
+            job.save_meta()
         from_online_file = False
         if file_type=="csv":
             try:
@@ -217,7 +223,10 @@ class Datamart_isi_upload:
             raise ValueError("Unsupported file type")
         end1 = time.time()
         self._logger.info("Loading finished. Totally take " + str(end1 - start) + " seconds.")
-        # loaded_data = loaded_data.fillna("")
+        if job is not None:
+            job.meta['step'] = "materialization finished, start running wikifier..."
+            job.meta['loading dataset used'] = str(datetime.timedelta(seconds=end1 - start))
+            job.save_meta()
 
         # run dsbox's profiler and cleaner
         hyper1 = ProfilerHyperparams.defaults()
@@ -225,22 +234,22 @@ class Datamart_isi_upload:
         self.columns_are_string = defaultdict(list)
         all_wikifier_res = []
         all_metadata = []
-        for df_count, each in enumerate(loaded_data):
-            clean_f = CleaningFeaturizer(hyperparams=hyper2)
-            profiler = Profiler(hyperparams=hyper1)
-            profiled_df = profiler.produce(inputs=each).value            
-            clean_f.set_training_data(inputs=profiled_df)
-            clean_f.fit()
-            cleaned_df = pd.DataFrame(clean_f.produce(inputs=profiled_df).value)
-
-            wikifier_res = wikifier.produce(cleaned_df)
-            end3 = time.time()
-            self._logger.info("Cleaning and wikifier finished. Totally take " + str(end3 - end1) + " seconds.")
+        for df_count, each_df in enumerate(loaded_data):
+            wikifier_res = wikifier.produce(each_df)
+            end2 = time.time()
+            self._logger.info("Wikifier finished. Totally take " + str(end2 - end1) + " seconds.")
+            if job is not None:
+                job.meta['step'] = "wikifier running finished, start generating metadata..."
+                job.meta['wikifier used'] = str(datetime.timedelta(seconds=end2 - end1))
+                job.save_meta()
 
             # process datetime column to standard datetime
             for col_name in wikifier_res.columns.values.tolist():
                 if 'date' in col_name.lower() or 'time' in col_name.lower():
-                    wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+                    try:
+                        wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+                    except:
+                        pass
 
             # TODO: need update profiler here to generate better semantic type
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
@@ -263,10 +272,14 @@ class Datamart_isi_upload:
 
         end2 = time.time()
         self._logger.info("Preprocess finished. Totally take " + str(end2 - end1) + " seconds.")
+        if job is not None:
+            job.meta['step'] = "metadata generating finished..."
+            job.meta['metadata generating used'] = str(datetime.timedelta(seconds=end2 - end1))
+            job.save_meta()
         return all_wikifier_res, all_metadata
 
 
-    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int):
+    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int, job=None):
         self._logger.debug("Start modeling data into blazegraph format...")
         start = time.time()
         self.modeled_data_id = str(uuid.uuid4())
@@ -312,9 +325,17 @@ class Datamart_isi_upload:
         q.add_statement('C2004', StringValue(keywords))  # keywords
         q.add_statement('C2010', StringValue(str(extra_information)))
         end1 = time.time()
+        if job is not None:
+            job.meta['step'] = "Modeling abstarct data finished."
+            job.meta['modeling abstarct'] = str(datetime.timedelta(seconds=edn1 - start))
+            job.save_meta()
+
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
         # each columns
         for i in range(input_dfs[number].shape[1]):
+            if job is not None:
+                job.meta['step'] = "Modeling ({}/{}) column ...".format(str(i), str(input_dfs[number].shape[1]))
+                job.save_meta()
             try: 
                 semantic_type = metadata[number]['variables'][i]['semantic_type']
             except IndexError:
@@ -328,7 +349,10 @@ class Datamart_isi_upload:
         self.doc.kg.add_subject(q)
         end2 = time.time()
         self._logger.info("Modeling detail data finished. Totally take " + str(end2 - end1) + " seconds.")
-        
+        if job is not None:
+            job.meta['step'] = "Modeling finished. Start uploading..."
+            job.meta['modeling'] = str(datetime.timedelta(seconds=end2 - end1))
+            job.save_meta()
 
     def process_one_column(self, column_data: pd.Series, item: WDItem, column_number: int, semantic_type: typing.List[str]) -> bool:
         """
