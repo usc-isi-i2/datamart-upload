@@ -400,6 +400,18 @@ paths:
             type: string
           required: false
           description: Keywords or tags to describe the dataset content, if the url contains multiple dataset, please provide each keywords, split with mark "||". For example, keywords1_1, keywords1_2||keywords2_1, keywords2_2
+        - name: username
+          in: query
+          schema:
+            type: string
+          required: true
+          description: the username for the upload user
+        - name: password
+          in: query
+          schema:
+            type: string
+          required: true
+          description: the password for the upload user
       responses:
         '200':
           description: successful operation
@@ -433,6 +445,45 @@ paths:
                 type: string
         '404':
           description: Not found.
+
+  /upload/add_upload_user:
+    post:
+      tags:
+        - Upload API
+      summary: an api used to add upload user
+      description: 'This function is used for adding user for uploading datasets'
+      parameters:
+        - name: token
+          in: query
+          schema:
+            type: string
+          required: true
+          description: token for access to create user account
+          example: ''
+        - name: username
+          in: query
+          schema:
+            type: string
+          required: true
+          description: username of the account
+          example: ''
+        - name: password
+          in: query
+          schema:
+            type: string
+          required: true
+          description: password of the account
+          example: ''
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/text:
+              schema:
+                type: string
+        '1000':
+          description: failed.
+
   /upload/test:
     post:
       tags:

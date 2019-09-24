@@ -124,6 +124,11 @@ class Datamart_isi_upload:
         p.add_description('some extra information that may needed for this dataset', lang='en')
         self.doc.kg.add_subject(p)
 
+        p = WDProperty('C2014', Datatype.StringValue)
+        p.add_label('uploader information', lang='en')
+        p.add_description('information about who uploaded and when uploaded', lang='en')
+        self.doc.kg.add_subject(p)
+
         p = WDProperty('C2011', Datatype.TimeValue)
         p.add_label('start date', lang='en')
         p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset', lang='en')
@@ -279,7 +284,7 @@ class Datamart_isi_upload:
         return all_wikifier_res, all_metadata
 
 
-    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int, job=None):
+    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int, uploader_information, job=None):
         self._logger.debug("Start modeling data into blazegraph format...")
         start = time.time()
         self.modeled_data_id = str(uuid.uuid4())
@@ -315,6 +320,10 @@ class Datamart_isi_upload:
             extra_information['column_meta_' + str(i)] = each_column_meta
         extra_information['data_metadata'] = data_metadata
 
+        for each_key in ["", ]:
+            if each_key not in uploader_information:
+                uploader_information[each_key] = "None"
+
         self.resource_id += 1
         q.add_label(node_id, lang='en')
         q.add_statement('P31', Item('Q1172284'))  # indicate it is subclass of a dataset
@@ -323,7 +332,9 @@ class Datamart_isi_upload:
         q.add_statement('P1476', MonolingualText(title, lang='en'))  # title
         q.add_statement('C2001', StringValue(node_id))  # datamart identifier
         q.add_statement('C2004', StringValue(keywords))  # keywords
-        q.add_statement('C2010', StringValue(str(extra_information)))
+        q.add_statement('C2010', StringValue(json.dumps(extra_information)))
+        q.add_statement('C2014', StringValue(json.dumps(uploader_information)))
+
         end1 = time.time()
         if job is not None:
             job.meta['step'] = "Modeling abstarct data finished."

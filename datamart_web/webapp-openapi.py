@@ -17,6 +17,7 @@ import time
 import redis
 import frozendict
 import rq
+import bcrypt
 
 from wikifier.wikifier import produce, save_specific_p_nodes
 from flask_cors import CORS, cross_origin
@@ -62,6 +63,9 @@ em_es_url = config_datamart.em_es_url
 em_es_index = config_datamart.em_es_index
 em_es_type = config_datamart.em_es_type
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
+password_token_file = "../datamart_isi/upload/password_tokens.json"
+password_record_file = "../datamart_isi/upload/upload_password_config.json"
+
 
 dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
                  "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
@@ -1031,12 +1035,65 @@ def get_identifiers():
     return response
 
 
+@app.route('/upload/add_upload_user', methods=['POST'])
+@cross_origin()
+def add_upload_user():
+    logger.debug("Start adding upload user")
+    try:
+        token = request.values.get('token')
+        username = request.values.get('username')
+        password = request.values.get('password')
+        if username is None or password is None:
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - username and password can't be empty!",
+                                 data=None)
+
+        if not os.path.exists(password_token_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - can't load token file!, please contact the adiministrator!",
+                                 data=None)
+        with open(password_token_file, 'r') as f:
+            password_tokens = json.load(f)
+
+        if token not in password_tokens:
+            return wrap_response(code='1000',
+                                 msg='FAIL ADD USER - invalid token!',
+                                 data=None)
+        
+        if not os.path.exists(password_record_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - can't load the password config file, please contact the adiministrator!",
+                                 data=None)
+
+        with open(password_record_file ,"r") as f:
+            user_passwd_pairs = json.load(f)
+
+        if username in user_passwd_pairs:
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - username already exist!",
+                                 data=None)
+
+        current_group_information = password_tokens[token]
+        # user_information['username'] = username
+        user_information = dict()
+        user_information['password_token'] = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        user_information['group'] = current_group_information['group']
+        user_passwd_pairs[username] = user_information
+        with open(password_record_file, 'w') as f:
+            password_tokens = json.dump(user_passwd_pairs, f)
+
+        return wrap_response('0000', msg="Add user {} success!".format(username))
+
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL ADD USER - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload():
     logger.debug("Start uploading in one step...")
-    # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
-                                                        # query_server=DATAMART_TEST_SERVER)
     start_time = time.time()
     try:
         url = request.values.get('url')
@@ -1051,6 +1108,38 @@ def upload():
                                  msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
+        upload_username = request.values.get('username')
+        upload_password = request.values.get('password')
+        if upload_username is None or upload_password is None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - upload username and password can not be None',
+                                 data=None)
+
+        # check username and password
+        password_record_file = "../datamart_isi/upload/upload_password_config.json"
+        if not os.path.exists(password_record_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL UPLOAD - can't load the password config file, please contact the adiministrator!",
+                                 data=None)
+
+        with open(password_record_file ,"r") as f:
+            user_passwd_pairs = json.load(f)            
+
+        if upload_username not in user_passwd_pairs:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - username does not exist',
+                                 data=None)
+        else:
+
+            is_correct_password = bcrypt.checkpw(upload_password.encode(), user_passwd_pairs[upload_username]["password_token"].encode())
+            if not is_correct_password:
+                return wrap_response(code='1000',
+                                     msg='FAIL UPLOAD - wrong password',
+                                     data=None)
+
+        user_passwd_pairs[upload_username]["username"] = upload_username
+        user_passwd_pairs[upload_username].pop("password_token")
         title = request.values.get('title').split("||") if request.values.get('title') else None
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
@@ -1058,8 +1147,12 @@ def upload():
         pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
+        dataset_information = {"url": url, "file_type": file_type, "title": title, 
+                               "description": description, "keywords": keywords, 
+                               "user_information": user_passwd_pairs[upload_username]}
+
         job = rq_queue.enqueue(upload_to_datamart, 
-                               args=(url, file_type, DATAMART_SERVER, title, description, keywords,),
+                               args=(DATAMART_SERVER, dataset_information,),
                                # no timeout for job, result expire after 1 day
                                job_timeout=-1,result_ttl=86400) 
         job_id = job.get_id()
