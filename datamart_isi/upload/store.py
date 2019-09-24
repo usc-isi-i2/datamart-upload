@@ -338,7 +338,7 @@ class Datamart_isi_upload:
         end1 = time.time()
         if job is not None:
             job.meta['step'] = "Modeling abstarct data finished."
-            job.meta['modeling abstarct'] = str(datetime.timedelta(seconds=edn1 - start))
+            job.meta['modeling abstarct'] = str(datetime.timedelta(seconds=end1 - start))
             job.save_meta()
 
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
