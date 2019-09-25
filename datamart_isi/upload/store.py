@@ -28,8 +28,10 @@ from io import StringIO
 from collections import defaultdict
 from datamart_isi.utilities.timeout import Timeout, timeout_call
 from datamart_isi.utilities import connection
+from datamart_isi import config as config_datamart
 
 DATAMRT_SERVER = connection.get_general_search_server_url()
+
 
 def remove_punctuation(input_str) -> typing.List[str]:
     translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
@@ -182,7 +184,7 @@ class Datamart_isi_upload:
                 self._logger.warning("Something wrong with the dataset counter! Totally " + str(len(results)) + " counter found instead of 1!")
             self.resource_id = int(results[0]['x']['value'])
 
-    def load_and_preprocess(self, input_dir, file_type="csv", job=None):
+    def load_and_preprocess(self, input_dir, file_type="csv", job=None, wikifier_choice="auto"):
         start = time.time()
         self._logger.debug("Start loading from " + input_dir)
         if job is not None:
@@ -234,13 +236,51 @@ class Datamart_isi_upload:
             job.save_meta()
 
         # run dsbox's profiler and cleaner
-        hyper1 = ProfilerHyperparams.defaults()
-        hyper2 = CleaningFeaturizerHyperparameter.defaults()
+        # hyper1 = ProfilerHyperparams.defaults()
+        # hyper2 = CleaningFeaturizerHyperparameter.defaults()
+
         self.columns_are_string = defaultdict(list)
         all_wikifier_res = []
         all_metadata = []
         for df_count, each_df in enumerate(loaded_data):
-            wikifier_res = wikifier.produce(each_df)
+            if wikifier_choice == "false":
+                do_wikifier = False
+            elif wikifier_choice == "true":
+                do_wikifier = True
+            else:
+                each_df_size = each_df.shape[0] * each_df.shape[1]
+                if each_df_size >= maximum_accept_wikifier_size:
+                    do_wikifier = False
+                else:
+                    do_wikifier = True
+
+            if do_wikifier:
+                wikifier_res = wikifier.produce(each_df)
+            else:
+                wikifier_res = each_df
+                # we also need to let the cache system know not to do wikifier
+                produce_config = {"target_columns": None, "target_p_nodes": None,
+                                  "input_type": "pandas", "wikifier_choice": None, 
+                                  "threshold": 0.7
+                                  }
+                
+                DEFAULT_DATAMART_URL = config_datamart.default_datamart_url
+                CACHE_MANAGER = GeneralSearchCache(connection_url=os.getenv('DATAMART_URL_NYU', DEFAULT_DATAMART_URL))
+                
+                cache_key = CACHE_MANAGER.get_hash_key(each_df, json.dumps(produce_config))
+
+                # add extra information after we calculate the correct hash tag
+                produce_config["use_wikifier"] = False
+                response = CACHE_MANAGER.add_to_memcache(supplied_dataframe=each_df,
+                                                     search_result_serialized=json.dumps(produce_config),
+                                                     augment_results=each_df,
+                                                     hash_key=cache_key
+                                                     )
+                if not response:
+                    self._logger.warning("Push wikifier results to results failed!")
+                else:
+                    self._logger.info("Push wikifier results to memcache success!")
+
             end2 = time.time()
             self._logger.info("Wikifier finished. Totally take " + str(end2 - end1) + " seconds.")
             if job is not None:

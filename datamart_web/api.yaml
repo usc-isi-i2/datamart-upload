@@ -374,6 +374,13 @@ paths:
           example: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv
           required: true
           description: Url of input file
+        - in: query
+          name: run_wikifier
+          description: 'whether to run wikifier on the uploaded dataset or not. <br> Default value is auto. Wikifier step will skip if the size(row number * column number) of the dataset is larger than **100000**'
+          schema:
+            type: string
+            example: auto
+            enum: [auto, true, false]
         - name: file_type
           in: query
           schema:
@@ -387,19 +394,19 @@ paths:
           schema:
             type: string
           required: false
-          description: Name of the dataset, if the url contains multiple dataset, please provide each title, split with mark "||". For example, title1||title2
+          description: 'Name of the dataset, if the url contains multiple dataset, please provide each title, split with mark "||". <br> For example, title1||title2'
         - name: description
           in: query
           schema:
             type: string
           required: false
-          description: Description of the dataset, if the url contains multiple dataset, please provide each description, split with mark "||". For example, This is description for first dataset||This is description for second dataset
+          description: 'Description of the dataset, if the url contains multiple dataset, please provide each description, split with mark "||". <br> For example, This is description for first dataset||This is description for second dataset'
         - name: keywords
           in: query
           schema:
             type: string
           required: false
-          description: Keywords or tags to describe the dataset content, if the url contains multiple dataset, please provide each keywords, split with mark "||". For example, keywords1_1, keywords1_2||keywords2_1, keywords2_2
+          description: 'Keywords or tags to describe the dataset content, if the url contains multiple dataset, please provide each keywords, split with mark "||". <br> For example, keywords1_1, keywords1_2||keywords2_1, keywords2_2'
         - name: username
           in: query
           schema:
@@ -410,6 +417,7 @@ paths:
           in: query
           schema:
             type: string
+            format: password
           required: true
           description: the password for the upload user
       responses:
@@ -422,7 +430,7 @@ paths:
         '404':
           description: Not found.
 
-  /check_upload_status:
+  /upload/check_upload_status:
     post:
       tags:
         - Upload API

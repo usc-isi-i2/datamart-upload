@@ -39,12 +39,27 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
     description = dataset_information.get("dataset_information")
     keywords = dataset_information.get("keywords")
     user_information = dataset_information.get("user_information")
+    if not user_information:
+        raise ValueError("No user information given!!!")
+    wikifier_choice = dataset_information.get("wikifier_choice", "auto")
+    # double check, ensure any call to upload has to be done with user verification
+    upload_function_path = Datamart_isi_upload.__file__
+    password_file_path = os.path.join(os.path.dirname(upload_function_path), "upload_password_config.json")
+
+    if not os.path.exists(password_record_file):
+        raise ValueError("No password config file found at {}!!!".format(password_file_path))
+
+    with open(password_record_file ,"r") as f:
+        user_passwd_pairs = json.load(f)
+
+    if user_information["username"] not in user_passwd_pairs:
+        raise ValueError("Given username {} does not exist!!!".format(user_information["username"]))
 
     try:
         datamart_upload_instance = Datamart_isi_upload(update_server=datamart_upload_address,
                                                        query_server=datamart_upload_address)
         job.save_meta()
-        df, meta = datamart_upload_instance.load_and_preprocess(job=job, input_dir=url, file_type=file_type)
+        df, meta = datamart_upload_instance.load_and_preprocess(job=job, input_dir=url, file_type=file_type, wikifier_choice=wikifier_choice)
         job.meta['step'] = "Load and preprocess data finished..."
         job.meta['progress'] = "50%"
         job.save_meta()

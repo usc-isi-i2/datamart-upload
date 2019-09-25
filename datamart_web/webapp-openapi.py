@@ -1138,6 +1138,10 @@ def upload():
                                      msg='FAIL UPLOAD - wrong password',
                                      data=None)
 
+        wikifier_choice = request.values.get('run_wikifier')
+        if wikifier_choice is None:
+            wikifier_choice = "auto"
+
         user_passwd_pairs[upload_username]["username"] = upload_username
         user_passwd_pairs[upload_username].pop("password_token")
         title = request.values.get('title').split("||") if request.values.get('title') else None
@@ -1149,12 +1153,15 @@ def upload():
         rq_queue = Queue(connection=redis_conn)
         dataset_information = {"url": url, "file_type": file_type, "title": title, 
                                "description": description, "keywords": keywords, 
-                               "user_information": user_passwd_pairs[upload_username]}
+                               "user_information": user_passwd_pairs[upload_username],
+                               "wikifier_choice": wikifier_choice
+                               }
 
         job = rq_queue.enqueue(upload_to_datamart, 
                                args=(DATAMART_SERVER, dataset_information,),
                                # no timeout for job, result expire after 1 day
-                               job_timeout=-1,result_ttl=86400) 
+                               job_timeout=-1, result_ttl=86400
+                               ) 
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
@@ -1274,7 +1281,7 @@ def upload_metadata():
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
-@app.route('/check_upload_status', methods=['POST'])
+@app.route('/upload/check_upload_status', methods=['POST'])
 @cross_origin()
 def check_upload_status():
     try:
@@ -1304,7 +1311,7 @@ def check_upload_status():
             for i, each_worker in enumerate(workers):
                 each_worker_status = {}
                 each_worker_status['state'] = each_worker.state
-                if each_worker_status['state'] == "busy":
+                if each_worker_status['state'] != "idle":
                     current_job = each_worker.get_current_job()
                     each_worker_status['running_job_id'] = str(current_job.id)
                     each_worker_status['started_at'] = str(current_job.started_at)

@@ -13,7 +13,9 @@ all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master
 "https://gitlab.com/svattam/datamart-uploads/raw/master/NPDB1807.CSV", 
 "https://gitlab.com/svattam/datamart-uploads/raw/master/ny_lga_weather_16_17_18.csv", 
 "https://gitlab.com/svattam/datamart-uploads/raw/master/psam_h06.csv", 
-"https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz"
+"https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz",
+"https://raw.githubusercontent.com/yuqiuhe/Dsbox/master/New-York-La-Guadia-Airport-Weather-Hourly.csv",
+
 ]
 
 for input_dir in all_dir:
