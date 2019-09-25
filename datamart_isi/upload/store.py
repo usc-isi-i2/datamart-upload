@@ -249,14 +249,17 @@ class Datamart_isi_upload:
                 do_wikifier = True
             else:
                 each_df_size = each_df.shape[0] * each_df.shape[1]
-                if each_df_size >= maximum_accept_wikifier_size:
+                if each_df_size >= config_datamart.maximum_accept_wikifier_size:
                     do_wikifier = False
                 else:
                     do_wikifier = True
 
             if do_wikifier:
+                self._logger.info("Will run wikifier!")
                 wikifier_res = wikifier.produce(each_df)
+
             else:
+                self._logger.info("Not run wikifier!")
                 wikifier_res = each_df
                 # we also need to let the cache system know not to do wikifier
                 produce_config = {"target_columns": None, "target_p_nodes": None,
@@ -264,8 +267,7 @@ class Datamart_isi_upload:
                                   "threshold": 0.7
                                   }
                 
-                DEFAULT_DATAMART_URL = config_datamart.default_datamart_url
-                CACHE_MANAGER = GeneralSearchCache(connection_url=os.getenv('DATAMART_URL_NYU', DEFAULT_DATAMART_URL))
+                CACHE_MANAGER = GeneralSearchCache(connection_url=os.getenv('DATAMART_URL_NYU', config_datamart.default_datamart_url))
                 
                 cache_key = CACHE_MANAGER.get_hash_key(each_df, json.dumps(produce_config))
 

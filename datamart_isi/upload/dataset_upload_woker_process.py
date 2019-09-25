@@ -6,6 +6,8 @@ import traceback
 import datetime
 from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
+from datamart_isi.upload import store
+
 
 def upload_to_datamart(datamart_upload_address, dataset_information):
     logger = logging.getLogger()
@@ -43,11 +45,11 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
         raise ValueError("No user information given!!!")
     wikifier_choice = dataset_information.get("wikifier_choice", "auto")
     # double check, ensure any call to upload has to be done with user verification
-    upload_function_path = Datamart_isi_upload.__file__
-    password_file_path = os.path.join(os.path.dirname(upload_function_path), "upload_password_config.json")
+    upload_function_path = store.__file__
+    password_record_file = os.path.join(os.path.dirname(upload_function_path), "upload_password_config.json")
 
     if not os.path.exists(password_record_file):
-        raise ValueError("No password config file found at {}!!!".format(password_file_path))
+        raise ValueError("No password config file found at {}!!!".format(password_record_file))
 
     with open(password_record_file ,"r") as f:
         user_passwd_pairs = json.load(f)
