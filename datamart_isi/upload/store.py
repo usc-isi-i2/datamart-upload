@@ -8,6 +8,7 @@ import time
 import datetime
 import logging
 import json
+import os
 
 from requests.auth import HTTPBasicAuth
 from etk.etk import ETK
@@ -29,6 +30,7 @@ from collections import defaultdict
 from datamart_isi.utilities.timeout import Timeout, timeout_call
 from datamart_isi.utilities import connection
 from datamart_isi import config as config_datamart
+from datamart_isi.cache.general_search_cache import GeneralSearchCache
 
 DATAMRT_SERVER = connection.get_general_search_server_url()
 

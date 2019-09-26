@@ -2,19 +2,19 @@ from datamart_isi.upload.store import Datamart_isi_upload
 # this sample will save the following online csv datasets into datamart in blaze graph
 a = Datamart_isi_upload(update_server="http://dsbox02.isi.edu:9002/blazegraph/namespace/datamart3/sparql", query_server = "http://dsbox02.isi.edu:9002/blazegraph/namespace/datamart3/sparql")
 
-all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv", 
-    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Most-Recent-Cohorts-Scorecard-Elements.csv", 
-    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Unemployment.csv", 
-    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/educate.csv", 
-    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/population.csv", 
-    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/poverty.csv",
-"https://gitlab.com/svattam/datamart-uploads/raw/master/2017-yellow-cab-lga.csv", 
-"https://gitlab.com/svattam/datamart-uploads/raw/master/FIFA_2018_Statistics_N.csv", 
-"https://gitlab.com/svattam/datamart-uploads/raw/master/NPDB1807.CSV", 
-"https://gitlab.com/svattam/datamart-uploads/raw/master/ny_lga_weather_16_17_18.csv", 
-"https://gitlab.com/svattam/datamart-uploads/raw/master/psam_h06.csv", 
-"https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz",
-"https://raw.githubusercontent.com/yuqiuhe/Dsbox/master/New-York-La-Guadia-Airport-Weather-Hourly.csv",
+all_dir = ["https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/List_of_United_States_counties_by_per_capita_income.csv", # 1
+    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Most-Recent-Cohorts-Scorecard-Elements.csv", # 2
+    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Unemployment.csv", # 3
+    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/educate.csv", # 4
+    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/population.csv", # 5
+    "https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/poverty.csv", # 6
+"https://gitlab.com/svattam/datamart-uploads/raw/master/2017-yellow-cab-lga.csv", # 7
+"https://gitlab.com/svattam/datamart-uploads/raw/master/FIFA_2018_Statistics_N.csv", # 8
+"https://gitlab.com/svattam/datamart-uploads/raw/master/NPDB1807.CSV", # 9
+"https://gitlab.com/svattam/datamart-uploads/raw/master/ny_lga_weather_16_17_18.csv", # 10
+"https://gitlab.com/svattam/datamart-uploads/raw/master/psam_h06.csv", # 11
+"https://github.com/usc-isi-i2/datamart-userend/raw/d3m/example_datasets/NPDB1901-subset.csv.gz", # 12
+"https://raw.githubusercontent.com/yuqiuhe/Dsbox/master/New-York-La-Guadia-Airport-Weather-Hourly.csv", # 13
 
 ]
 
