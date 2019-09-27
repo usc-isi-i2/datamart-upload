@@ -2,11 +2,16 @@ version: '3'
 services:
   isi_datamart:
     build: .
+    depends_on:
+      - memcached
+      - blazegraph_satellite
+      - redis
     ports:
       - "9000:9000"
     volumes:
       - .:/app/datamart-upload
       - /nfs1/dsbox-repo/kyao/datamart-devel/datamart-userend:/app/datamart-userend
+      - /nfs1/dsbox-repo/data/datasets-v32/seed_datasets_data_augmentation:/data
   memcached:
     image: "memcached:alpine"
     command: ["memcached", "-p", "11211", "-u", "nobody", "-c", "1024", "-m", "1024", "-I", "100m"]
