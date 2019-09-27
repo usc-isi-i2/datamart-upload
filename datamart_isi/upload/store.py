@@ -19,8 +19,8 @@ from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityVal
 from etk.wikidata.statement import WDReference
 # from etk.wikidata import serialize_change_record
 from etk.wikidata.truthy import TruthyUpdater
-from dsbox.datapreprocessing.cleaner.data_profile import Profiler, Hyperparams as ProfilerHyperparams
-from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturizer, CleaningFeaturizerHyperparameter
+# from dsbox.datapreprocessing.cleaner.data_profile import Profiler, Hyperparams as ProfilerHyperparams
+# from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturizer, CleaningFeaturizerHyperparameter
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi.utilities.utils import Utils as datamart_utils
 from datamart_isi.materializers.general_materializer import GeneralMaterializer
@@ -31,6 +31,7 @@ from datamart_isi.utilities.timeout import Timeout, timeout_call
 from datamart_isi.utilities import connection
 from datamart_isi import config as config_datamart
 from datamart_isi.cache.general_search_cache import GeneralSearchCache
+from datamart_isi.utilities.d3m_wikifier import save_wikifier_choice
 
 DATAMRT_SERVER = connection.get_general_search_server_url()
 
@@ -250,12 +251,10 @@ class Datamart_isi_upload:
             elif wikifier_choice == "true":
                 do_wikifier = True
             else:
-                each_df_size = each_df.shape[0] * each_df.shape[1]
-                if each_df_size >= config_datamart.maximum_accept_wikifier_size:
-                    do_wikifier = False
-                else:
-                    do_wikifier = True
+                do_wikifier = None
 
+            do_wikifier = save_wikifier_choice(input_dataframe=each_df, choice=do_wikifier)
+            
             if do_wikifier:
                 self._logger.info("Will run wikifier!")
                 wikifier_res = wikifier.produce(each_df)
