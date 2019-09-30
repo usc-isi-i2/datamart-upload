@@ -223,7 +223,7 @@ class Datamart_isi_upload:
             if result[-1] == "\n":
                 result = result[:-1]
             loaded_data = StringIO(result)
-            loaded_data = [pd.read_csv(loaded_data,dtype="str")]
+            loaded_data = [pd.read_csv(loaded_data,dtype=str)]
 
         elif file_type=="wikitable":
             from_online_file = True
@@ -295,7 +295,9 @@ class Datamart_isi_upload:
             for col_name in wikifier_res.columns.values.tolist():
                 if 'date' in col_name.lower() or 'time' in col_name.lower():
                     try:
-                        wikifier_res[col_name] = pd.to_datetime(wikifier_res[col_name])
+                        temp = pd.to_datetime(wikifier_res[col_name])
+                        if (pd.isnull(temp)==True).value_counts()[True] < wikifier_res.shape[0] * 0.3:
+                            wikifier_res[col_name] = temp
                     except:
                         pass
 
@@ -423,7 +425,7 @@ class Datamart_isi_upload:
         translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
-            if 'http://schema.org/DateTime' in semantic_type:
+            if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
                 semantic_type_url = "http://schema.org/DateTime"
                 start_date = min(column_data)
@@ -468,7 +470,7 @@ class Datamart_isi_upload:
                 elif 'http://schema.org/Integer' in semantic_type:
                     data_type = "int"
                     semantic_type_url = 'http://schema.org/Integer'
-                elif 'http://schema.org/Text' in semantic_type:
+                else: # 'http://schema.org/Text' in semantic_type:
                     data_type = "string"
                     semantic_type_url = 'http://schema.org/Text'
 
@@ -480,7 +482,7 @@ class Datamart_isi_upload:
             return True
         except Exception as e:
             self._logger.error("[ERROR] processing column No." + str(column_number) + " failed!")
-            self.self._logger.debug(e, exc_info=True)
+            self._logger.debug(e, exc_info=True)
             return False
         
     def output_to_ttl(self, file_path: str, file_format="ttl"):                        
