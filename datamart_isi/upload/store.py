@@ -242,7 +242,7 @@ class Datamart_isi_upload:
         # hyper1 = ProfilerHyperparams.defaults()
         # hyper2 = CleaningFeaturizerHyperparameter.defaults()
 
-        self.columns_are_string = defaultdict(list)
+        # self.columns_are_string = defaultdict(list)
         all_wikifier_res = []
         all_metadata = []
         for df_count, each_df in enumerate(loaded_data):
@@ -303,8 +303,10 @@ class Datamart_isi_upload:
             metadata = datamart_utils.generate_metadata_from_dataframe(data=wikifier_res)
             self._logger.info("The uploaded data's shape is " + str(wikifier_res.shape))
             for i, each_column_meta in enumerate(metadata['variables']):
-                if 'http://schema.org/Text' in each_column_meta['semantic_type']:
-                    self.columns_are_string[df_count].append(i)
+                self._logger.debug("Metadata for column No.{} is:".format(str(i)))
+                self._logger.debug(str(each_column_meta))
+                # if 'http://schema.org/Text' in each_column_meta['semantic_type']:
+                    # self.columns_are_string[df_count].append(i)
                 
             if from_online_file:
                 metadata['url'] = input_dir
