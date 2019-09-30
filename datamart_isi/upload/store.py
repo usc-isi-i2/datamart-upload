@@ -297,7 +297,7 @@ class Datamart_isi_upload:
                     try:
                         temp = pd.to_datetime(wikifier_res[col_name])
                         has_time_format_or_not = (pd.isnull(temp)==True).value_counts()
-                        if False in has_time_format_or_not and has_time_format_or_not[False] >= wikifier_res.shape[0] * 0.7:
+                        if False in has_time_format_or_not.keys() and has_time_format_or_not[False] >= wikifier_res.shape[0] * 0.7:
                             wikifier_res[col_name] = temp
                     except:
                         pass
