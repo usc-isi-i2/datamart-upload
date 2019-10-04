@@ -59,17 +59,18 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 
-em_es_url = config_datamart.em_es_url
-em_es_index = config_datamart.em_es_index
-em_es_type = config_datamart.em_es_type
+em_es_url = connection.get_es_fb_embedding_server_url()
+# em_es_url = config_datamart.em_es_url
+# em_es_index = config_datamart.em_es_index
+# em_es_type = config_datamart.em_es_type
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 password_token_file = "../datamart_isi/upload/password_tokens.json"
 password_record_file = "../datamart_isi/upload/upload_password_config.json"
 
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
-                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
-                 "/data",  # for docker using
+dataset_paths = ["/data",  # for docker
+                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server
+                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 DATAMART_SERVER = connection.get_general_search_server_url()
@@ -702,11 +703,11 @@ def download_by_id(id):
 
         else:  # len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
-                prefix ps: <http://www.wikidata.org/prop/statement/> 
-                prefix pq: <http://www.wikidata.org/prop/qualifier/> 
+                prefix ps: <http://www.wikidata.org/prop/statement/>
+                prefix pq: <http://www.wikidata.org/prop/qualifier/>
                 prefix p: <http://www.wikidata.org/prop/>
                 SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
-                WHERE 
+                WHERE
                 {
                   ?dataset p:C2001/ps:C2001 ?title .
                  filter regex(str(?title), "''' + datamart_id + '''").
@@ -814,11 +815,11 @@ def download_metadata_by_id(id):
         else:
             #  len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
-                prefix ps: <http://www.wikidata.org/prop/statement/> 
-                prefix pq: <http://www.wikidata.org/prop/qualifier/> 
+                prefix ps: <http://www.wikidata.org/prop/statement/>
+                prefix pq: <http://www.wikidata.org/prop/qualifier/>
                 prefix p: <http://www.wikidata.org/prop/>
                 SELECT distinct ?dataset ?datasetLabel ?title ?url ?file_type ?extra_information
-                WHERE 
+                WHERE
                 {
                  ?dataset rdfs:label ?datasetLabel.
                  ?dataset p:C2001/ps:C2001 ?title .
@@ -1340,7 +1341,7 @@ def fetch_fb_embeddings(qnode):
         "size": len(qnode_uris)
     }
 
-    url = '{}/{}/{}/_search'.format(em_es_url, em_es_index, em_es_type)
+    url = '{}/_search'.format(em_es_url)
     resp = requests.get(url, json=query)
     result_csv = ""
     if resp.status_code == 200:
@@ -1365,5 +1366,25 @@ def fetch_fb_embeddings(qnode):
     return None
 
 
+def generate_dataset_metadata():
+    '''
+    Add D3M dataset metadata to cache
+    '''
+    print('Running generate_dataset_metadata')
+    from datamart_isi.cache import metadata_cache
+    import os
+    import pathlib
+
+    memcache_dir = pathlib.Path(config_datamart.cache_file_storage_base_loc) / 'datasets_cache'
+    if not memcache_dir.exists():
+        os.makedirs(memcache_dir)
+
+    for path in dataset_paths:
+        path = pathlib.Path(path)
+        if path.exists:
+            metadata_cache.MetadataCache.generate_real_metadata_files([str(path)])
+    print('Done generate_dataset_metadata')
+
 if __name__ == '__main__':
+    generate_dataset_metadata()
     app.run(host="0.0.0.0", port=9000, debug=False)
