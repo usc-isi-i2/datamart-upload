@@ -21,4 +21,5 @@ WORKDIR /app/datamart-upload/datamart_web
 
 # COPY datasets-2019-summer/seed_datasets_data_augmentation /data
 
-CMD ["python3", "webapp-openapi.py"]
+# CMD ["python3", "webapp-openapi.py"]
+CMD ["/bin/sh", "/app/datamart-upload/start-datamart.sh"]
