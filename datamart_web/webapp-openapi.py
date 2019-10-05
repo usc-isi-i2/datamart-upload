@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 import pandas as pd
 import logging
 import typing
@@ -10,7 +9,6 @@ import io
 import zipfile
 import tempfile
 import pathlib
-import logging
 import requests
 import copy
 import time
@@ -25,19 +23,19 @@ from flask_cors import CORS, cross_origin
 from d3m.base import utils as d3m_utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
-from d3m.metadata.base import DataMetadata, ALL_ELEMENTS
-from flask import Flask, request, render_template, send_file, Response, redirect
+from d3m.metadata.base import ALL_ELEMENTS
+from flask import Flask, request, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
+from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
 from flasgger import Swagger
-from rq import Queue,job
+from rq import Queue
 
 
 logger = logging.getLogger()
@@ -324,8 +322,8 @@ def wikifier():
                 choice = ['automatic']
         except:
             return wrap_response(code='1000',
-                                msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
-                                data=None)
+                                 msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
+                                 data=None)
         logger.info("Required columns found as: " + str(columns_formated))
         logger.info("Wikifier choice is: " + str(choice))
 
@@ -339,7 +337,6 @@ def wikifier():
                 threshold = 0.7
         logger.info("Threshold for coverage is: " + str(threshold))
 
-
         logger.debug("Start changing dataset to dataframe...")
         # DA = load_d3m_dataset("DA_poverty_estimation")
         # MetadataCache.save_metadata_from_dataset(DA)
@@ -348,11 +345,11 @@ def wikifier():
         if updated_result[0]:  # [0] store whether it success find the metadata
             loaded_dataset = updated_result[1]
         res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset,
-                                                                    resource_id=None,has_hyperparameter=False)
+                                                                    resource_id=None, has_hyperparameter=False)
         output_ds = copy.copy(loaded_dataset)
         logger.debug("Start running wikifier...")
         wikifier_res = produce(inputs=supplied_dataframe, target_columns=columns_formated, target_p_nodes=None,
-                                                    wikifier_choice=choice, threshold=threshold)
+                               wikifier_choice=choice, threshold=threshold)
         logger.debug("Wikifier finished, Start to update metadata...")
         output_ds[res_id] = d3m_DataFrame(wikifier_res, generate_metadata=False)
 
@@ -1068,7 +1065,7 @@ def add_upload_user():
                                  msg="FAIL ADD USER - can't load the password config file, please contact the adiministrator!",
                                  data=None)
 
-        with open(password_record_file ,"r") as f:
+        with open(password_record_file, "r") as f:
             user_passwd_pairs = json.load(f)
 
         if username in user_passwd_pairs:
@@ -1095,7 +1092,7 @@ def add_upload_user():
 @cross_origin()
 def upload():
     logger.debug("Start uploading in one step...")
-    start_time = time.time()
+    # start_time = time.time()
     try:
         url = request.values.get('url')
         if url is None:
@@ -1149,7 +1146,8 @@ def upload():
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        _, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
         dataset_information = {"url": url, "file_type": file_type, "title": title,
@@ -1179,8 +1177,8 @@ def upload():
 def upload_test():
     logger.debug("Start uploading(test version) in one step...")
     # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
-                                                        # query_server=DATAMART_TEST_SERVER)
-    start_time = time.time()
+    #                                                     query_server=DATAMART_TEST_SERVER)
+    # start_time = time.time()
     try:
         url = request.values.get('url')
         if url is None:
@@ -1198,13 +1196,14 @@ def upload_test():
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        _, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
         job = rq_queue.enqueue(upload_to_datamart,
                                args=(url, file_type, DATAMART_TEST_SERVER, title, description, keywords,),
                                # no timeout for job, result expire after 1 day
-                               job_timeout=-1,result_ttl=86400)
+                               job_timeout=-1, result_ttl=86400)
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
@@ -1287,7 +1286,8 @@ def upload_metadata():
 def check_upload_status():
     try:
         logger.debug("Start checking upload status...")
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        _, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         job_ids = request.values.get("job_ids") if request.values.get("job_ids") else None
 
@@ -1320,9 +1320,9 @@ def check_upload_status():
                     each_worker_status['meta'] = current_job.meta
                 job_status["worker_" + str(i)] = each_worker_status
         return wrap_response(code='0000',
-                                 msg='Success',
-                                 data=json.dumps(job_status, indent=2)
-                                )
+                             msg='Success',
+                             data=json.dumps(job_status, indent=2)
+        )
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
@@ -1384,6 +1384,7 @@ def generate_dataset_metadata():
         if path.exists:
             metadata_cache.MetadataCache.generate_real_metadata_files([str(path)])
     print('Done generate_dataset_metadata')
+
 
 if __name__ == '__main__':
     generate_dataset_metadata()
