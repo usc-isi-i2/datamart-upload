@@ -1146,8 +1146,8 @@ def upload():
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        _, redis_server_port = connection.get_redis_host_port()
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=redis_server_port)
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
         dataset_information = {"url": url, "file_type": file_type, "title": title,
@@ -1196,8 +1196,8 @@ def upload_test():
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        _, redis_server_port = connection.get_redis_host_port()
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=redis_server_port)
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
         job = rq_queue.enqueue(upload_to_datamart,
@@ -1286,8 +1286,8 @@ def upload_metadata():
 def check_upload_status():
     try:
         logger.debug("Start checking upload status...")
-        _, redis_server_port = connection.get_redis_host_port()
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=redis_server_port)
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         job_ids = request.values.get("job_ids") if request.values.get("job_ids") else None
 
