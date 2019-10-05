@@ -37,7 +37,7 @@ from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
 from flasgger import Swagger
-from rq import Queue,job 
+from rq import Queue,job
 
 
 logger = logging.getLogger()
@@ -78,7 +78,7 @@ DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
-REDIS_MANAGER = RedisManager(config_datamart.default_datamart_url, config_datamart.redis_server_port)
+REDIS_MANAGER = RedisManager()
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -1061,7 +1061,7 @@ def add_upload_user():
             return wrap_response(code='1000',
                                  msg='FAIL ADD USER - invalid token!',
                                  data=None)
-        
+
         if not os.path.exists(password_record_file):
             logger.error("No password config file found!")
             return wrap_response(code='1000',
@@ -1125,7 +1125,7 @@ def upload():
                                  data=None)
 
         with open(password_record_file ,"r") as f:
-            user_passwd_pairs = json.load(f)            
+            user_passwd_pairs = json.load(f)
 
         if upload_username not in user_passwd_pairs:
             return wrap_response(code='1000',
@@ -1152,17 +1152,17 @@ def upload():
         pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
-        dataset_information = {"url": url, "file_type": file_type, "title": title, 
-                               "description": description, "keywords": keywords, 
+        dataset_information = {"url": url, "file_type": file_type, "title": title,
+                               "description": description, "keywords": keywords,
                                "user_information": user_passwd_pairs[upload_username],
                                "wikifier_choice": wikifier_choice
                                }
 
-        job = rq_queue.enqueue(upload_to_datamart, 
+        job = rq_queue.enqueue(upload_to_datamart,
                                args=(DATAMART_SERVER, dataset_information,),
                                # no timeout for job, result expire after 1 day
                                job_timeout=-1, result_ttl=86400
-                               ) 
+                               )
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
@@ -1201,10 +1201,10 @@ def upload_test():
         pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
-        job = rq_queue.enqueue(upload_to_datamart, 
+        job = rq_queue.enqueue(upload_to_datamart,
                                args=(url, file_type, DATAMART_TEST_SERVER, title, description, keywords,),
                                # no timeout for job, result expire after 1 day
-                               job_timeout=-1,result_ttl=86400) 
+                               job_timeout=-1,result_ttl=86400)
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
@@ -1303,7 +1303,7 @@ def check_upload_status():
                     job_status[each_job_id] = current_status
                 else:
                     job_status[each_job_id] = "Job does not exist!"
-            
+
         # if not job id given, get all status of the workers
         else:
             job_status = {}
