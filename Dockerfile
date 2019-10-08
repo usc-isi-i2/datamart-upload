@@ -15,6 +15,9 @@ RUN pip3 install rq==1.1.0
 RUN pip3 install bcrypt>=3.1.7
 RUN pip3 install gunicorn>=19.9.0
 
+
+RUN git clone https://github.com/RDFLib/OWL-RL.git && cd OWL-RL && git checkout 471d1dfe8f6ed710b99395d3a563c3c4218cf46a && git checkout e98d23297216ad81c9a9982d861162bd2388600b && pip install -e .
+
 RUN python3 -m spacy download en_core_web_sm
 
 WORKDIR /app/datamart-upload/datamart_web
