@@ -23,17 +23,16 @@ services:
     ports:
       - 9002:8080
     volumes:
-      - ./blazegraph/RWStore.properties:/RWStore.properties
+      - ./config/blazegraph/RWStore.properties:/RWStore.properties
       - $ISI_BLAZEGRAPH_SATELLITE_DATA_DIR:/data
   redis:
-    image: "redis:alpine"
+    # image: "redis:alpine"
+    build:
+      context: .
+      dockerfile: Dockerfile-redis
     command: ["redis-server", "/conf/redis_conf.conf"]
     expose:
       - 6379
     volumes:
       - $ISI_REDIS_DATA_DIR:/data
       - $ISI_REDIS_CONF_DIR:/conf
-    deploy:
-      resources:
-        limits:
-          memory: 50g
