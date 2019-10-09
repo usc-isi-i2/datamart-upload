@@ -177,7 +177,7 @@ class Datamart_isi_upload:
             results = sparql.query().convert()['results']['bindings']
         except:
             self._logger.error("Getting query of wiki data failed!")
-            raise ValueError("Unable to initialize the datamart query service")
+            raise ValueError("Unable to initialize the datamart query service on address " + query_server)
         if not results:
             self._logger.warning("No starting source id found! Will initialize the starting source with D1000001")
             self.resource_id = 1000001

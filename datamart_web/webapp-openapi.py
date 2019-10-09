@@ -17,7 +17,7 @@ import frozendict
 import rq
 import bcrypt
 
-from wikifier.wikifier import produce, save_specific_p_nodes
+from wikifier.wikifier import produce#, save_specific_p_nodes
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
@@ -462,16 +462,17 @@ def search():
             logger.debug("Start running wikifier...")
             # Save specific p/q nodes in cache files
             meta_for_wikifier = None
+            # if a specific list of wikifier targets was sent (usually generated from ta2 system)
             if query and "keywords" in query.keys():
                 for kw in query["keywords"]:
                     if config_datamart.wikifier_column_mark in kw:
                         meta_for_wikifier = json.loads(kw)[config_datamart.wikifier_column_mark]
                         break
-                if meta_for_wikifier:
+                if meta_for_wikifier is not None:
                     logger.info(
-                        "Get specific column<->p_nodes relationship from previous TRAIN run. Will only wikifier those columns!")
+                        "Get specific column<->p_nodes relationship from user. Will only wikifier those columns!")
                     _, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset, resource_id=None)
-                    save_specific_p_nodes(supplied_dataframe, meta_for_wikifier)
+                    MetadataCache.save_specific_wikifier_targets(supplied_dataframe, meta_for_wikifier)
 
             search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
                                                           search_type="wikifier")
