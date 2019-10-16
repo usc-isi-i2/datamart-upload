@@ -365,15 +365,115 @@ paths:
       tags:
         - Upload API
       summary: Upload dataset with metadata
-      description: 'ALL-IN-ONE upload method that takes as input the url of the dataset resource to be uploaded, the type of the dataset resource, and optional dataset-level property parameters.<br> The method automatically generates the dataset metadata and upload the dataset with the generated metadata to datamart database. This is the RECOMMEND method to upload datasets. <br> <br> Two required method parameters are: <br> **url**: The address to the dataset resource. <br> **file_type**: A string indicating the type of the data source, currently only "online_csv" is available. '
+      description: 'ALL-IN-ONE upload method that takes as input the url of the dataset resource to be uploaded, the type of the dataset resource, and optional dataset-level property parameters.<br> The method automatically generates the dataset metadata and upload the dataset with the generated metadata to datamart database. This is the RECOMMEND method to upload datasets. <br> <br> Two required method parameters are: <br> **url/file**: The address to the dataset resource. Or upload a file from local. One of the paramters on **url** or **file** have to be given. <br> **file_type**: A string indicating the type of the data source, currently only "online_csv" is available. '
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upload_file:
+                  type: string
+                  format: binary
+                  description: 'Dataset file (.csv) need to upload to datamart'
       parameters:
         - in: query
           name: url
           schema:
             type: string
           example: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv
-          required: true
+          # required: true
           description: Url of input file
+        # - in: formData
+        #   name: upload_file
+        #   schema:
+        #     type: file
+        #   description: The file of the dataset to upload to datamart
+        - in: query
+          name: run_wikifier
+          description: 'whether to run wikifier on the uploaded dataset or not. <br> Default value is auto. Wikifier step will skip if the size(row number * column number) of the dataset is larger than **100000**'
+          schema:
+            type: string
+            example: auto
+            enum: [auto, true, false]
+        - name: file_type
+          in: query
+          schema:
+            type: string
+            enum:
+              - online_csv
+          required: true
+          description: Online file type, currently only support online_csv
+        - name: title
+          in: query
+          schema:
+            type: string
+          required: false
+          description: 'Name of the dataset, if the url contains multiple dataset, please provide each title, split with mark "||". <br> For example, title1||title2'
+        - name: description
+          in: query
+          schema:
+            type: string
+          required: false
+          description: 'Description of the dataset, if the url contains multiple dataset, please provide each description, split with mark "||". <br> For example, This is description for first dataset||This is description for second dataset'
+        - name: keywords
+          in: query
+          schema:
+            type: string
+          required: false
+          description: 'Keywords or tags to describe the dataset content, if the url contains multiple dataset, please provide each keywords, split with mark "||". <br> For example, keywords1_1, keywords1_2||keywords2_1, keywords2_2'
+        - name: username
+          in: query
+          schema:
+            type: string
+          required: true
+          description: the username for the upload user
+        - name: password
+          in: query
+          schema:
+            type: string
+            format: password
+          required: true
+          description: the password for the upload user
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/text:
+              schema:
+                type: string
+        '404':
+          description: Not found.
+
+  /upload/test:
+    post:
+      tags:
+        - Upload API
+      summary: Upload dataset with metadata
+      description: 'ALL-IN-ONE upload method that takes as input the url of the dataset resource to be uploaded, the type of the dataset resource, and optional dataset-level property parameters.<br> The method automatically generates the dataset metadata and upload the dataset with the generated metadata to datamart database. This is the RECOMMEND method to upload datasets. <br> <br> Two required method parameters are: <br> **url/file**: The address to the dataset resource. Or upload a file from local. One of the paramters on **url** or **file** have to be given. <br> **file_type**: A string indicating the type of the data source, currently only "online_csv" is available. '
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upload_file:
+                  type: string
+                  format: binary
+                  description: 'Dataset file (.csv) need to upload to datamart'
+      parameters:
+        - in: query
+          name: url
+          schema:
+            type: string
+          example: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv
+          # required: true
+          description: Url of input file
+        # - in: formData
+        #   name: upload_file
+        #   schema:
+        #     type: file
+        #   description: The file of the dataset to upload to datamart
         - in: query
           name: run_wikifier
           description: 'whether to run wikifier on the uploaded dataset or not. <br> Default value is auto. Wikifier step will skip if the size(row number * column number) of the dataset is larger than **100000**'
@@ -492,55 +592,6 @@ paths:
         '1000':
           description: failed.
 
-  /upload/test:
-    post:
-      tags:
-        - Upload API
-      summary: Test upload dataset with metadata
-      description: 'Similar to the /upload endpoint, except this endpoint does not modify the datamart. This endpoint is for trail runs before the actual upload.'
-      parameters:
-        - name: url
-          in: query
-          schema:
-            type: string
-          required: true
-          description: Url of input file
-          example: 'https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_upload_data.csv'
-        - name: file_type
-          in: query
-          schema:
-            type: string
-            enum:
-              - online_csv
-          required: true
-          description: Online file type, currently only support online_csv
-        - name: title
-          in: query
-          schema:
-            type: string
-          required: false
-          description: Name of the dataset
-        - name: description
-          in: query
-          schema:
-            type: string
-          required: false
-          description: Description of the dataset
-        - name: keywords
-          in: query
-          schema:
-            type: string
-          required: false
-          description: Keywords or tags to describe the dataset content
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/text:
-              schema:
-                type: string
-        '404':
-          description: Not found.
   /upload/generateWD+Metadata:
     post:
       tags:

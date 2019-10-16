@@ -9,6 +9,7 @@ import datetime
 import logging
 import json
 import os
+import hashlib
 
 from requests.auth import HTTPBasicAuth
 from etk.etk import ETK
@@ -129,11 +130,6 @@ class Datamart_isi_upload:
         p.add_description('some extra information that may needed for this dataset', lang='en')
         self.doc.kg.add_subject(p)
 
-        p = WDProperty('C2014', Datatype.StringValue)
-        p.add_label('uploader information', lang='en')
-        p.add_description('information about who uploaded and when uploaded', lang='en')
-        self.doc.kg.add_subject(p)
-
         p = WDProperty('C2011', Datatype.TimeValue)
         p.add_label('start date', lang='en')
         p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset', lang='en')
@@ -150,6 +146,11 @@ class Datamart_isi_upload:
         p.add_label('time granularity', lang='en')
         p.add_description('time granularity in a dataset', lang='en')
         p.add_statement('P31', Item('Q18616576'))
+        self.doc.kg.add_subject(p)
+
+        p = WDProperty('C2014', Datatype.StringValue)
+        p.add_label('uploader information', lang='en')
+        p.add_description('information about who uploaded and when uploaded', lang='en')
         self.doc.kg.add_subject(p)
 
         # get the starting source id
@@ -181,11 +182,11 @@ class Datamart_isi_upload:
         if not results:
             self._logger.warning("No starting source id found! Will initialize the starting source with D1000001")
             self.resource_id = 1000001
-        else:
-            if len(results) != 1:
-                self._logger.warning(str(results))
-                self._logger.warning("Something wrong with the dataset counter! Totally " + str(len(results)) + " counter found instead of 1!")
-            self.resource_id = int(results[0]['x']['value'])
+        # else:
+        #     if len(results) != 1:
+        #         self._logger.warning(str(results))
+        #         self._logger.warning("Something wrong with the dataset counter! Totally " + str(len(results)) + " counter found instead of 1!")
+        #     self.resource_id = int(results[0]['x']['value'])
 
     def load_and_preprocess(self, input_dir, file_type="csv", job=None, wikifier_choice="auto"):
         start = time.time()
@@ -368,9 +369,23 @@ class Datamart_isi_upload:
             extra_information['column_meta_' + str(i)] = each_column_meta
         extra_information['data_metadata'] = data_metadata
 
-        for each_key in ["", ]:
-            if each_key not in uploader_information:
-                uploader_information[each_key] = "None"
+        # updated v2019.10.14, add first 10 rows of each dataset in extra information for checking
+        extra_information['first_10_rows'] = input_dfs[number].loc[:10].to_csv()
+        # updated v2019.10.14, trying to save a local backup of the downloaded dataframe to increase the speed
+        hash_generator = hashlib.md5()
+        hash_generator.update(url.encode('utf-8'))
+        hash_url_key = hash_generator.hexdigest()
+        dataset_cache_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_cache")
+        cache_file_loc = os.path.join(dataset_cache_loc, hash_url_key + ".h5")
+        if not os.path.exists(dataset_cache_loc):
+            os.mkdir(dataset_cache_loc)
+
+        input_dfs[number].to_hdf(cache_file_loc, key='df', mode='w', format='fixed')
+        extra_information['local_storage'] = cache_file_loc
+
+        # for each_key in ["", ]:
+        #     if each_key not in uploader_information:
+        #         uploader_information[each_key] = "None"
 
         self.resource_id += 1
         q.add_label(node_id, lang='en')
@@ -501,63 +516,61 @@ class Datamart_isi_upload:
         """
             upload the dataset. If success, return the uploaded dataset's id
         """
-        # This special Q node is used to store the next count to store the new Q node
-        start = time.time()
-        self._logger.info("Start uploading...")
-        sparql_query = """
-            prefix wdt: <http://www.wikidata.org/prop/direct/>
-            prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/>
-            prefix wdno: <http://www.wikidata.org/prop/novalue/>
-            prefix wds: <http://www.wikidata.org/entity/statement/>
-            prefix wdv: <http://www.wikidata.org/value/>
-            prefix wdref: <http://www.wikidata.org/reference/>
-            prefix wd: <http://www.wikidata.org/entity/>
-            prefix wikibase: <http://wikiba.se/ontology#>
-            prefix p: <http://www.wikidata.org/prop/>
-            prefix pqv: <http://www.wikidata.org/prop/qualifier/value/>
-            prefix pq: <http://www.wikidata.org/prop/qualifier/>
-            prefix ps: <http://www.wikidata.org/prop/statement/>
-            prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/>
-            prefix prv: <http://www.wikidata.org/prop/reference/value/>
-            prefix psv: <http://www.wikidata.org/prop/statement/value/>
-            prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/>
-            prefix pr: <http://www.wikidata.org/prop/reference/>
-            prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/>
-            prefix skos: <http://www.w3.org/2004/02/skos/core#>
-            prefix prov: <http://www.w3.org/ns/prov#>
-            prefix schema: <http://schema.org/'>
-            prefix bd: <http://www.bigdata.com/rdf#>
-            prefix bds: <http://www.bigdata.com/rdf/search#>
+        # # This special Q node is used to store the next count to store the new Q node
+        # start = time.time()
+        # self._logger.info("Start uploading...")
+        # sparql_query = """
+        #     prefix wdt: <http://www.wikidata.org/prop/direct/>
+        #     prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/>
+        #     prefix wdno: <http://www.wikidata.org/prop/novalue/>
+        #     prefix wds: <http://www.wikidata.org/entity/statement/>
+        #     prefix wdv: <http://www.wikidata.org/value/>
+        #     prefix wdref: <http://www.wikidata.org/reference/>
+        #     prefix wd: <http://www.wikidata.org/entity/>
+        #     prefix wikibase: <http://wikiba.se/ontology#>
+        #     prefix p: <http://www.wikidata.org/prop/>
+        #     prefix pqv: <http://www.wikidata.org/prop/qualifier/value/>
+        #     prefix pq: <http://www.wikidata.org/prop/qualifier/>
+        #     prefix ps: <http://www.wikidata.org/prop/statement/>
+        #     prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/>
+        #     prefix prv: <http://www.wikidata.org/prop/reference/value/>
+        #     prefix psv: <http://www.wikidata.org/prop/statement/value/>
+        #     prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/>
+        #     prefix pr: <http://www.wikidata.org/prop/reference/>
+        #     prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/>
+        #     prefix skos: <http://www.w3.org/2004/02/skos/core#>
+        #     prefix prov: <http://www.w3.org/ns/prov#>
+        #     prefix schema: <http://schema.org/'>
+        #     prefix bd: <http://www.bigdata.com/rdf#>
+        #     prefix bds: <http://www.bigdata.com/rdf/search#>
 
-            delete {
-                  wd:Z00000 wdt:P1114 ?x .
-                }
-                where {
-                    wd:Z00000 wdt:P1114 ?x .
-                }
-            """
-        try:
-            sparql = SPARQLWrapper(self.update_server)
-            sparql.setQuery(sparql_query)
-            sparql.setReturnFormat(JSON)
-            sparql.setMethod(POST)
-            sparql.setRequestMethod(URLENCODED)
-            results = sparql.query()  #.convert()['results']['bindings']
-        except:
-            self._logger.error("Updating the count for datamart failed!")
-            raise ValueError("Unable to connect to datamart server!")
-        # add datamart count to ttl
-        q = WDItem('Z00000')
-        q.add_label('Datamart datasets count', lang='en')
-        q.add_statement('P1114', QuantityValue(self.resource_id))  # title
-        self.doc.kg.add_subject(q)
+        #     delete {
+        #           wd:Z00000 wdt:P1114 ?x .
+        #         }
+        #         where {
+        #             wd:Z00000 wdt:P1114 ?x .
+        #         }
+        #     """
+        # try:
+        #     sparql = SPARQLWrapper(self.update_server)
+        #     sparql.setQuery(sparql_query)
+        #     sparql.setReturnFormat(JSON)
+        #     sparql.setMethod(POST)
+        #     sparql.setRequestMethod(URLENCODED)
+        #     results = sparql.query()  #.convert()['results']['bindings']
+        # except:
+        #     self._logger.error("Updating the count for datamart failed!")
+        #     raise ValueError("Unable to connect to datamart server!")
+        # # add datamart count to ttl
+        # q = WDItem('Z00000')
+        # q.add_label('Datamart datasets count', lang='en')
+        # q.add_statement('P1114', QuantityValue(self.resource_id))  # title
+        # self.doc.kg.add_subject(q)
         # upload
         extracted_data = self.doc.kg.serialize("ttl")
         headers = {'Content-Type': 'application/x-turtle',}
         response = requests.post(self.update_server, data=extracted_data.encode('utf-8'), headers=headers)
         self._logger.info('Upload file finished with status code: {}!'.format(response.status_code))
-        end1 = time.time()
-        self._logger.info("Upload finished. Totally take " + str(end1 - start) + " seconds.")
 
         if response.status_code//100 !=2:
             raise ValueError("Uploading file failed with code ", str(response.status_code))
@@ -575,5 +588,5 @@ class Datamart_isi_upload:
             tu.build_truthy(np_list)
             self._logger.info('Update truthy finished!')
         end2 = time.time()
-        self._logger.info("Upload truthy finished. Totally take " + str(end1 - end2) + " seconds.")
+        self._logger.info("Upload finished. Totally take " + str(end2 - start) + " seconds.")
         return self.modeled_data_id

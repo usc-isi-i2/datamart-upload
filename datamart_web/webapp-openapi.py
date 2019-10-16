@@ -1096,11 +1096,18 @@ def upload():
     # start_time = time.time()
     try:
         url = request.values.get('url')
-        if url is None:
+        upload_body = request.files.get("upload_file")
+
+        if url is None and upload_body is None:
             return wrap_response(code='1000',
-                                 msg='FAIL UPLOAD - Url can not be None',
+                                 msg='FAIL UPLOAD - Url and upload file cannot both be None',
                                  data=None)
 
+        if upload_body is not None and url is not None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - cannot send both url and upload file',
+                                 data=None)
+        
         file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
@@ -1130,12 +1137,21 @@ def upload():
                                  msg='FAIL UPLOAD - username does not exist',
                                  data=None)
         else:
-
             is_correct_password = bcrypt.checkpw(upload_password.encode(), user_passwd_pairs[upload_username]["password_token"].encode())
             if not is_correct_password:
                 return wrap_response(code='1000',
                                      msg='FAIL UPLOAD - wrong password',
                                      data=None)
+
+        if upload_body is not None:
+            datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
+            if not os.path.exists(datasets_store_loc):
+                os.mkdir(datasets_store_loc)
+            logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
+            file_loc = os.path.join(datasets_store_loc, upload_body.filename)
+            upload_body.save(file_loc)
+            url = file_loc
+            logger.debug("Save the dataset finished at {}".format(url))
 
         wikifier_choice = request.values.get('run_wikifier')
         if wikifier_choice is None:
@@ -1170,29 +1186,79 @@ def upload():
 
         return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
-        return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL UPLOAD job schedule - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
-    logger.debug("Start uploading(test version) in one step...")
-    # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
-    #                                                     query_server=DATAMART_TEST_SERVER)
+    logger.debug("Start uploading TEST in one step...")
     # start_time = time.time()
     try:
         url = request.values.get('url')
-        if url is None:
+        upload_body = request.files.get("upload_file")
+
+        if url is None and upload_body is None:
             return wrap_response(code='1000',
-                                 msg='FAIL UPLOAD - Url can not be None',
+                                 msg='FAIL UPLOAD - Url and upload file cannot both be None',
                                  data=None)
 
+        if upload_body is not None and url is not None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - cannot send both url and upload file',
+                                 data=None)
+        
         file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
                                  msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
+        upload_username = request.values.get('username')
+        upload_password = request.values.get('password')
+        if upload_username is None or upload_password is None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - upload username and password can not be None',
+                                 data=None)
+
+        # check username and password
+        password_record_file = "../datamart_isi/upload/upload_password_config.json"
+        if not os.path.exists(password_record_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL UPLOAD - can't load the password config file, please contact the adiministrator!",
+                                 data=None)
+
+        with open(password_record_file ,"r") as f:
+            user_passwd_pairs = json.load(f)
+
+        if upload_username not in user_passwd_pairs:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - username does not exist',
+                                 data=None)
+        else:
+            is_correct_password = bcrypt.checkpw(upload_password.encode(), user_passwd_pairs[upload_username]["password_token"].encode())
+            if not is_correct_password:
+                return wrap_response(code='1000',
+                                     msg='FAIL UPLOAD - wrong password',
+                                     data=None)
+
+        if upload_body is not None:
+            datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
+            if not os.path.exists(datasets_store_loc):
+                os.mkdir(datasets_store_loc)
+            logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
+            file_loc = os.path.join(datasets_store_loc, upload_body.filename)
+            upload_body.save(file_loc)
+            url = file_loc
+            logger.debug("Save the dataset finished at {}".format(url))
+
+        wikifier_choice = request.values.get('run_wikifier')
+        if wikifier_choice is None:
+            wikifier_choice = "auto"
+
+        user_passwd_pairs[upload_username]["username"] = upload_username
+        user_passwd_pairs[upload_username].pop("password_token")
         title = request.values.get('title').split("||") if request.values.get('title') else None
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
@@ -1201,19 +1267,52 @@ def upload_test():
         pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
+        dataset_information = {"url": url, "file_type": file_type, "title": title,
+                               "description": description, "keywords": keywords,
+                               "user_information": user_passwd_pairs[upload_username],
+                               "wikifier_choice": wikifier_choice
+                               }
+
         job = rq_queue.enqueue(upload_to_datamart,
-                               args=(url, file_type, DATAMART_TEST_SERVER, title, description, keywords,),
+                               args=(DATAMART_TEST_SERVER, dataset_information,),
                                # no timeout for job, result expire after 1 day
-                               job_timeout=-1, result_ttl=86400)
+                               job_timeout=-1, result_ttl=86400
+                               )
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
         job.refresh()
         job_status = job.get_status()
 
-        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
+        return wrap_response('0000', msg="UPLOAD TEST job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
+@app.route('/upload/local_datasets/<dataset_name>', methods=['GET'])
+@cross_origin()
+def get_local_datasets(dataset_name):
+    """
+    This function is used to work as a fake "http" server that enable to generate a url for the dataset in local disks
+    can also used for supporting the datasets user uploaded directly (in the future)
+    """
+    try:
+        datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
+        if not os.path.exists(datasets_store_loc):
+            os.mkdir(datasets_store_loc)
+        logger.debug("Start getting the dataset from local storage {}...".format(datasets_store_loc))
+
+        datasets_loc = os.path.join(datasets_store_loc, dataset_name)
+        if not os.path.exists(datasets_loc):
+            logger.error("File {} not exists!".format(dataset_name))
+            return wrap_response('1000', msg="File {} not exists!".format(dataset_name))
+
+        with open(datasets_loc) as f:
+            file_content = f.read()
+        return Response(file_content, mimetype="text/csv")
+
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL get local datasets - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/generateWD+Metadata', methods=['POST'])
