@@ -20,7 +20,9 @@ def is_redis_available(redis_conn):
     except (redis.exceptions.ConnectionError, redis.exceptions.BusyLoadingError):
         _logger.debug("Redis is still loading or not ready yet.")
         return False
-    _logger.debug("Redis is ready for connection.")
+    except redis.exceptions.DataError:
+        _logger.debug("Redis is ready for connection.")
+        return True
     return True
 
 
