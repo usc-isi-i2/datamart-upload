@@ -21,8 +21,9 @@ def is_redis_available(redis_conn):
         _logger.debug("Redis is still loading or not ready yet.")
         return False
     except redis.exceptions.DataError:
-        _logger.debug("Redis is ready for connection.")
+        _logger.warn("Redis is ready for connection.")
         return True
+    _logger.warn("Redis is ready for connection (2).")
     return True
 
 
@@ -32,7 +33,15 @@ if __name__ == '__main__':
         _logger.debug("Wait for 10 seconds.")
         time.sleep(10)
 
-    with Connection(redis_conn):
-        worker = Worker(map(Queue, listen))
-        worker.work()
-
+    worker_started = False
+    while not worker_started:
+        try:
+            with Connection(redis_conn):
+                worker = Worker(map(Queue, listen))
+                worker.work()
+                worker_started = True
+                _logger.warn('rq worker started')
+        except redis.exceptions.BusyLoadingError:
+            # redis is busy
+            _logger.debug('Wait for 10 seconds')
+            time.sleep(10)
