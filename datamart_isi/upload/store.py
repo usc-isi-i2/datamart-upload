@@ -239,11 +239,6 @@ class Datamart_isi_upload:
             job.meta['loading dataset used'] = str(datetime.timedelta(seconds=end1 - start))
             job.save_meta()
 
-        # run dsbox's profiler and cleaner
-        # hyper1 = ProfilerHyperparams.defaults()
-        # hyper2 = CleaningFeaturizerHyperparameter.defaults()
-
-        # self.columns_are_string = defaultdict(list)
         all_wikifier_res = []
         all_metadata = []
         for df_count, each_df in enumerate(loaded_data):
@@ -269,7 +264,7 @@ class Datamart_isi_upload:
                                   "threshold": 0.7
                                   }
                 
-                CACHE_MANAGER = GeneralSearchCache(connection_url=os.getenv('DATAMART_URL_NYU', config_datamart.default_datamart_url))
+                CACHE_MANAGER = GeneralSearchCache()
                 
                 cache_key = CACHE_MANAGER.get_hash_key(each_df, json.dumps(produce_config))
 
@@ -344,7 +339,7 @@ class Datamart_isi_upload:
         keywords = metadata[number].get("keywords") or ""
         file_type = metadata[number].get("file_type") or ""
         # TODO: if no url given?
-        url = metadata[number].get("url") or "https://"
+        url = metadata[number].get("url") or "http://"
         if type(keywords) is list:
             words_processed = []
             for each in keywords:
@@ -517,8 +512,8 @@ class Datamart_isi_upload:
             upload the dataset. If success, return the uploaded dataset's id
         """
         # # This special Q node is used to store the next count to store the new Q node
-        # start = time.time()
-        # self._logger.info("Start uploading...")
+        start = time.time()
+        self._logger.info("Start uploading...")
         # sparql_query = """
         #     prefix wdt: <http://www.wikidata.org/prop/direct/>
         #     prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/>
@@ -574,19 +569,19 @@ class Datamart_isi_upload:
 
         if response.status_code//100 !=2:
             raise ValueError("Uploading file failed with code ", str(response.status_code))
-        else:
-            # upload truthy
-            temp_output = StringIO()
-            serialize_change_record(temp_output)
-            temp_output.seek(0)
-            tu = TruthyUpdater(self.update_server, False)
-            np_list = []
-            for l in temp_output.readlines():
-                if not l: continue
-                node, prop = l.strip().split('\t')
-                np_list.append((node, prop))
-            tu.build_truthy(np_list)
-            self._logger.info('Update truthy finished!')
+
+        # upload truthy
+        temp_output = StringIO()
+        serialize_change_record(temp_output)
+        temp_output.seek(0)
+        tu = TruthyUpdater(self.update_server, False)
+        np_list = []
+        for l in temp_output.readlines():
+            if not l: continue
+            node, prop = l.strip().split('\t')
+            np_list.append((node, prop))
+        tu.build_truthy(np_list)
+        self._logger.info('Update truthy finished!')
         end2 = time.time()
         self._logger.info("Upload finished. Totally take " + str(end2 - start) + " seconds.")
         return self.modeled_data_id
