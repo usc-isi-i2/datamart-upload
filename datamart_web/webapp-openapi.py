@@ -18,7 +18,6 @@ import rq
 import bcrypt
 
 from wikifier.wikifier import produce#, save_specific_p_nodes
-from wikifier import config_wikifier_para as p_config
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
@@ -414,10 +413,10 @@ def wikifier():
         logger.info("Top k parameter is: " + str(top_k))
 
         # change the parameter's value
-        p_config.common_top_k = top_k
-        p_config.is_top_k = True
-        p_config.blacklist = blacklist
-        p_config.top_k = top_k
+        # p_config.common_top_k = top_k
+        # p_config.is_top_k = True
+        # p_config.blacklist = blacklist
+        # p_config.top_k = top_k
 
         logger.debug("Start changing dataset to dataframe...")
         # DA = load_d3m_dataset("DA_poverty_estimation")
@@ -430,12 +429,8 @@ def wikifier():
                                                                     resource_id=None, has_hyperparameter=False)
         output_ds = copy.copy(loaded_dataset)
         logger.debug("Start running wikifier...")
-        # config parameter first
-        p_config.target_columns = columns_formated
-        p_config.wikifier_choice = choice
-        p_config.threshold = threshold
         # start wikifier
-        wikifier_res = produce(inputs=supplied_dataframe)
+        wikifier_res = produce(inputs=supplied_dataframe, target_columns = columns_formated, wikifier_choice=choice, threshold=threshold)
         wikifier_res = DownloadManager.fetch_qnode_info(wikifier_res, config_datamart.default_datamart_url)
         logger.debug("Wikifier finished, Start to update metadata...")
         output_ds[res_id] = d3m_DataFrame(wikifier_res, generate_metadata=False)
