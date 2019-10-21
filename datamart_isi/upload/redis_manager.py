@@ -1,12 +1,16 @@
 import redis
 import json
 
+from datamart_isi.utilities import connection
+
+
 class RedisManager(object):
     """
     Class for managing the connection to redis and defines several apis to use to perform the required redis lookups.
     """
-    def __init__(self, host, port):
-        self.redis = redis.StrictRedis(host, int(port), charset="utf-8", decode_responses=True)
+    def __init__(self):
+        host, port = connection.get_redis_host_port()
+        self.redis = redis.StrictRedis(host, port, charset="utf-8", decode_responses=True)
         return
 
     def getKey(self, key):
@@ -30,7 +34,6 @@ class RedisManager(object):
             ret_val = 0
         return int(ret_val)
 
-
     def setKey(self, key, vals):
         """
 
@@ -52,7 +55,7 @@ class RedisManager(object):
         flag = self.redis.sismember(keyprefix+key, value)
         return flag
 
-    def getKeys(self ,keys, prefix=""):
+    def getKeys(self, keys, prefix=""):
         """
         :param keys: List of keys to fetch
         :return: A dictionary of the keys and their corresponding value sets.
@@ -61,7 +64,7 @@ class RedisManager(object):
         pipe = self.redis.pipeline()
         for key in keys:
             pipe.smembers(prefix+key)
-        data = dict(zip(keys,pipe.execute()))
+        data = dict(zip(keys, pipe.execute()))
         return data
 
     def getKeysAsJson(self, keys, prefix=""):
@@ -75,5 +78,3 @@ class RedisManager(object):
             pipe.get(prefix+key)
         data = dict(zip(keys, [json.loads(x) for x in pipe.execute()]))
         return data
-
-

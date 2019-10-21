@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 import pandas as pd
 import logging
 import typing
@@ -10,27 +9,27 @@ import io
 import zipfile
 import tempfile
 import pathlib
-import logging
 import requests
 import copy
 import time
 import redis
 import frozendict
 import rq
+import bcrypt
 
-from wikifier.wikifier import produce, save_specific_p_nodes
+from wikifier.wikifier import produce#, save_specific_p_nodes
 from wikifier import config_wikifier_para as p_config
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
-from d3m.metadata.base import DataMetadata, ALL_ELEMENTS
-from flask import Flask, request, render_template, send_file, Response, redirect
+from d3m.metadata.base import ALL_ELEMENTS
+from flask import Flask, request, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
+from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.utilities.download_manager import DownloadManager
@@ -38,7 +37,7 @@ from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
 from flasgger import Swagger
-from rq import Queue,job 
+from rq import Queue
 
 
 logger = logging.getLogger()
@@ -60,23 +59,26 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 
-em_es_url = config_datamart.em_es_url
-em_es_index = config_datamart.em_es_index
-em_es_type = config_datamart.em_es_type
+em_es_url = connection.get_es_fb_embedding_server_url()
+# em_es_url = config_datamart.em_es_url
+# em_es_index = config_datamart.em_es_index
+# em_es_type = config_datamart.em_es_type
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
+password_token_file = "../datamart_isi/upload/password_tokens.json"
+password_record_file = "../datamart_isi/upload/upload_password_config.json"
 
-# dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
-#                  "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
-#                  "/data",  # for docker using
-#                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
-#                  ]
-dataset_paths = ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]   
+
+dataset_paths = ["/data",  # for docker
+                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server
+                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server
+                 "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
+                 ]
 DATAMART_SERVER = connection.get_general_search_server_url()
 DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
-REDIS_MANAGER = RedisManager(config_datamart.default_datamart_url, config_datamart.redis_server_port)
+REDIS_MANAGER = RedisManager()
 
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
@@ -386,8 +388,8 @@ def wikifier():
                 choice = ['automatic']
         except:
             return wrap_response(code='1000',
-                                msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
-                                data=None)
+                                 msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
+                                 data=None)
         logger.info("Required columns found as: " + str(columns_formated))
         logger.info("Wikifier choice is: " + str(choice))
 
@@ -425,7 +427,7 @@ def wikifier():
         if updated_result[0]:  # [0] store whether it success find the metadata
             loaded_dataset = updated_result[1]
         res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset,
-                                                                    resource_id=None,has_hyperparameter=False)
+                                                                    resource_id=None, has_hyperparameter=False)
         output_ds = copy.copy(loaded_dataset)
         logger.debug("Start running wikifier...")
         # config parameter first
@@ -547,16 +549,17 @@ def search():
             logger.debug("Start running wikifier...")
             # Save specific p/q nodes in cache files
             meta_for_wikifier = None
+            # if a specific list of wikifier targets was sent (usually generated from ta2 system)
             if query and "keywords" in query.keys():
                 for kw in query["keywords"]:
                     if config_datamart.wikifier_column_mark in kw:
                         meta_for_wikifier = json.loads(kw)[config_datamart.wikifier_column_mark]
                         break
-                if meta_for_wikifier:
+                if meta_for_wikifier is not None:
                     logger.info(
-                        "Get specific column<->p_nodes relationship from previous TRAIN run. Will only wikifier those columns!")
+                        "Get specific column<->p_nodes relationship from user. Will only wikifier those columns!")
                     _, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset, resource_id=None)
-                    save_specific_p_nodes(supplied_dataframe, meta_for_wikifier)
+                    MetadataCache.save_specific_wikifier_targets(supplied_dataframe, meta_for_wikifier)
 
             search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
                                                           search_type="wikifier")
@@ -812,11 +815,11 @@ def download_by_id(id):
 
         else:  # len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
-                prefix ps: <http://www.wikidata.org/prop/statement/> 
-                prefix pq: <http://www.wikidata.org/prop/qualifier/> 
+                prefix ps: <http://www.wikidata.org/prop/statement/>
+                prefix pq: <http://www.wikidata.org/prop/qualifier/>
                 prefix p: <http://www.wikidata.org/prop/>
                 SELECT distinct ?dataset ?title ?url ?file_type ?extra_information
-                WHERE 
+                WHERE
                 {
                   ?dataset p:C2001/ps:C2001 ?title .
                  filter regex(str(?title), "''' + datamart_id + '''").
@@ -924,11 +927,11 @@ def download_metadata_by_id(id):
         else:
             #  len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
-                prefix ps: <http://www.wikidata.org/prop/statement/> 
-                prefix pq: <http://www.wikidata.org/prop/qualifier/> 
+                prefix ps: <http://www.wikidata.org/prop/statement/>
+                prefix pq: <http://www.wikidata.org/prop/qualifier/>
                 prefix p: <http://www.wikidata.org/prop/>
                 SELECT distinct ?dataset ?datasetLabel ?title ?url ?file_type ?extra_information
-                WHERE 
+                WHERE
                 {
                  ?dataset rdfs:label ?datasetLabel.
                  ?dataset p:C2001/ps:C2001 ?title .
@@ -1145,37 +1148,150 @@ def get_identifiers():
     return response
 
 
+@app.route('/upload/add_upload_user', methods=['POST'])
+@cross_origin()
+def add_upload_user():
+    logger.debug("Start adding upload user")
+    try:
+        token = request.values.get('token')
+        username = request.values.get('username')
+        password = request.values.get('password')
+        if username is None or password is None:
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - username and password can't be empty!",
+                                 data=None)
+
+        if not os.path.exists(password_token_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - can't load token file!, please contact the adiministrator!",
+                                 data=None)
+        with open(password_token_file, 'r') as f:
+            password_tokens = json.load(f)
+
+        if token not in password_tokens:
+            return wrap_response(code='1000',
+                                 msg='FAIL ADD USER - invalid token!',
+                                 data=None)
+
+        if not os.path.exists(password_record_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - can't load the password config file, please contact the adiministrator!",
+                                 data=None)
+
+        with open(password_record_file, "r") as f:
+            user_passwd_pairs = json.load(f)
+
+        if username in user_passwd_pairs:
+            return wrap_response(code='1000',
+                                 msg="FAIL ADD USER - username already exist!",
+                                 data=None)
+
+        current_group_information = password_tokens[token]
+        # user_information['username'] = username
+        user_information = dict()
+        user_information['password_token'] = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+        user_information['group'] = current_group_information['group']
+        user_passwd_pairs[username] = user_information
+        with open(password_record_file, 'w') as f:
+            password_tokens = json.dump(user_passwd_pairs, f)
+
+        return wrap_response('0000', msg="Add user {} success!".format(username))
+
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL ADD USER - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload():
     logger.debug("Start uploading in one step...")
-    # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
-                                                        # query_server=DATAMART_TEST_SERVER)
-    start_time = time.time()
+    # start_time = time.time()
     try:
         url = request.values.get('url')
-        if url is None:
+        upload_body = request.files.get("upload_file")
+
+        if url is None and upload_body is None:
             return wrap_response(code='1000',
-                                 msg='FAIL UPLOAD - Url can not be None',
+                                 msg='FAIL UPLOAD - Url and upload file cannot both be None',
                                  data=None)
 
+        if upload_body is not None and url is not None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - cannot send both url and upload file',
+                                 data=None)
+        
         file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
                                  msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
+        upload_username = request.values.get('username')
+        upload_password = request.values.get('password')
+        if upload_username is None or upload_password is None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - upload username and password can not be None',
+                                 data=None)
+
+        # check username and password
+        password_record_file = "../datamart_isi/upload/upload_password_config.json"
+        if not os.path.exists(password_record_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL UPLOAD - can't load the password config file, please contact the adiministrator!",
+                                 data=None)
+
+        with open(password_record_file ,"r") as f:
+            user_passwd_pairs = json.load(f)
+
+        if upload_username not in user_passwd_pairs:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - username does not exist',
+                                 data=None)
+        else:
+            is_correct_password = bcrypt.checkpw(upload_password.encode(), user_passwd_pairs[upload_username]["password_token"].encode())
+            if not is_correct_password:
+                return wrap_response(code='1000',
+                                     msg='FAIL UPLOAD - wrong password',
+                                     data=None)
+
+        if upload_body is not None:
+            datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
+            if not os.path.exists(datasets_store_loc):
+                os.mkdir(datasets_store_loc)
+            logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
+            file_loc = os.path.join(datasets_store_loc, upload_body.filename)
+            upload_body.save(file_loc)
+            url = file_loc
+            logger.debug("Save the dataset finished at {}".format(url))
+
+        wikifier_choice = request.values.get('run_wikifier')
+        if wikifier_choice is None:
+            wikifier_choice = "auto"
+
+        user_passwd_pairs[upload_username]["username"] = upload_username
+        user_passwd_pairs[upload_username].pop("password_token")
         title = request.values.get('title').split("||") if request.values.get('title') else None
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
-        job = rq_queue.enqueue(upload_to_datamart, 
-                               args=(url, file_type, DATAMART_SERVER, title, description, keywords,),
+        dataset_information = {"url": url, "file_type": file_type, "title": title,
+                               "description": description, "keywords": keywords,
+                               "user_information": user_passwd_pairs[upload_username],
+                               "wikifier_choice": wikifier_choice
+                               }
+
+        job = rq_queue.enqueue(upload_to_datamart,
+                               args=(DATAMART_SERVER, dataset_information,),
                                # no timeout for job, result expire after 1 day
-                               job_timeout=-1,result_ttl=86400) 
+                               job_timeout=-1, result_ttl=86400
+                               )
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
@@ -1184,49 +1300,133 @@ def upload():
 
         return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
-        return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('1000', msg="FAIL UPLOAD job schedule - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
-    logger.debug("Start uploading(test version) in one step...")
-    # datamart_upload_test_instance = Datamart_isi_upload(update_server=DATAMART_TEST_SERVER,
-                                                        # query_server=DATAMART_TEST_SERVER)
-    start_time = time.time()
+    logger.debug("Start uploading TEST in one step...")
+    # start_time = time.time()
     try:
         url = request.values.get('url')
-        if url is None:
+        upload_body = request.files.get("upload_file")
+
+        if url is None and upload_body is None:
             return wrap_response(code='1000',
-                                 msg='FAIL UPLOAD - Url can not be None',
+                                 msg='FAIL UPLOAD - Url and upload file cannot both be None',
                                  data=None)
 
+        if upload_body is not None and url is not None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - cannot send both url and upload file',
+                                 data=None)
+        
         file_type = request.values.get('file_type')
         if file_type is None:
             return wrap_response(code='1000',
                                  msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
+        upload_username = request.values.get('username')
+        upload_password = request.values.get('password')
+        if upload_username is None or upload_password is None:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - upload username and password can not be None',
+                                 data=None)
+
+        # check username and password
+        password_record_file = "../datamart_isi/upload/upload_password_config.json"
+        if not os.path.exists(password_record_file):
+            logger.error("No password config file found!")
+            return wrap_response(code='1000',
+                                 msg="FAIL UPLOAD - can't load the password config file, please contact the adiministrator!",
+                                 data=None)
+
+        with open(password_record_file ,"r") as f:
+            user_passwd_pairs = json.load(f)
+
+        if upload_username not in user_passwd_pairs:
+            return wrap_response(code='1000',
+                                 msg='FAIL UPLOAD - username does not exist',
+                                 data=None)
+        else:
+            is_correct_password = bcrypt.checkpw(upload_password.encode(), user_passwd_pairs[upload_username]["password_token"].encode())
+            if not is_correct_password:
+                return wrap_response(code='1000',
+                                     msg='FAIL UPLOAD - wrong password',
+                                     data=None)
+
+        if upload_body is not None:
+            datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
+            if not os.path.exists(datasets_store_loc):
+                os.mkdir(datasets_store_loc)
+            logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
+            file_loc = os.path.join(datasets_store_loc, upload_body.filename)
+            upload_body.save(file_loc)
+            url = file_loc
+            logger.debug("Save the dataset finished at {}".format(url))
+
+        wikifier_choice = request.values.get('run_wikifier')
+        if wikifier_choice is None:
+            wikifier_choice = "auto"
+
+        user_passwd_pairs[upload_username]["username"] = upload_username
+        user_passwd_pairs[upload_username].pop("password_token")
         title = request.values.get('title').split("||") if request.values.get('title') else None
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         rq_queue = Queue(connection=redis_conn)
-        job = rq_queue.enqueue(upload_to_datamart, 
-                               args=(url, file_type, DATAMART_TEST_SERVER, title, description, keywords,),
+        dataset_information = {"url": url, "file_type": file_type, "title": title,
+                               "description": description, "keywords": keywords,
+                               "user_information": user_passwd_pairs[upload_username],
+                               "wikifier_choice": wikifier_choice
+                               }
+
+        job = rq_queue.enqueue(upload_to_datamart,
+                               args=(DATAMART_TEST_SERVER, dataset_information,),
                                # no timeout for job, result expire after 1 day
-                               job_timeout=-1,result_ttl=86400) 
+                               job_timeout=-1, result_ttl=86400
+                               )
         job_id = job.get_id()
         # waif for 1 seconds to ensure the initialization finished
         time.sleep(1)
         job.refresh()
         job_status = job.get_status()
 
-        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
+        return wrap_response('0000', msg="UPLOAD TEST job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
         return wrap_response('1000', msg="FAIL UPLOAD TEST - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
+@app.route('/upload/local_datasets/<dataset_name>', methods=['GET'])
+@cross_origin()
+def get_local_datasets(dataset_name):
+    """
+    This function is used to work as a fake "http" server that enable to generate a url for the dataset in local disks
+    can also used for supporting the datasets user uploaded directly (in the future)
+    """
+    try:
+        datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
+        if not os.path.exists(datasets_store_loc):
+            os.mkdir(datasets_store_loc)
+        logger.debug("Start getting the dataset from local storage {}...".format(datasets_store_loc))
+
+        datasets_loc = os.path.join(datasets_store_loc, dataset_name)
+        if not os.path.exists(datasets_loc):
+            logger.error("File {} not exists!".format(dataset_name))
+            return wrap_response('1000', msg="File {} not exists!".format(dataset_name))
+
+        with open(datasets_loc) as f:
+            file_content = f.read()
+        return Response(file_content, mimetype="text/csv")
+
+    except Exception as e:
+        return wrap_response('1000', msg="FAIL get local datasets - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/generateWD+Metadata', methods=['POST'])
@@ -1295,12 +1495,13 @@ def upload_metadata():
         return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
-@app.route('/check_upload_status', methods=['POST'])
+@app.route('/upload/check_upload_status', methods=['POST'])
 @cross_origin()
 def check_upload_status():
     try:
         logger.debug("Start checking upload status...")
-        pool = redis.ConnectionPool(db=0, host=config_datamart.default_datamart_url, port=config_datamart.redis_server_port)
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
         job_ids = request.values.get("job_ids") if request.values.get("job_ids") else None
 
@@ -1316,7 +1517,7 @@ def check_upload_status():
                     job_status[each_job_id] = current_status
                 else:
                     job_status[each_job_id] = "Job does not exist!"
-            
+
         # if not job id given, get all status of the workers
         else:
             job_status = {}
@@ -1325,7 +1526,7 @@ def check_upload_status():
             for i, each_worker in enumerate(workers):
                 each_worker_status = {}
                 each_worker_status['state'] = each_worker.state
-                if each_worker_status['state'] == "busy":
+                if each_worker_status['state'] != "idle":
                     current_job = each_worker.get_current_job()
                     each_worker_status['running_job_id'] = str(current_job.id)
                     each_worker_status['started_at'] = str(current_job.started_at)
@@ -1333,9 +1534,9 @@ def check_upload_status():
                     each_worker_status['meta'] = current_job.meta
                 job_status["worker_" + str(i)] = each_worker_status
         return wrap_response(code='0000',
-                                 msg='Success',
-                                 data=json.dumps(job_status, indent=2)
-                                )
+                             msg='Success',
+                             data=json.dumps(job_status, indent=2)
+        )
     except Exception as e:
         return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
@@ -1354,7 +1555,7 @@ def fetch_fb_embeddings(qnode):
         "size": len(qnode_uris)
     }
 
-    url = '{}/{}/{}/_search'.format(em_es_url, em_es_index, em_es_type)
+    url = '{}/_search'.format(em_es_url)
     resp = requests.get(url, json=query)
     result_csv = ""
     if resp.status_code == 200:
@@ -1379,5 +1580,26 @@ def fetch_fb_embeddings(qnode):
     return None
 
 
+def generate_dataset_metadata():
+    '''
+    Add D3M dataset metadata to cache
+    '''
+    print('Running generate_dataset_metadata')
+    from datamart_isi.cache import metadata_cache
+    import os
+    import pathlib
+
+    memcache_dir = pathlib.Path(config_datamart.cache_file_storage_base_loc) / 'datasets_cache'
+    if not memcache_dir.exists():
+        os.makedirs(memcache_dir)
+
+    for path in dataset_paths:
+        path = pathlib.Path(path)
+        if path.exists:
+            metadata_cache.MetadataCache.generate_real_metadata_files([str(path)])
+    print('Done generate_dataset_metadata')
+
+
 if __name__ == '__main__':
+    generate_dataset_metadata()
     app.run(host="0.0.0.0", port=9000, debug=False)

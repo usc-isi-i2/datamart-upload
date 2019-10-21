@@ -1,32 +1,26 @@
-
-FROM python:3.6.9
+# Base docker images contains d3m core and common primitives from Summer 2019 evaluation
+FROM registry.datadrivendiscovery.org/jpl/docker_images/complete:ubuntu-bionic-python36-v2019.6.7-20190622-073225
 
 WORKDIR /app
 
-RUN mkdir github
-RUN cd github
+RUN git clone https://github.com/usc-isi-i2/dsbox-primitives.git && cd dsbox-primitives && git checkout bf6723b102704657116f48d240538fab1a3ce18e && pip install -e .
 
-RUN python3 -m venv datamart_env
-RUN /bin/bash -c "source datamart_env/bin/activate"
-RUN pip install --upgrade pip
+RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && git checkout 80f75ef6300261753c6d2447b6f50448cb90d528 && pip install -e .
 
+RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout 161ee2717eef396697e5ce89e41d5361fe73b7cd && pip install -e .
 
-RUN git clone https://gitlab.com/datadrivendiscovery/d3m.git && cd d3m && git checkout v2019.6.7 && pip install -e .
-RUN cd ..
+RUN pip3 install rq==1.1.0
+RUN pip3 install bcrypt>=3.1.7
+RUN pip3 install gunicorn>=19.9.0
 
-RUN git clone https://gitlab.com/datadrivendiscovery/common-primitives.git && cd common-primitives && pip install -e .
-RUN cd ..
+RUN git clone https://github.com/RDFLib/OWL-RL.git && cd OWL-RL && git checkout 471d1dfe8f6ed710b99395d3a563c3c4218cf46a && git checkout e98d23297216ad81c9a9982d861162bd2388600b && pip install -e .
 
-RUN git clone https://github.com/usc-isi-i2/dsbox-primitives.git && cd dsbox-primitives && pip install -e .
-RUN cd ..
+RUN python3 -m spacy download en_core_web_sm
 
-RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && git checkout 7fc2e38feb52e16fc12b4f075d568fc476b42e5d && pip install -e .
-RUN cd ..
+WORKDIR /root/memcache_storage/other_cache
+COPY config/wikifier/wikifier_choice.json .
 
-RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout 4be844e53e2b18fed160af895a00960d8db41f85 && pip install -e .
+WORKDIR /app/datamart-upload
 
-COPY /Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation/ /data/
-
-RUN python -m spacy download en
-WORKDIR /app/datamart-upload/datamart_web
-CMD python3 webapp-openapi.py
+# CMD ["python3", "webapp-openapi.py"]
+CMD ["/bin/sh", "start-datamart.sh"]
