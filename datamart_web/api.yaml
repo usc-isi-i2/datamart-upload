@@ -38,11 +38,13 @@ paths:
                     wikifier_choice: identifier
                   - column: 2
                     wikifier_choice: new_wikifier
+                    blacklist: []
                   - column: 3
                     wikifier_choice: new_wikifier
+                    blacklist: []
                   - column: 5
                     wikifier_choice: identifier
-                description: 'column is an optional parameter, an integer indicates the list of column indices from the Datamart dataset that should be appended. If not given, all possible columns will be appended and it will choose automatic wikifier method by default.<br> wikifier_choice is an optional parameter, it includes three choices: identifier, new_wikifier and automatic. If you want to wikify a numeric column, please choose identifier. If you want to wikify a text column, please choose new_wikifier. If you do not know which one to use, please choose automatic.'
+                description: 'column: an optional parameter, an integer indicates the list of column indices from the Datamart dataset that should be appended. If not given, all possible columns will be appended and it will choose automatic wikifier method by default.<br><br> wikifier_choice: an optional parameter, it includes three choices: identifier, new_wikifier and automatic. If you want to wikify a numeric column, please choose identifier. If you want to wikify a text column, please choose new_wikifier. If you do not know which one to use, please choose automatic. <br><br> blacklist: an optional parameter that is regarded as unacceptable and should be avoided. For new wikifier, you can add a list of Qnodes.'
       parameters:
         - in: query
           name: data
@@ -69,6 +71,13 @@ paths:
           schema:
             type: number
           example: 0.7
+        - in: query
+          name: topK
+          description: Optional parameter, return K(positive integer) of the most appropriate wikidata columns.
+          required: false
+          schema:
+            type: number
+          example: 1
       responses:
         '200':
           description: A zip file

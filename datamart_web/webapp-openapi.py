@@ -19,6 +19,7 @@ import frozendict
 import rq
 
 from wikifier.wikifier import produce, save_specific_p_nodes
+from wikifier import config_wikifier_para as p_config
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
@@ -32,6 +33,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi.entries import Datamart, DatamartQuery, VariableConstraint, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
+from datamart_isi.utilities.download_manager import DownloadManager
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
@@ -63,11 +65,12 @@ em_es_index = config_datamart.em_es_index
 em_es_type = config_datamart.em_es_type
 wikidata_uri_template = '<http://www.wikidata.org/entity/{}>'
 
-dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
-                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
-                 "/data",  # for docker using
-                 "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
-                 ]
+# dataset_paths = ["/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server using
+#                  "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server using
+#                  "/data",  # for docker using
+#                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
+#                  ]
+dataset_paths = ["/Users/claire/Documents/ISI/datamart/datamart-userend/examples"]   
 DATAMART_SERVER = connection.get_general_search_server_url()
 DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
@@ -358,7 +361,7 @@ def wikifier():
 
         logger.info("The requested download format is " + return_format)
 
-        columns_formated, choice = [], []
+        columns_formated, choice, blacklist = [], [], []
 
         try:
             if request.data:
@@ -372,6 +375,8 @@ def wikifier():
                             return wrap_response(code='1000',
                                                  msg='FAIL SEARCH - Unknown wikifier choice, please follow the examples!!! ' + str(x['wikifier_choice']),
                                                  data=None)
+                        if "blacklist" in x.keys():
+                            blacklist.extend(x["blacklist"])
                     else:
                         return wrap_response(code='1000',
                                              msg='FAIL SEARCH - Missed column or wikifier_choice, please follow the examples!!! ' + str(x),
@@ -396,6 +401,22 @@ def wikifier():
                 threshold = 0.7
         logger.info("Threshold for coverage is: " + str(threshold))
 
+        top_k = request.values.get("topK")
+        if not top_k:
+            top_k = 1
+        else:
+            try:
+                top_k = int(top_k)
+            except:
+                top_k = 1
+        logger.info("Top k parameter is: " + str(top_k))
+
+        # change the parameter's value
+        p_config.common_top_k = top_k
+        p_config.is_top_k = True
+        p_config.blacklist = blacklist
+        p_config.top_k = top_k
+
         logger.debug("Start changing dataset to dataframe...")
         # DA = load_d3m_dataset("DA_poverty_estimation")
         # MetadataCache.save_metadata_from_dataset(DA)
@@ -407,8 +428,13 @@ def wikifier():
                                                                     resource_id=None,has_hyperparameter=False)
         output_ds = copy.copy(loaded_dataset)
         logger.debug("Start running wikifier...")
-        wikifier_res = produce(inputs=supplied_dataframe, target_columns=columns_formated, target_p_nodes=None,
-                                                    wikifier_choice=choice, threshold=threshold)
+        # config parameter first
+        p_config.target_columns = columns_formated
+        p_config.wikifier_choice = choice
+        p_config.threshold = threshold
+        # start wikifier
+        wikifier_res = produce(inputs=supplied_dataframe)
+        wikifier_res = DownloadManager.fetch_qnode_info(wikifier_res, config_datamart.default_datamart_url)
         logger.debug("Wikifier finished, Start to update metadata...")
         output_ds[res_id] = d3m_DataFrame(wikifier_res, generate_metadata=False)
 
