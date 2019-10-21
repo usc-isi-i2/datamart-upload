@@ -179,9 +179,9 @@ class Datamart_isi_upload:
         except:
             self._logger.error("Getting query of wiki data failed!")
             raise ValueError("Unable to initialize the datamart query service on address " + query_server)
-        if not results:
-            self._logger.warning("No starting source id found! Will initialize the starting source with D1000001")
-            self.resource_id = 1000001
+        # if not results:
+        #     self._logger.warning("No starting source id found! Will initialize the starting source with D1000001")
+        #     self.resource_id = 1000001
         # else:
         #     if len(results) != 1:
         #         self._logger.warning(str(results))
@@ -387,7 +387,7 @@ class Datamart_isi_upload:
         #     if each_key not in uploader_information:
         #         uploader_information[each_key] = "None"
 
-        self.resource_id += 1
+        # self.resource_id += 1
         q.add_label(node_id, lang='en')
         q.add_statement('P31', Item('Q1172284'))  # indicate it is subclass of a dataset
         q.add_statement('P2699', URLValue(url))  # url
