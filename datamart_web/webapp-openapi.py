@@ -28,6 +28,7 @@ from flask import Flask, request, send_file, Response, redirect
 from datamart_isi import config as config_datamart
 from datamart_isi.utilities import connection
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
+from datamart_isi import config_services
 from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.utils import Utils
@@ -1150,7 +1151,8 @@ def upload():
             logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
             file_loc = os.path.join(datasets_store_loc, upload_body.filename)
             upload_body.save(file_loc)
-            url = file_loc
+            service_path = config_services.get_host_port_path("isi_datamart")
+            url = os.path.join("http://" + service_path[0] + ":" + str(service_path[1]), "upload/local_datasets", upload_body.filename)
             logger.debug("Save the dataset finished at {}".format(url))
 
         wikifier_choice = request.values.get('run_wikifier')
