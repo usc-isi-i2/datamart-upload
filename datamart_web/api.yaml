@@ -375,7 +375,7 @@ paths:
                 upload_file:
                   type: string
                   format: binary
-                  description: 'Dataset file (.csv) need to upload to datamart'
+                  description: 'Dataset file (.csv or .csv.gz) need to upload to datamart'
       parameters:
         - in: query
           name: url
@@ -450,7 +450,7 @@ paths:
       tags:
         - Upload API
       summary: Upload dataset with metadata
-      description: 'ALL-IN-ONE upload method that takes as input the url of the dataset resource to be uploaded, the type of the dataset resource, and optional dataset-level property parameters.<br> The method automatically generates the dataset metadata and upload the dataset with the generated metadata to datamart database. This is the RECOMMEND method to upload datasets. <br> <br> Two required method parameters are: <br> **url/file**: The address to the dataset resource. Or upload a file from local. One of the paramters on **url** or **file** have to be given. <br> **file_type**: A string indicating the type of the data source, currently only "online_csv" is available. '
+      description: 'Same function as upload. The only difference is it will upload the dataset to a test database which will not influence the main one'
       requestBody:
         content:
           multipart/form-data:
@@ -460,7 +460,7 @@ paths:
                 upload_file:
                   type: string
                   format: binary
-                  description: 'Dataset file (.csv) need to upload to datamart'
+                  description: 'Dataset file (.csv or .csv.gz) need to upload to datamart'
       parameters:
         - in: query
           name: url
