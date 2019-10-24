@@ -486,10 +486,8 @@ def search():
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
-
         for r in res:
             materialize_info = r.serialize()
-            first_10_rows = r._get_first_ten_rows()
             materialize_info_decoded = json.loads(materialize_info)
             augmentation_part = materialize_info_decoded['augmentation']
             cur = {
@@ -498,8 +496,7 @@ def search():
                 'score': r.score(),
                 'metadata': r.get_metadata().to_json_structure(),
                 'id': r.id(),
-                'materialize_info': materialize_info,
-                'first_10_rows': first_10_rows
+                'materialize_info': materialize_info
             }
             results.append(cur)
         json_return = dict()
@@ -1096,14 +1093,14 @@ def add_upload_user():
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload():
-    return upload_function(request, test_mode=False)
+    upload_function(request, test_mode=False)
 
 
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
     # save as upload function, only difference is it will upload the dataset to a testing blazegraph namespace
-    return upload_function(request, test_mode=True)
+    upload_function(request, test_mode=True)
 
 
 def upload_function(request, test_mode=False):
