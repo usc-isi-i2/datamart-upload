@@ -1,6 +1,7 @@
 version: '3'
 services:
   isi_datamart:
+    network_mode: "host"
     build: .
     depends_on:
       - memcached
@@ -13,9 +14,11 @@ services:
       - /nfs1/dsbox-repo/kyao/datamart-devel/datamart-userend:/app/datamart-userend
       - /nfs1/dsbox-repo/data/datasets-v32/seed_datasets_data_augmentation:/data
   memcached:
+    network_mode: "host"
     image: "memcached:alpine"
     command: ["memcached", "-p", "11211", "-u", "nobody", "-c", "1024", "-m", "1024", "-I", "100m"]
   blazegraph_satellite:
+    network_mode: "host"
     image: lyrasis/blazegraph:2.1.5
     environment:
       - BLAZEGRAPH_UID=$ISI_BLAZEGRAPH_UID
@@ -23,17 +26,17 @@ services:
     ports:
       - 9002:8080
     volumes:
-      - ./blazegraph/RWStore.properties:/RWStore.properties
+      - ./config/blazegraph/RWStore.properties:/RWStore.properties
       - $ISI_BLAZEGRAPH_SATELLITE_DATA_DIR:/data
   redis:
-    image: "redis:alpine"
+    # image: "redis:alpine"
+    network_mode: "host"
+    build:
+      context: .
+      dockerfile: Dockerfile-redis
     command: ["redis-server", "/conf/redis_conf.conf"]
     expose:
       - 6379
     volumes:
       - $ISI_REDIS_DATA_DIR:/data
       - $ISI_REDIS_CONF_DIR:/conf
-    deploy:
-      resources:
-        limits:
-          memory: 50g

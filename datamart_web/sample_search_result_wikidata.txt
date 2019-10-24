@@ -1,123 +1,152 @@
 {
-    "summary": " - wikidata search result for FIPS_wikidata -\n    * Datamart ID: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata\n    * Score: 1\n    * URL: None\n    * Columns: \n\t[0] population\n\t[1] area\n\t[2] inception\n    * Recommend Join Columns: FIPS_wikidata\n",
-    "score": 1,
-    "metadata": [
-      {
-        "selector": [],
-        "metadata": {
-          "structural_type": "d3m.container.pandas.DataFrame",
+  "augmentation": {
+    "type": "join",
+    "left_columns": [
+      [
+        6
+      ]
+    ],
+    "right_columns": [
+      [
+        4
+      ]
+    ]
+  },
+  "summary": {
+    "title": "wikidata search result for FIPS_wikidata",
+    "Datamart ID": "wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata",
+    "Score": "1",
+    "URL": "None",
+    "Columns": [
+      "[0] population",
+      "[1] area",
+      "[2] inception"
+    ],
+    "Recommend Join Columns": "FIPS_wikidata"
+  },
+  "score": 1,
+  "metadata": [
+    {
+      "selector": [],
+      "metadata": {
+        "structural_type": "d3m.container.pandas.DataFrame",
+        "semantic_types": [
+          "https://metadata.datadrivendiscovery.org/types/Table"
+        ],
+        "dimension": {
+          "name": "rows",
           "semantic_types": [
-            "https://metadata.datadrivendiscovery.org/types/Table"
+            "https://metadata.datadrivendiscovery.org/types/TabularRow"
           ],
-          "dimension": {
-            "name": "rows",
-            "semantic_types": [
-              "https://metadata.datadrivendiscovery.org/types/TabularRow"
-            ],
-            "length": 19
-          },
-          "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"
-        }
-      },
-      {
-        "selector": [
-          "__ALL_ELEMENTS__"
-        ],
-        "metadata": {
-          "dimension": {
-            "name": "columns",
-            "semantic_types": [
-              "https://metadata.datadrivendiscovery.org/types/TabularColumn"
-            ],
-            "length": 3
-          }
-        }
-      },
-      {
-        "selector": [
-          "__ALL_ELEMENTS__",
-          0
-        ],
-        "metadata": {
-          "name": "population_for_FIPS_wikidata",
-          "structural_type": "str",
+          "length": 3136
+        },
+        "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"
+      }
+    },
+    {
+      "selector": [
+        "__ALL_ELEMENTS__"
+      ],
+      "metadata": {
+        "dimension": {
+          "name": "columns",
           "semantic_types": [
-            true,
-            [
-              "http://schema.org/Float",
-              "https://metadata.datadrivendiscovery.org/types/Attribute",
-              "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
-            ]
-          ]
-        }
-      },
-      {
-        "selector": [
-          "__ALL_ELEMENTS__",
-          1
-        ],
-        "metadata": {
-          "name": "area_for_FIPS_wikidata",
-          "structural_type": "str",
-          "semantic_types": [
-            true,
-            [
-              "http://schema.org/Float",
-              "https://metadata.datadrivendiscovery.org/types/Attribute",
-              "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
-            ]
-          ]
-        }
-      },
-      {
-        "selector": [
-          "__ALL_ELEMENTS__",
-          2
-        ],
-        "metadata": {
-          "name": "inception_for_FIPS_wikidata",
-          "structural_type": "str",
-          "semantic_types": [
-            true,
-            [
-              "http://schema.org/DateTime",
-              "https://metadata.datadrivendiscovery.org/types/Attribute",
-              "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
-            ]
-          ]
-        }
-      },
-      {
-        "selector": [
-          "__ALL_ELEMENTS__",
-          3
-        ],
-        "metadata": {
-          "name": "q_node",
-          "structural_type": "str",
-          "semantic_types": [
-            "http://schema.org/Text",
-            "https://metadata.datadrivendiscovery.org/types/Attribute",
-            "http://wikidata.org/qnode",
-            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
-          ]
-        }
-      },
-      {
-        "selector": [
-          "__ALL_ELEMENTS__",
-          4
-        ],
-        "metadata": {
-          "name": "joining_pairs",
-          "structural_type": "list",
-          "semantic_types": [
-            "https://metadata.datadrivendiscovery.org/types/Attribute",
-            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
-          ]
+            "https://metadata.datadrivendiscovery.org/types/TabularColumn"
+          ],
+          "length": 3
         }
       }
-    ],
-    "datamart_id": "wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata",
-    "materialize_info": "{\"id\": \"wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata\", \"score\": 1, \"metadata\": {\"connection_url\": \"http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql\", \"search_result\": {\"p_nodes_needed\": [\"P1082\", \"P2046\", \"P571\"], \"target_q_node_column_name\": \"FIPS_wikidata\"}, \"query_json\": null, \"search_type\": \"wikidata\"}, \"augmentation\": {\"properties\": \"join\", \"left_columns\": [6], \"right_columns\": [4]}, \"datamart_type\": \"isi\"}"
-  }
+    },
+    {
+      "selector": [
+        "__ALL_ELEMENTS__",
+        0
+      ],
+      "metadata": {
+        "name": "population_for_FIPS_wikidata",
+        "P_node": "P1082",
+        "structural_type": "str",
+        "semantic_types": [
+          true,
+          [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+          ]
+        ]
+      }
+    },
+    {
+      "selector": [
+        "__ALL_ELEMENTS__",
+        1
+      ],
+      "metadata": {
+        "name": "area_for_FIPS_wikidata",
+        "structural_type": "str",
+        "semantic_types": [
+          true,
+          [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+          ]
+        ],
+        "P_node": "P2046"
+      }
+    },
+    {
+      "selector": [
+        "__ALL_ELEMENTS__",
+        2
+      ],
+      "metadata": {
+        "name": "inception_for_FIPS_wikidata",
+        "structural_type": "str",
+        "semantic_types": [
+          true,
+          [
+            "http://schema.org/DateTime",
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+          ]
+        ],
+        "P_node": "P571"
+      }
+    },
+    {
+      "selector": [
+        "__ALL_ELEMENTS__",
+        3
+      ],
+      "metadata": {
+        "name": "q_node",
+        "structural_type": "str",
+        "semantic_types": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute",
+          "http://wikidata.org/qnode",
+          "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+        ]
+      }
+    },
+    {
+      "selector": [
+        "__ALL_ELEMENTS__",
+        4
+      ],
+      "metadata": {
+        "name": "joining_pairs",
+        "structural_type": "list",
+        "semantic_types": [
+          "http://schema.org/Integer",
+          "https://metadata.datadrivendiscovery.org/types/Attribute",
+          "https://metadata.datadrivendiscovery.org/types/Datamart_augmented_column"
+        ]
+      }
+    }
+  ],
+  "id": "wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata",
+  "materialize_info": "{\"id\": \"wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata\", \"score\": 1, \"metadata\": {\"connection_url\": \"http://dsbox02.isi.edu:9000\", \"search_result\": {\"p_nodes_needed\": [\"P1082\", \"P2046\", \"P571\"], \"target_q_node_column_name\": \"FIPS_wikidata\"}, \"query_json\": null, \"search_type\": \"wikidata\"}, \"augmentation\": {\"properties\": \"join\", \"left_columns\": [6], \"right_columns\": [4]}, \"datamart_type\": \"isi\"}",
+  "first_10_rows": "itemLabel,population,area,inception\nLilla Karlsö,0,0,1955-05-10T00:00:00Z\nStryhalnia,507,0,1400-01-01T00:00:00Z\nBohorodychne,794,0,1713-01-01T00:00:00Z\nBurkuty,33,0,1880-01-01T00:00:00Z\nDarivka,412,0,1939-01-01T00:00:00Z\nKalynivka,139,0,1914-01-01T00:00:00Z\nYasenove,324,0,1929-01-01T00:00:00Z\nSvenska Högarna,4,0,1976-11-12T00:00:00Z\nSmyrenivka,182,0.01,1923-01-01T00:00:00Z\nStrombolicchio,0,0.003,1925-01-01T00:00:00Z\n"
+}
