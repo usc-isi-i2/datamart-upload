@@ -438,8 +438,6 @@ def wikifier():
 @app.route('/search', methods=['POST'])
 @cross_origin()
 def search():
-    import pdb
-    pdb.set_trace()
     try:
         # check that each parameter meets the requirements
         query = read_file(request.values, 'query', 'json')
