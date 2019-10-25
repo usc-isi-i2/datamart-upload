@@ -239,8 +239,33 @@ def load_csv_data(data) -> d3m_Dataset:
 def load_input_supplied_data(data_from_value, data_from_file):
     if data_from_file:
         logger.debug("Detected a file from post body!")
-        data = pd.read_csv(data_from_file, converters=StringConverter()).infer_objects()
-        loaded_dataset = load_csv_data(data)
+
+        fd, tmpfile = tempfile.mkstemp(prefix='datamart_download_', suffix='.d3m.tmp')
+        destination = None
+        data_from_file.save(tmpfile)
+        try:
+            # try to load as d3m dataset
+            destination = tempfile.mkdtemp(prefix='datamart_download_')
+            zip = zipfile.ZipFile(tmpfile)
+            zip.extractall(destination)
+            loaded_dataset = container.Dataset.load('file://' + destination + '/datasetDoc.json')
+        
+        # if get bad zip file error, try to load directly with csv
+        except zipfile.BadZipFile:
+            data = pd.read_csv(tmpfile)
+            loaded_dataset = load_csv_data(data)
+
+        # otherwise the file maybe broken or wrong type
+        except Exception as e:
+            logger.warning("Error: %s" % str(e))
+            data = None
+            loaded_dataset = None
+        finally:
+            os.close(fd)
+            os.remove(tmpfile)
+            if destination:
+                shutil.rmtree(destination)        
+
     elif data_from_value:
         data = None
         if data_from_value.lower().endswith(".csv"):
@@ -453,25 +478,21 @@ def search():
             need_wikifier = True
 
         # start to search
-        keywords: typing.List[str] = []
-        variables: typing.List['VariableConstraint'] = []
-        query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
         logger.debug("Starting datamart search service...")
-
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         if need_wikifier:
-            logger.debug("Start running wikifier...")
-            # Save specific p/q nodes in cache files
             meta_for_wikifier = None
+            logger.debug("Start running wikifier...")
             # if a specific list of wikifier targets was sent (usually generated from ta2 system)
             if query and "keywords" in query.keys():
-                for kw in query["keywords"]:
+                for i, kw in enumerate(query["keywords"]):
                     if config_datamart.wikifier_column_mark in kw:
-                        meta_for_wikifier = json.loads(kw)[config_datamart.wikifier_column_mark]
+                        meta_for_wikifier = json.loads(query["keywords"].pop(i))[config_datamart.wikifier_column_mark]
                         break
-                if meta_for_wikifier is not None:
+                if meta_for_wikifier:
                     logger.info(
                         "Get specific column<->p_nodes relationship from user. Will only wikifier those columns!")
+                    logger.info("The detail relationship is: {}".format(str(meta_for_wikifier)))
                     _, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset, resource_id=None)
                     MetadataCache.save_specific_wikifier_targets(supplied_dataframe, meta_for_wikifier)
 
@@ -482,6 +503,12 @@ def search():
         else:
             logger.debug("Wikifier skipped, start running download...")
 
+        keywords = query.get("keywords")
+        variables = query.get("variables")
+        logger.debug("The search's keywords are: {}".format(str(keywords)))
+        logger.debug("The search's variables are: {}".format(str(variables)))
+
+        query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
         res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
