@@ -133,7 +133,7 @@ def read_file(files, key, _type):
             if _type == 'csv':
                 return pd.read_csv(files[key], converters=StringConverter()).infer_objects()
             elif _type == 'json':
-                return json.load(files[key])
+                return json.loads(files[key])
         except:
             pass
 
@@ -438,9 +438,11 @@ def wikifier():
 @app.route('/search', methods=['POST'])
 @cross_origin()
 def search():
+    import pdb
+    pdb.set_trace()
     try:
         # check that each parameter meets the requirements
-        query = read_file(request.files, 'query', 'json')
+        query = read_file(request.values, 'query', 'json')
         # if not send the json via file
         if not query and request.form.get('query_json'):
             query = json.loads(request.form.get('query_json'))
@@ -503,8 +505,13 @@ def search():
         else:
             logger.debug("Wikifier skipped, start running download...")
 
-        keywords = query.get("keywords")
-        variables = query.get("variables")
+        if query:
+            keywords = query.get("keywords", [])
+            variables = query.get("variables", [])
+        else:
+            keywords: typing.List[str] = []
+            variables: typing.List['VariableConstraint'] = []
+
         logger.debug("The search's keywords are: {}".format(str(keywords)))
         logger.debug("The search's variables are: {}".format(str(variables)))
 
