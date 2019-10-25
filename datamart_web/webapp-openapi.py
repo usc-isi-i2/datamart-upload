@@ -248,8 +248,8 @@ def load_input_supplied_data(data_from_value, data_from_file):
             destination = tempfile.mkdtemp(prefix='datamart_download_')
             zip = zipfile.ZipFile(tmpfile)
             zip.extractall(destination)
-            loaded_dataset = container.Dataset.load('file://' + destination + '/datasetDoc.json')
-        
+            loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
+            data = None
         # if get bad zip file error, try to load directly with csv
         except zipfile.BadZipFile:
             data = pd.read_csv(tmpfile)
