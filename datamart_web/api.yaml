@@ -1,10 +1,10 @@
 openapi: 3.0.2
 info:
   title: ISI Datamart Link Panel
-  version: 0.0.2
+  version: 0.1.0
   contact:
     name: API Support
-    email: supprt@example.com
+    email: kyao@isi.edu
 #servers:
 #  - url: http://dsbox02.isi.edu:9000
 #    description: Main (production) server
@@ -84,25 +84,19 @@ paths:
       tags:
         - Search API
       summary: Search
-      description: 'The main search method for the ISI Datamart. This method typically is the first method to call.  <br > Currently, only the supplied_data parameter is necessary and the JSON query parameter does not influence search process. <br> <br> One parameter is required:<br> **data**: It could be a path to a csv file or a d3m dataset id (for example: "DA_poverty_estimation"). <br> <br> Two parameters are optional:<br> **max_return_docs**: An int indicating how many results to return. If not given, the default value is 20. <br> **query**: A JSON query to specify additional search requirements (ignored for now).'
+      description: 'The main search method for the ISI Datamart. This method typically is the first method to call.  <br > Currently, only the supplied_data parameter is necessary and the JSON query parameter does not influence search process. <br> <br> One parameter is required:<br> **data**: It could be a path to a csv file, a d3m dataset id (for example: "DA_poverty_estimation"). Or uploaded from request body in a format of csv/zip/pkl. <br> <br> Two parameters are optional:<br> **max_return_docs**: An int indicating how many results to return. If not given, the default value is 20. <br> **query**: A JSON query to specify additional search requirements (currently only keywords will make effects).'
       parameters:
         - in: query
-          name: query
-          description: The query
-          schema:
-            type: string
-        - in: query
           name: max_return_docs
-          description: Max return docs (default 20 if not given)
+          description: Max return docs (default value as 20)
           schema:
             type: integer
           example: 20
         - in: query
           name: data
-          description: '<p>Supplied data file. It could be a d3m-dataset-id or a filepath</p>'
+          description: '<p>Supplied data file.Could be a d3m-dataset-id or a filepath or leave blank and send from body.</p>'
           schema:
             type: string
-          required: true
           examples:
             filepath:
               value: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/d3m/datamart_web/test_search_data.csv
@@ -113,7 +107,29 @@ paths:
           description: whether to run wikifier on supplied data or not. Default value is true. If not run wikifier, the search speed will be quicker but the wikidata related parts will be missed.
           schema:
             type: string
+            default: true
             enum: [true, false]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  format: binary
+                  description: 'supplied data file in csv for general format or zip/pkl for d3m format'
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Query"
+            examples:
+              keyword_search:
+                summary: "Search using the keywords 'taxi' and 'medallion'"
+                value:
+                  keywords:
+                    - "taxi"
+                    - "medallion"
+                  variables: []
       responses:
         '200':
           description: successful operation
@@ -122,7 +138,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SearchResult'
+                  $ref: "#/components/schemas/Results"
         '404':
           description: Not found.
 
@@ -168,7 +184,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SearchResult'
+                  $ref: '#/components/schemas/Results'
         '404':
           description: Not found.
 
@@ -589,7 +605,7 @@ paths:
             application/text:
               schema:
                 type: string
-        '1000':
+        '300':
           description: failed.
 
   /upload/generateWD+Metadata:
@@ -684,194 +700,198 @@ paths:
           description: Not found.
 components:
   schemas:
-    SearchResult:
-      type: object
+    Query:
+      $ref: "./query_input_schema.json"
+    Error:
+      description: "JSON object returned by API on client errors"
       properties:
-        summary:
-          type: object
-          properties:
-            title:
-              type: string
-            Datamart ID:
-              type: string
-            Score:
-              type: number
-            Url:
-              type: string
-            Columns:
-              type: array
-              items:
-                type: string
-            Recommend Join Columns:
-              type: string
-        datamart_id:
+        error:
           type: string
-        score:
-          type: number
-        materialize_info:
-          type: object
-          properties:
-            id:
-              type: string
-            score:
-              type: number
-            metadata:
-              type: object
-              properties:
-                connection_url:
-                  type: string
-                search_result:
-                  type: object
-                  properties:
-                    p_nodes_needed:
-                      type: array
-                      items:
-                        type: string
-                    target_q_node_column_name:
-                      type: string
-                query_json:
-                  type: string
-                search_type:
-                  type: string
-            augmentation:
-              type: object
-              properties:
-                properties:
-                  type: string
-                left_columns:
-                  type: array
-                  items:
-                    type: integer
-                right_columns:
-                  type: array
-                  items:
-                    type: integer
-                datamart_type:
-                  type: string
-        metadata:
-          $ref: '#/components/schemas/Metadata'
-    Metadata:
+          description: "The error message"
+    Results:
+      description: "Array of results returned by /search"
       type: array
       items:
-        type: object
-        properties:
-          selector:
-            type: array
-            items:
-              type: string
-          metadata:
-            type: object
-            properties:
-              structural_type:
-                type: string
-              semantic_types:
-                type: array
-                items:
-                  type: string
-              dimension:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  semantic_types:
-                    type: array
-                    items:
-                      type: string
-                  length:
-                    type: integer
-              name:
-                type: string
-    ProcessResult:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: string
-        metadata:
-          type: array
-          items:
-            type: object
-            properties:
-              datamart_id:
-                type: string
-              materialization:
-                type: object
-                properties:
-                  python_path:
-                    type: string
-                  arguments:
-                    type: object
-                    properties:
-                      url:
-                        type: string
-                      file_type:
-                        type: string
-              variables:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    datamart_id:
-                      type: string
-                    semantic_type:
-                      type: array
-                      items:
-                        type: string
-                    name:
-                      type: string
-                    description:
-                      type: string
-                    named_entity:
-                      type: array
-                      items:
-                        type: string
-                    temporal_coverage:
-                      type: object
-                      properties:
-                        start:
-                          type: string
-                        end:
-                          type: string
-              title:
-                type: string
-              description:
-                type: string
-              keywords:
-                type: array
-                items:
-                  type: string
-              url:
-                type: string
-              file_type:
-                type: string
-              xpath:
-                type: string
-    Query:
-      type: object
-      properties:
-        variables:
-          type: array
-          items:
-            oneOf:
-              - $ref: '#/components/schemas/TemporalVariable'
-              # - $ref: '#/components/schemas/geospatial_variable'
-              # - $ref: '#/components/schemas/tabular_variable'
-              # - $ref: '#/components/schemas/named_entity_variable'
-    TemporalVariable:
-      type: object
-      description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second'"
-      properties:
-        start:
-          type: string
-          description: "Requested dates are more recent than this date."
-        end:
-          type: string
-          description: "Requested dates are older than this date."
-        granularity:
-          type: string
-          description: "Requested dates should match the requested granularity. For example, if 'day' is requested, the best match is a dataset with dates; however a dataset with hours is relevant too as hourly data can be aggregated into days."
-          enum: [year, month,day,hour,minute,second]
+        $ref: "#/components/schemas/Result"
+    Result:
+      $ref: "https://gitlab.com/datadrivendiscovery/datamart-api/raw/devel/query_result_schema.json"
+    # # # SearchResult:
+    # #   type: object
+    # #   properties:
+    # #     summary:
+    # #       type: object
+    # #       properties:
+    # #         title:
+    # #           type: string
+    # #         Datamart ID:
+    # #           type: string
+    # #         Score:
+    # #           type: number
+    # #         Url:
+    # #           type: string
+    # #         Columns:
+    # #           type: array
+    # #           items:
+    # #             type: string
+    # #         Recommend Join Columns:
+    # #           type: string
+    # #     datamart_id:
+    # #       type: string
+    # #     score:
+    # #       type: number
+    # #     materialize_info:
+    # #       type: object
+    # #       properties:
+    # #         id:
+    # #           type: string
+    # #         score:
+    # #           type: number
+    # #         metadata:
+    # #           type: object
+    # #           properties:
+    # #             connection_url:
+    # #               type: string
+    # #             search_result:
+    # #               type: object
+    # #               properties:
+    # #                 p_nodes_needed:
+    # #                   type: array
+    # #                   items:
+    # #                     type: string
+    # #                 target_q_node_column_name:
+    # #                   type: string
+    # #             query_json:
+    # #               type: string
+    # #             search_type:
+    # #               type: string
+    # #         augmentation:
+    # #           type: object
+    # #           properties:
+    # #             properties:
+    # #               type: string
+    # #             left_columns:
+    # #               type: array
+    # #               items:
+    # #                 type: integer
+    # #             right_columns:
+    # #               type: array
+    # #               items:
+    # #                 type: integer
+    # #             datamart_type:
+    # #               type: string
+    # #     metadata:
+    # #       $ref: '#/components/schemas/Metadata'
+    # # Metadata:
+    # #   type: array
+    # #   items:
+    # #     type: object
+    # #     properties:
+    # #       selector:
+    # #         type: array
+    # #         items:
+    # #           type: string
+    # #       metadata:
+    # #         type: object
+    # #         properties:
+    # #           structural_type:
+    # #             type: string
+    # #           semantic_types:
+    # #             type: array
+    # #             items:
+    # #               type: string
+    # #           dimension:
+    # #             type: object
+    # #             properties:
+    # #               name:
+    # #                 type: string
+    # #               semantic_types:
+    # #                 type: array
+    # #                 items:
+    # #                   type: string
+    # #               length:
+    # #                 type: integer
+    # #           name:
+    # #             type: string
+    # ProcessResult:
+    #   type: object
+    #   properties:
+    #     data:
+    #       type: array
+    #       items:
+    #         type: string
+    #     metadata:
+    #       type: array
+    #       items:
+    #         type: object
+    #         properties:
+    #           datamart_id:
+    #             type: string
+    #           materialization:
+    #             type: object
+    #             properties:
+    #               python_path:
+    #                 type: string
+    #               arguments:
+    #                 type: object
+    #                 properties:
+    #                   url:
+    #                     type: string
+    #                   file_type:
+    #                     type: string
+    #           variables:
+    #             type: array
+    #             items:
+    #               type: object
+    #               properties:
+    #                 datamart_id:
+    #                   type: string
+    #                 semantic_type:
+    #                   type: array
+    #                   items:
+    #                     type: string
+    #                 name:
+    #                   type: string
+    #                 description:
+    #                   type: string
+    #                 named_entity:
+    #                   type: array
+    #                   items:
+    #                     type: string
+    #                 temporal_coverage:
+    #                   type: object
+    #                   properties:
+    #                     start:
+    #                       type: string
+    #                     end:
+    #                       type: string
+    #           title:
+    #             type: string
+    #           description:
+    #             type: string
+    #           keywords:
+    #             type: array
+    #             items:
+    #               type: string
+    #           url:
+    #             type: string
+    #           file_type:
+    #             type: string
+    #           xpath:
+    #             type: string
+    # TemporalVariable:
+    #   type: object
+    #   description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second'"
+    #   properties:
+    #     start:
+    #       type: string
+    #       description: "Requested dates are more recent than this date."
+    #     end:
+    #       type: string
+    #       description: "Requested dates are older than this date."
+    #     granularity:
+    #       type: string
+    #       description: "Requested dates should match the requested granularity. For example, if 'day' is requested, the best match is a dataset with dates; however a dataset with hours is relevant too as hourly data can be aggregated into days."
+    #       enum: [year, month,day,hour,minute,second]
 tags:
   - name: Search API
   - name: Download API
