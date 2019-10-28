@@ -5,6 +5,7 @@ import logging
 import typing
 import traceback
 import shutil
+import pickle
 import io
 import zipfile
 import tempfile
@@ -17,7 +18,7 @@ import frozendict
 import rq
 import bcrypt
 
-from wikifier.wikifier import produce#, save_specific_p_nodes
+from wikifier.wikifier import produce
 from flask_cors import CORS, cross_origin
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
@@ -88,9 +89,9 @@ app.config['SWAGGER'] = {
 
 # swagger-UI configuration
 swagger_config = Swagger.DEFAULT_CONFIG
-# swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
-# swagger_config['jquery_js'] = '//unpkg.com/jquery@2.2.4/dist/jquery.min.js'
-# swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css'
+swagger_config['swagger_ui_bundle_js'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js'
+swagger_config['jquery_js'] = '//unpkg.com/jquery@2.2.4/dist/jquery.min.js'
+swagger_config['swagger_ui_css'] = '//unpkg.com/swagger-ui-dist@3/swagger-ui.css'
 Swagger(app, template_file='api.yaml', config=swagger_config)
 
 
@@ -121,7 +122,7 @@ def retrieve_file_paths(dirName):
 def wrap_response(code, msg='', data=None, **kwargs):
     return json.dumps({
         'code': code,
-        'message': msg or ('Success' if code == '0000' else 'Failed'),
+        'message': msg or ('Success' if code == '200' else 'Failed'),
         'data': data,
         **kwargs
     }, indent=2, default=lambda x: str(x))
@@ -148,10 +149,8 @@ def parse_search_result(search_res: DatamartSearchResult) -> dict:
     title = str(display_df['title'][0])
     datamart_id = str(search_res.id())
     columns_result = display_df['columns'][0]
-    # if search_res.search_type == ""
     columns_result = columns_result.split(", ")
     score = str(search_res.score())
-    # description = "test description"
     join_columns = display_df['join columns'][0]
     try:
         url = search_res.search_result['url']['value']
@@ -170,7 +169,7 @@ def parse_search_result(search_res: DatamartSearchResult) -> dict:
 
 def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
     """
-    Function used to load d3m datasets
+    Function used to load exist d3m datasets
     """
     # creat a dict which have reference for all dataset ids
     logger.debug("Trying to load dataset " + str(path))
@@ -195,7 +194,7 @@ def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
 
 def load_csv_data(data) -> d3m_Dataset:
     """
-    Function used to load general csv file
+    Function used to load general csv file to d3m format dataset
     :param data: a str or a pd.DataFrame
     :return: a d3m style Dataset
     """
@@ -237,6 +236,9 @@ def load_csv_data(data) -> d3m_Dataset:
 
 
 def load_input_supplied_data(data_from_value, data_from_file):
+    """
+    function used to load the input data from different methods
+    """
     if data_from_file:
         logger.debug("Detected a file from post body!")
 
@@ -250,8 +252,13 @@ def load_input_supplied_data(data_from_value, data_from_file):
             zip.extractall(destination)
             loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
             data = None
-        # if get bad zip file error, try to load directly with csv
+        # if get bad zip file error, try to load as pkl file
         except zipfile.BadZipFile:
+            data = None
+            with open(tmpfile,'rb') as f:
+                loaded_dataset = pickle.load(f)
+        # if get UnpicklingError, try to load as csv file
+        except pickle.UnpicklingError:
             data = pd.read_csv(tmpfile)
             loaded_dataset = load_csv_data(data)
 
@@ -308,7 +315,7 @@ def wikifier():
         data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
 
@@ -319,7 +326,7 @@ def wikifier():
         else:
             return_format = check_return_format(return_format)
         if not return_format:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
@@ -336,18 +343,18 @@ def wikifier():
                         if x['wikifier_choice'] in ["identifier", "new_wikifier", "automatic"]:
                             choice.append(x['wikifier_choice'])
                         else:
-                            return wrap_response(code='1000',
+                            return wrap_response(code='400',
                                                  msg='FAIL SEARCH - Unknown wikifier choice, please follow the examples!!! ' + str(x['wikifier_choice']),
                                                  data=None)
                     else:
-                        return wrap_response(code='1000',
+                        return wrap_response(code='400',
                                              msg='FAIL SEARCH - Missed column or wikifier_choice, please follow the examples!!! ' + str(x),
                                              data=None)
             else:
                 columns_formated = None
                 choice = ['automatic']
         except:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
                                  data=None)
         logger.info("Required columns found as: " + str(columns_formated))
@@ -432,7 +439,7 @@ def wikifier():
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/search', methods=['POST'])
@@ -454,14 +461,14 @@ def search():
 
         if loaded_dataset is None:
             if data is None:
-                logger.error("No path given")
-                return wrap_response(code='1000',
-                                     msg='FAIL SEARCH - data is not given, please run "/search_without_data" instead',
+                logger.error("Search failed! No path given or can't load dataset")
+                return wrap_response(code='400',
+                                     msg="""FAIL SEARCH - data is not given or can't load dataset, please run "/search_without_data" instead""",
                                      data=None)
             else:
                 logger.error("Unable to load the input file with")
                 logger.error(str(data))
-                return wrap_response(code='1000',
+                return wrap_response(code='400',
                                      msg='FAIL SEARCH - Unable to load input supplied data',
                                      data=None)
         if request.values.get('run_wikifier'):
@@ -533,14 +540,14 @@ def search():
             results.append(cur)
         json_return = dict()
         json_return["results"] = results
-        # return wrap_response(code='0000',
+        # return wrap_response(code='200',
         #                       msg='Success',
         #                       data=json.dumps(json_return, indent=2)
         #                       )
         return json.dumps(json_return, indent=2)
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/search_without_data', methods=['POST'])
@@ -572,14 +579,14 @@ def search_without_data():
             }
             results.append(cur)
         if not results:
-            return wrap_response(code='0000', msg="FAIL SEARCH - did not find the results")
+            return wrap_response(code='200', msg="FAIL SEARCH - did not find the results")
         else:
             json_return = dict()
             json_return["results"] = results
             return json.dumps(json_return, indent=2)
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/download', methods=['POST'])
@@ -593,7 +600,7 @@ def download():
         if not search_result and request.values.get('task'):
             search_result = json.loads(request.values.get('task'))
         if search_result is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
         try:
@@ -604,7 +611,7 @@ def download():
         if return_format is None:
             return_format = "csv"
         if return_format != "csv" and return_format != "d3m":
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
@@ -615,7 +622,7 @@ def download():
         data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
         if request.values.get('run_wikifier'):
@@ -653,7 +660,7 @@ def download():
                 non_empty_rows.append(i)
 
         if len(non_empty_rows) == 0:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL DOWNLOAD - No joinable rows found!',
                                  data=None)
         logger.debug("Start saving the download results...")
@@ -709,7 +716,7 @@ def download():
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/download/<id>', methods=['GET'])
@@ -719,7 +726,7 @@ def download_by_id(id):
     logger.debug("Start downloading with id " + str(datamart_id))
     return_format = check_return_format(request.values.get('format'))
     if return_format is None:
-        return wrap_response(code='1000',
+        return wrap_response(code='400',
                              msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                              data=None)
     try:
@@ -755,12 +762,12 @@ def download_by_id(id):
             results = sparql.query().convert()['results']['bindings']
             logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
-                return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
+                return wrap_response('400', msg="Can't find corresponding dataset with given id.")
             logger.debug("Start materialize the dataset...")
             result_df = Utils.materialize(metadata=results[0])
 
         # else:
-        # return wrap_response('1000', msg="FAIL MATERIALIZE - Unknown input id format.")
+        # return wrap_response('400', msg="FAIL MATERIALIZE - Unknown input id format.")
 
         logger.debug("Materialize finished, start sending...")
         result_id = str(hash(result_df.values.tobytes()))
@@ -822,7 +829,7 @@ def download_by_id(id):
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/download_metadata/<id>', methods=['GET'])
@@ -868,7 +875,7 @@ def download_metadata_by_id(id):
             results = sparql.query().convert()['results']['bindings']
             logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
-                return wrap_response('1000', msg="Can't find corresponding dataset with given id.")
+                return wrap_response('400', msg="Can't find corresponding dataset with given id.")
             logger.debug("Start searching the metadata for general..")
             results[0]['score'] = {"value": 0}
             metadata = DatamartSearchResult(search_result=results[0], supplied_data=None, query_json={},
@@ -887,7 +894,7 @@ def download_metadata_by_id(id):
         metadata = metadata.update(metadata=metadata_all_level, selector=())
         return json.dumps(metadata.to_json_structure(), indent=2)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/augment', methods=['POST'])
@@ -901,7 +908,7 @@ def augment():
         except:
             search_result = json.loads(request.values.get('task')) if request.values.get('task') else None
         if search_result is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
@@ -912,7 +919,7 @@ def augment():
         else:
             return_format = check_return_format(return_format)
         if not return_format:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
@@ -925,7 +932,7 @@ def augment():
         data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unable to load input supplied data',
                                  data=None)
 
@@ -1001,7 +1008,7 @@ def augment():
                     zip_file.write(file)
             data.seek(0)
 
-            return wrap_response(code='0000',
+            return wrap_response(code='200',
                                  msg='Success',
                                  data=save_dir)
         else:
@@ -1039,7 +1046,7 @@ def augment():
                 return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/get_identifiers', methods=['POST'])
@@ -1076,26 +1083,26 @@ def add_upload_user():
         username = request.values.get('username')
         password = request.values.get('password')
         if username is None or password is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg="FAIL ADD USER - username and password can't be empty!",
                                  data=None)
 
         if not os.path.exists(password_token_file):
             logger.error("No password config file found!")
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg="FAIL ADD USER - can't load token file!, please contact the adiministrator!",
                                  data=None)
         with open(password_token_file, 'r') as f:
             password_tokens = json.load(f)
 
         if token not in password_tokens:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL ADD USER - invalid token!',
                                  data=None)
 
         if not os.path.exists(password_record_file):
             logger.error("No password config file found!")
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg="FAIL ADD USER - can't load the password config file, please contact the adiministrator!",
                                  data=None)
 
@@ -1103,7 +1110,7 @@ def add_upload_user():
             user_passwd_pairs = json.load(f)
 
         if username in user_passwd_pairs:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg="FAIL ADD USER - username already exist!",
                                  data=None)
 
@@ -1116,10 +1123,10 @@ def add_upload_user():
         with open(password_record_file, 'w') as f:
             password_tokens = json.dump(user_passwd_pairs, f)
 
-        return wrap_response('0000', msg="Add user {} success!".format(username))
+        return wrap_response('200', msg="Add user {} success!".format(username))
 
     except Exception as e:
-        return wrap_response('1000', msg="FAIL ADD USER - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL ADD USER - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload', methods=['POST'])
@@ -1146,25 +1153,25 @@ def upload_function(request, test_mode=False):
         upload_body = request.files.get("upload_file")
 
         if url is None and upload_body is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL UPLOAD - Url and upload file cannot both be None',
                                  data=None)
 
         if upload_body is not None and url is not None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL UPLOAD - cannot send both url and upload file',
                                  data=None)
         
         file_type = request.values.get('file_type')
         if file_type is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL UPLOAD - file_type can not be None',
                                  data=None)
 
         upload_username = request.values.get('username')
         upload_password = request.values.get('password')
         if upload_username is None or upload_password is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL UPLOAD - upload username and password can not be None',
                                  data=None)
 
@@ -1172,7 +1179,7 @@ def upload_function(request, test_mode=False):
         password_record_file = "../datamart_isi/upload/upload_password_config.json"
         if not os.path.exists(password_record_file):
             logger.error("No password config file found!")
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg="FAIL UPLOAD - can't load the password config file, please contact the adiministrator!",
                                  data=None)
 
@@ -1180,13 +1187,13 @@ def upload_function(request, test_mode=False):
             user_passwd_pairs = json.load(f)
 
         if upload_username not in user_passwd_pairs:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL UPLOAD - username does not exist',
                                  data=None)
         else:
             is_correct_password = bcrypt.checkpw(upload_password.encode(), user_passwd_pairs[upload_username]["password_token"].encode())
             if not is_correct_password:
-                return wrap_response(code='1000',
+                return wrap_response(code='400',
                                      msg='FAIL UPLOAD - wrong password',
                                      data=None)
 
@@ -1237,9 +1244,9 @@ def upload_function(request, test_mode=False):
         job.refresh()
         job_status = job.get_status()
 
-        return wrap_response('0000', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
+        return wrap_response('200', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
-        return wrap_response('1000', msg="FAIL UPLOAD job schedule - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL UPLOAD job schedule - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 
@@ -1259,14 +1266,14 @@ def get_local_datasets(dataset_name):
         datasets_loc = os.path.join(datasets_store_loc, dataset_name)
         if not os.path.exists(datasets_loc):
             logger.error("File {} not exists!".format(dataset_name))
-            return wrap_response('1000', msg="File {} not exists!".format(dataset_name))
+            return wrap_response('400', msg="File {} not exists!".format(dataset_name))
 
         with open(datasets_loc, 'rb') as f:
             file_content = f.read()
         return Response(file_content, mimetype="multipart/form-data")
 
     except Exception as e:
-        return wrap_response('1000', msg="FAIL get local datasets - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL get local datasets - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/generateWD+Metadata', methods=['POST'])
@@ -1276,13 +1283,13 @@ def load_and_process():
     try:
         url = request.values.get('url')
         if url is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - Url can not be None',
                                  data=None)
 
         file_type = request.values.get('file_type')
         if file_type is None:
-            return wrap_response(code='1000',
+            return wrap_response(code='400',
                                  msg='FAIL SEARCH - file_type can not be None',
                                  data=None)
 
@@ -1292,10 +1299,10 @@ def load_and_process():
             data = io.StringIO()
             each.to_csv(data, index=False)
             df_returned.append(data.getvalue())
-        # return wrap_response('0000', data=(df_returned, meta))
+        # return wrap_response('200', data=(df_returned, meta))
         return json.dumps({"data": df_returned, "metadata": meta}, indent=2)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/uploadWD+Metadata', methods=['POST'])
@@ -1307,13 +1314,13 @@ def upload_metadata():
             metadata = request.values.get('metadata')
             metadata_json = json.loads(metadata)
         else:
-            return wrap_response('1000', msg="FAIL UPLOAD - No metadata input found")
+            return wrap_response('400', msg="FAIL UPLOAD - No metadata input found")
 
         if request.values.get('data_input'):
             data_input = request.values.get('data_input')
             data_input = json.loads(data_input)
         else:
-            return wrap_response('1000', msg="FAIL UPLOAD - No dataset input found")
+            return wrap_response('400', msg="FAIL UPLOAD - No dataset input found")
 
         data_df = []
         for di in data_input:
@@ -1330,9 +1337,9 @@ def upload_metadata():
         datamart_upload_instance.model_data(data_df, metadata_json, dataset_number)
         response_id = datamart_upload_instance.upload()
 
-        return wrap_response('0000', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
+        return wrap_response('200', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
-        return wrap_response('1000', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/upload/check_upload_status', methods=['POST'])
@@ -1373,12 +1380,12 @@ def check_upload_status():
                     current_job.refresh()
                     each_worker_status['meta'] = current_job.meta
                 job_status["worker_" + str(i)] = each_worker_status
-        return wrap_response(code='0000',
+        return wrap_response(code='200',
                              msg='Success',
                              data=json.dumps(job_status, indent=2)
         )
     except Exception as e:
-        return wrap_response(code='1000', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/embeddings/fb/<qnode>', methods=['GET'])

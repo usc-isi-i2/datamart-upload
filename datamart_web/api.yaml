@@ -77,14 +77,19 @@ paths:
               schema:
                  type: string
                  format: binary
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /search:
     post:
       tags:
         - Search API
       summary: Search
-      description: 'The main search method for the ISI Datamart. This method typically is the first method to call.  <br > Currently, only the supplied_data parameter is necessary and the JSON query parameter does not influence search process. <br> <br> One parameter is required:<br> **data**: It could be a path to a csv file, a d3m dataset id (for example: "DA_poverty_estimation"). Or uploaded from request body in a format of csv/zip/pkl. <br> <br> Two parameters are optional:<br> **max_return_docs**: An int indicating how many results to return. If not given, the default value is 20. <br> **query**: A JSON query to specify additional search requirements (currently only keywords will make effects).'
+      description: 'The main search method for the ISI Datamart. This method typically is the first method to call.  <br > Currently, only the supplied_data parameter is necessary and the JSON query parameter does not influence search process. <br> <br> One parameter is required:<br> **data**: It could be a path to a csv file, a d3m dataset id (for example: "DA_poverty_estimation"). Or uploaded from request body in a format of csv/zip/pkl. The data sent from body will be first considered if both are given. <br> <br> Two parameters are optional:<br> **max_return_docs**: An int indicating how many results to return. If not given, the default value is 20. <br> **query**: A JSON query to specify additional search requirements (currently only keywords will make effects).'
       parameters:
         - in: query
           name: max_return_docs
@@ -139,15 +144,19 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Results"
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /search_without_data:
     post:
       tags:
         - Search API
       summary: Search by keywords or variables
-      description: 'Searching datasets by keywords or variables. <br> <br>One parameter is required: <br> **keywords**: Keywords that match a dataset. <br> <br>One parameter is optional: <br> **variables**: It could be one of temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. For now, just temporal_variable could be used.'
+      description: 'Searching datasets by keywords or variables. <br> Attention: The search results found here cannot be used for augment or download. If you want to use it for download/augment, please use **search** API instead! <br> <br>One parameter is required: <br> **keywords**: Keywords that match a dataset. <br> <br>One parameter is optional: <br> **variables**: It could be one of temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. For now, just temporal_variable could be used.'
       requestBody:
         content:
           application/json:
@@ -185,8 +194,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Results'
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /augment:
     post:
@@ -254,8 +267,12 @@ paths:
               schema:
                  type: string
                  format: binary
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /download:
     post:
@@ -307,8 +324,12 @@ paths:
               schema:
                  type: string
                  format: binary
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /download_metadata/{id}:
     get:
@@ -337,8 +358,12 @@ paths:
                  type: array
                  items:
                   $ref: '#/components/schemas/Metadata'
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /download/{id}:
     get:
@@ -373,8 +398,12 @@ paths:
               schema:
                  type: string
                  format: base64
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /upload:
     post:
@@ -458,8 +487,12 @@ paths:
             application/text:
               schema:
                 type: string
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /upload/test:
     post:
@@ -543,8 +576,12 @@ paths:
             application/text:
               schema:
                 type: string
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /upload/check_upload_status:
     post:
@@ -567,8 +604,12 @@ paths:
             application/text:
               schema:
                 type: string
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /upload/add_upload_user:
     post:
@@ -605,8 +646,12 @@ paths:
             application/text:
               schema:
                 type: string
-        '300':
-          description: failed.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /upload/generateWD+Metadata:
     post:
@@ -637,8 +682,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProcessResult'
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /upload/uploadWD+Metadata:
     post:
       tags:
@@ -667,8 +717,12 @@ paths:
             application/text:
               schema:
                 type: string
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /embeddings/fb/{qnode}:
     get:
@@ -696,12 +750,17 @@ paths:
               schema:
                  type: string
                  format: binary
-        '404':
-          description: Not found.
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     Query:
-      $ref: "./query_input_schema.json"
+      $ref: "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/resi_api_new_swagger/datamart_web/query_input_schema.json"
     Error:
       description: "JSON object returned by API on client errors"
       properties:
@@ -714,7 +773,7 @@ components:
       items:
         $ref: "#/components/schemas/Result"
     Result:
-      $ref: "https://gitlab.com/datadrivendiscovery/datamart-api/raw/devel/query_result_schema.json"
+      $ref: "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/resi_api_new_swagger/datamart_web/query_input_schema.json"
     # # # SearchResult:
     # #   type: object
     # #   properties:
