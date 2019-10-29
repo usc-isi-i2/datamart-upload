@@ -14,6 +14,8 @@ import requests
 import copy
 import time
 import redis
+import inspect
+import datetime
 import frozendict
 import rq
 import bcrypt
@@ -264,6 +266,7 @@ def load_input_supplied_data(data_from_value, data_from_file):
 
         # otherwise the file maybe broken or wrong type
         except Exception as e:
+            record_error_to_file(e, inspect.stack()[0][3])
             logger.warning("Error: %s" % str(e))
             data = None
             loaded_dataset = None
@@ -296,6 +299,22 @@ def check_return_format(format_):
         return None
     return return_format
 
+
+def record_error_to_file(e, function_from):
+    """
+    function used to make records on the errors
+    """
+    with open("error_records.log", "a") as f:
+        f.write("*"*100 + "\n")
+        f.write(str(datetime.datetime.now()) + "\n")
+        error_message = """Errror happened on function "{}" \n""".format(str(function_from))
+        f.write(error_message)
+        f.write(str(e))
+        f.write(str(traceback.format_exc()))
+    # also show on logger
+    logger.error(error_message)
+    logger.error(str(e))
+    logger.error(str(traceback.format_exc()))
 
 @app.route('/')
 def hello():
@@ -439,6 +458,7 @@ def wikifier():
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -547,6 +567,7 @@ def search():
         return json.dumps(json_return, indent=2)
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -586,6 +607,7 @@ def search_without_data():
             return json.dumps(json_return, indent=2)
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -716,6 +738,7 @@ def download():
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -829,6 +852,7 @@ def download_by_id(id):
             return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -894,6 +918,7 @@ def download_metadata_by_id(id):
         metadata = metadata.update(metadata=metadata_all_level, selector=())
         return json.dumps(metadata.to_json_structure(), indent=2)
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL MATERIALIZE - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1046,6 +1071,7 @@ def augment():
                 return Response(data.getvalue(), mimetype="text/csv")
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1126,6 +1152,7 @@ def add_upload_user():
         return wrap_response('200', msg="Add user {} success!".format(username))
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL ADD USER - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1246,6 +1273,7 @@ def upload_function(request, test_mode=False):
 
         return wrap_response('200', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL UPLOAD job schedule - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1273,6 +1301,7 @@ def get_local_datasets(dataset_name):
         return Response(file_content, mimetype="multipart/form-data")
 
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL get local datasets - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1302,6 +1331,7 @@ def load_and_process():
         # return wrap_response('200', data=(df_returned, meta))
         return json.dumps({"data": df_returned, "metadata": meta}, indent=2)
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1339,6 +1369,7 @@ def upload_metadata():
 
         return wrap_response('200', msg="UPLOAD Success! The uploadted dataset id is:" + response_id)
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response('400', msg="FAIL LOAD/ PREPROCESS - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
@@ -1385,6 +1416,7 @@ def check_upload_status():
                              data=json.dumps(job_status, indent=2)
         )
     except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
