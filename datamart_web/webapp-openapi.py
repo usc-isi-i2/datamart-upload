@@ -8,6 +8,7 @@ import shutil
 import pickle
 import io
 import zipfile
+import cgitb
 import tempfile
 import pathlib
 import requests
@@ -304,13 +305,15 @@ def record_error_to_file(e, function_from):
     """
     function used to make records on the errors
     """
-    with open("error_records.log", "a") as f:
+    with open("datamart_error_records.log", "a") as f:
         f.write("*"*100 + "\n")
         f.write(str(datetime.datetime.now()) + "\n")
         error_message = """Errror happened on function "{}" \n""".format(str(function_from))
         f.write(error_message)
         f.write(str(e))
         f.write(str(traceback.format_exc()))
+        info = sys.exc_info()
+        f.write(str(cgitb.text(info)))
     # also show on logger
     logger.error(error_message)
     logger.error(str(e))
