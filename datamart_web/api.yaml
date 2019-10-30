@@ -5,6 +5,17 @@ info:
   contact:
     name: API Support
     email: kyao@isi.edu
+  description: |
+    ## This is the ISI Datamart Server
+
+    ##  Most frequently used endpoints are:
+      * **/search** Find datasets for augmentation, given a supplied dataset.
+      * **/search_without_data** Find datasets without a supplied dataset.
+      * **/augment** Augment a supplied dataset (either training dataset or testing dataset) using a result returned by **/search**
+      * **/upload** Upload a dataset to the datamart. The dataset can be a file or an URL.
+
+    Instructions on how use these endpoints are documented below.
+
 #servers:
 #  - url: http://dsbox02.isi.edu:9000
 #    description: Main (production) server
@@ -15,8 +26,23 @@ paths:
     post:
       tags:
         - Search API
-      summary: Do wikifier before search
-      description: 'The method chooses which column and which method you want to do wikifier. <br><br> One parameters is required: <br> **data**: The supplied data (a path to the csv file or a d3m dataset id). <br> <br> Four parameters are optional: <br> **format**: Return format (csv format or d3m format with metadata). <br> **column**: specifies which column from the complementary datamart dataset to append to the supplied data. If not given, all columns are append. <br> **wikifier_choice**: specifies which method you want to wikify a column. If columns not given, it will choose automatic by default. If you want to wikify a numeric column, please choose identifier. If you want to wikify a text column, please choose new_wikifier. If you do not know which one to use, please choose automatic. <br> **threshold**: minimum coverage ratio for a wikidata columns to be appended.'
+      summary: Do wikification before search
+      description: |
+
+        Performs wikification, i.e. add additional columns to the supplied dataset using Wikidata for entitiy
+        resolution. Column values added are Wikidata Qnodes representing entities.
+
+        This method automatically tries to find the columns in the supplied dataset to use for wikification. Also, the
+        user can specify which columns to use and the specific wikifier. For numeric columns use the **indentifier**
+        wikifier. For text column use the **new_wikifier**.
+
+        Required parameter:
+          * **data**: The supplied data (a path to the csv file or a d3m dataset id).
+
+        Optional parameters:
+          * **format**: Return format (csv format or d3m format with metadata).
+          * **threshold**: minimum coverage ratio for a wikidata columns to be appended.
+      # * **column**: specifies which column from the complementary datamart dataset to append to the supplied data. If not given, all columns are append.
       requestBody:
         content:
           application/json:
@@ -30,9 +56,9 @@ paths:
                   wikifier_choice:
                     type: string
             examples:
-              example_for_not_specified:
+              automatic_column_selection:
                 value: null
-              example_for_test_search_data:
+              example_for_wikification_column_selection:
                 value:
                   - column: 1
                     wikifier_choice: identifier
@@ -42,7 +68,7 @@ paths:
                     wikifier_choice: new_wikifier
                   - column: 5
                     wikifier_choice: identifier
-                description: 'column is an optional parameter, an integer indicates the list of column indices from the Datamart dataset that should be appended. If not given, all possible columns will be appended and it will choose automatic wikifier method by default.<br> wikifier_choice is an optional parameter, it includes three choices: identifier, new_wikifier and automatic. If you want to wikify a numeric column, please choose identifier. If you want to wikify a text column, please choose new_wikifier. If you do not know which one to use, please choose automatic.'
+                description: 'Column is an integer specifying the column to use for wikification.<br> Wikifier_choice is an optional parameter, it includes three choices: **identifier**, **new_wikifier** and **automatic**. For a numeric column, use **identifier**. For a text column, use **new_wikifier**. Use **automatic** to let the datamrt decide.'
       parameters:
         - in: query
           name: data
@@ -89,7 +115,20 @@ paths:
       tags:
         - Search API
       summary: Search
-      description: 'The main search method for the ISI Datamart. This method typically is the first method to call.  <br > Currently, only the supplied_data parameter is necessary and the JSON query parameter does not influence search process. <br> <br> One parameter is required:<br> **data**: It could be a path to a csv file, a d3m dataset id (for example: "DA_poverty_estimation"). Or uploaded from request body in a format of csv/zip/pkl. The data sent from body will be first considered if both are given. <br> <br> Two parameters are optional:<br> **max_return_docs**: An int indicating how many results to return. If not given, the default value is 20. <br> **query**: A JSON query to specify additional search requirements (currently only keywords will make effects).'
+      description: |
+        The main method for finding datasets for augmentation. Typically, this method is the first method to call.
+
+        The only required parameter is the supplied_data parameter that provides the dataset. The JSON query is not required.
+
+        Required parameter:
+          * **data**: Dataset for search. The dataset can be specified as a path to a csv file, or a d3m dataset id (for example: "DA_poverty_estimation"). Also, the datset can be uploaded from the request body as a string in the format of csv/zip/pkl, e.g. {"data": "...dataset..."}. The dataset sent from body takes precedent.
+
+        Optional parameters:
+          * **max_return_docs**: Number of search results to return. If not given, the default value is 20.
+          * **run_wikifier** Boolean value, if true perform object resolution using ISI wikifier to find additional datasets.
+
+        Request body:
+          * A JSON query to specify additional search constraints (currently only *keywords* constraint is supported).
       parameters:
         - in: query
           name: max_return_docs
@@ -99,7 +138,7 @@ paths:
           example: 20
         - in: query
           name: data
-          description: '<p>Supplied data file.Could be a d3m-dataset-id or a filepath or leave blank and send from body.</p>'
+          description: '<p>Supplied data file. Could be a d3m-dataset-id or a filepath or leave blank and send from body.</p>'
           schema:
             type: string
           examples:
@@ -129,11 +168,11 @@ paths:
               $ref: "#/components/schemas/Query"
             examples:
               keyword_search:
-                summary: "Search using the keywords 'taxi' and 'medallion'"
+                summary: "Search using the keywords 'poverty rate' and 'education'"
                 value:
                   keywords:
-                    - "taxi"
-                    - "medallion"
+                    - "poverty rate"
+                    - "education"
                   variables: []
       responses:
         '200':
@@ -156,14 +195,26 @@ paths:
       tags:
         - Search API
       summary: Search by keywords or variables
-      description: 'Searching datasets by keywords or variables. <br> Attention: The search results found here cannot be used for augment or download. If you want to use it for download/augment, please use **search** API instead! <br> <br>One parameter is required: <br> **keywords**: Keywords that match a dataset. <br> <br>One parameter is optional: <br> **variables**: It could be one of temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. For now, just temporal_variable could be used.'
+      description: |
+        Find datasets by keywords and/or variables.
+
+        **Attention:** The search results found here cannot be used for augmentation. If you want to use the search
+          result for augmentation, please use **/search** endpoint instead!
+
+        Required parameter:
+          * **keywords**: Keywords that match a dataset.
+
+        Request body:
+          * Specifies variables, i.e. each variable is one or more dataset columns. Variables could be one of
+            temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. Currently, only
+            temporal_variable is supported.
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Query'
             examples:
-              not_use_variables:
+              no_variables:
                 value: null
               temporal_variable:
                 value:
@@ -172,7 +223,7 @@ paths:
                       start: 2018-01-01T01
                       end: 2018-07-01T01
                       granularity: hour
-                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10', and granularity should be 'month', 'day', 'second' respectively"
+                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value should be 'month', 'day', or 'second'"
       parameters:
         - in: query
           name: keywords
@@ -206,7 +257,26 @@ paths:
       tags:
         - Augment API
       summary: Augment dataset
-      description: 'The method augments the given dataset using a search result returned by the Search API. <br>This method only returns the rows of the dataset that matches well with the complementary datamart dataset. If no rows can be joined, an error is raised.<br> <br> Three parameters are required: <br> **task**: An item in string format from the search result list return by the Search API. <br> **data**: The supplied data (a path to the csv file or a d3m dataset id). <br> **format**: Return format (csv format or d3m format with metadata). <br> <br> Two parameters are optional: <br> **destination**: If given, the system saves the augmented dataset to the given path, and returns the path. If not given, it returns the results to user as download function. <br> **columns**: specifies which columns from the complementary datamart dataset to append to the supplied data. If not given, all columns are append. '
+      description: |
+        This method augments the given dataset using a search result returned by the **/search** endpoint. The given
+        dataset has to be structurally the same as the dataset used during search. The content of the dataset can
+        differ. During search the training dataset is given to the **/serach** endpoint. Then, the search result can be
+        used either to augment the training dataset or the testing dataset.
+
+        This method only returns the rows of the dataset that joins well with the complementary datamart dataset. If no rows can be joined, an error is raised.
+
+        Required parameters are:
+          * **data**: The supplied data (a path to the csv file or a d3m dataset id).
+          * **format**: Return format (csv format or d3m format with metadata).
+
+        Optional parameters:
+          * **destination**: If given, the system saves the augmented dataset to the given path, and returns the
+              path. If not given, it returns the results to user as download function.
+          * **columns**: specifies which columns from the complementary datamart dataset to append to the supplied data. If not given, all columns are append.
+          * **run_wikifier**: If true, run the wikifier to add additional columns based on entity resolution.
+
+        Request body:
+          * **task**: A string containing a result return by the **/search** endpoint.
       requestBody:
         content:
           multipart/form-data:
@@ -255,7 +325,7 @@ paths:
           example: /Users/claire/Desktop
         - in: query
           name: run_wikifier
-          description: whether to run wikifier on supplied data and search result(only applied for genearl search results) or not. Default value is true. The download will failed if the joining hint columns are adapted from wikifier's columns.
+          description: "whether to run wikifier on supplied data and search result(only applied for genearl search results) or not. Default value is true. The download will failed if the joining hint columns are adapted from wikifier's columns."
           schema:
             type: string
             enum: [true, false]
@@ -278,8 +348,21 @@ paths:
     post:
       tags:
         - Download API
-      summary: Download
-      description: 'The method downloads the datamart dataset specified by a search result returned by the Search API method. <br>This method only returns rows of the dataset that matches well with the complementary datamart dataset. If no rows can be joined, an error is raised. <br><br> Three parameters are required: <br> **task**: An item in string format from the search result list return by the Search API. <br> **data**: The supplied data (a path to the csv file or a d3m dataset id). <br>  **format**: Return format (csv format or d3m format with metadata).'
+      summary: Download a dataset
+      description: |
+        The method downloads the datamart dataset specified by a search result returned by the Search API method.
+
+        This method only returns rows of the dataset that matches well with the complementary datamart dataset. If no rows can be joined, an error is raised.
+
+        Required parameters:
+          * **data**: The supplied data (a path to the csv file or a d3m dataset id).
+          * **format**: Return format (csv format or d3m format with metadata).
+
+        Optional parameters:
+          * **run_wikifier**: If true, run wikifier to add additional Qnode columns based on entity resolution. Default is true.
+
+        Request body:
+          * **task**: An item in string format from the search result list return by the Search API (Required).
       requestBody:
         content:
           multipart/form-data:
@@ -312,7 +395,7 @@ paths:
             enum: [csv, d3m]
         - in: query
           name: run_wikifier
-          description: whether to run wikifier on supplied data and search result(only applied for genearl search results) or not. Default value is true. The download will failed if the joining hint columns are adapted from wikifier's columns.
+          description: "whether to run wikifier on supplied data and search result(only applied for genearl search results) or not. Default value is true. The download will failed if the joining hint columns are adapted from wikifier's columns."
           schema:
             type: string
             enum: [true, false]
@@ -410,7 +493,28 @@ paths:
       tags:
         - Upload API
       summary: Upload dataset with metadata
-      description: 'ALL-IN-ONE upload method that takes as input the url of the dataset resource to be uploaded, the type of the dataset resource, and optional dataset-level property parameters.<br> The method automatically generates the dataset metadata and upload the dataset with the generated metadata to datamart database. This is the RECOMMEND method to upload datasets. <br> <br> Two required method parameters are: <br> **url/file**: The address to the dataset resource. Or upload a file from local. One of the paramters on **url** or **file** have to be given. <br> **file_type**: A string indicating the type of the data source, currently only "online_csv" is available. '
+      description: |
+        This is the RECOMMENDED method to upload datasets. This an all-in-one method for uploading one or more datasets
+        to the datamart. The dataset can be a regular file, or it can be referenced by an URL. An URL may reference more
+        than one dataset.
+
+        The method automatically generates metadata for the datasets.
+
+        Required parameters:
+          * **file_type**: A string indicating the type of the data source, currently only **online_csv** is suported.
+          * **username**: The username of the upload user. If you do not have an account, ask the datamart
+              administrator. If you just want to try out the upload functionality, use the **/upload/test** endpoint.
+          * **password**: The password of the upload user.
+
+        Optional parameters:
+          * **url**: The address to the dataset resource. An alternative way is upload a local file using request body.
+          * **run_wikifier**: If true, runs the wikifier to add additional Wikidata Qnode columns.
+          * **title**: The name of the dataset.
+          * **description**: Text description of the dataset.
+          * **keywords**: Keywords associated with the dataset.
+
+        Request body:
+          * Filepath to dataset.
       requestBody:
         content:
           multipart/form-data:
@@ -436,7 +540,7 @@ paths:
         #   description: The file of the dataset to upload to datamart
         - in: query
           name: run_wikifier
-          description: 'whether to run wikifier on the uploaded dataset or not. <br> Default value is auto. Wikifier step will skip if the size(row number * column number) of the dataset is larger than **100000**'
+          description: 'Whether to run wikifier on the uploaded dataset or not. <br> Default value is auto. Wikifier step will skip if the size(row number * column number) of the dataset is larger than **100000**'
           schema:
             type: string
             example: auto
