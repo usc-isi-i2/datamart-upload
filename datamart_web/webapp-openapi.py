@@ -238,6 +238,42 @@ def load_csv_data(data) -> d3m_Dataset:
     logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
+def _load_file_with(read_format: str, tmpfile):
+    try:
+        if read_format == "zip": 
+            # try to load as d3m dataset
+            data = None
+            destination = tempfile.mkdtemp(prefix='datamart_download_')
+            zip = zipfile.ZipFile(tmpfile)
+            zip.extractall(destination)
+            loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
+            status = True
+
+        elif read_format == "pkl":
+            # pkl format
+            data = None
+            with open(tmpfile,"rb") as f:
+                loaded_dataset = pickle.load(f)
+            status = True
+
+        elif read_format == "csv":
+            # csv format
+            data = pd.read_csv(tmpfile)
+            loaded_dataset = load_csv_data(data)
+            status = True
+        else:
+            raise ValueError("Unknown read format!")
+            
+        logger.info("Loading {} as {} file success!".format(tmpfile, read_format))
+
+    except Exception as e:
+        loaded_dataset = None
+        data = None
+        logger.debug("Get error information " + str(e))
+        logger.info("{} is not a valid {} file".format(tmpfile, read_format))
+        status = False
+    return status, data, loaded_dataset
+
 
 def load_input_supplied_data(data_from_value, data_from_file):
     """
@@ -249,38 +285,21 @@ def load_input_supplied_data(data_from_value, data_from_file):
         fd, tmpfile = tempfile.mkstemp(prefix='datamart_download_', suffix='.d3m.tmp')
         destination = None
         data_from_file.save(tmpfile)
-        try:
-            # try to load as d3m dataset
-            destination = tempfile.mkdtemp(prefix='datamart_download_')
-            zip = zipfile.ZipFile(tmpfile)
-            zip.extractall(destination)
-            loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
-            data = None
-            logger.info("Loading as zip file success!")
-        # if get bad zip file error, try to load as pkl file
-        except zipfile.BadZipFile:
-            data = None
-            with open(tmpfile,'rb') as f:
-                loaded_dataset = pickle.load(f)
-            logger.info("Loading as pickle file success!")
-        # if get UnpicklingError, try to load as csv file
-        except pickle.UnpicklingError:
-            data = pd.read_csv(tmpfile)
-            loaded_dataset = load_csv_data(data)
-            logger.info("Loading as csv file success!")
 
-        # otherwise the file maybe broken or wrong type
-        except Exception as e:
-            record_error_to_file(e, inspect.stack()[0][3])
-            logger.warning("Error: %s" % str(e))
-            data = None
-            loaded_dataset = None
-        finally:
-            os.close(fd)
-            os.remove(tmpfile)
-            if destination:
-                shutil.rmtree(destination)        
+        status, data, loaded_dataset = _load_file_with("zip", tmpfile)
+        if not status:
+            status, data, loaded_dataset = _load_file_with("pkl", tmpfile)
+        if not status:
+            status, data, loaded_dataset = _load_file_with("csv", tmpfile)
+        if not status:
+            logger.error("Loading dataset failed with all attempts!")
 
+        # remove temp files
+        os.close(fd)
+        os.remove(tmpfile)
+        if destination:
+            shutil.rmtree(destination) 
+                   
     elif data_from_value:
         data = None
         if data_from_value.lower().endswith(".csv"):
