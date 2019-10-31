@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 import pandas as pd
 import logging
 import typing
@@ -255,15 +256,18 @@ def load_input_supplied_data(data_from_value, data_from_file):
             zip.extractall(destination)
             loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
             data = None
+            logger.info("Loading as zip file success!")
         # if get bad zip file error, try to load as pkl file
         except zipfile.BadZipFile:
             data = None
             with open(tmpfile,'rb') as f:
                 loaded_dataset = pickle.load(f)
+            logger.info("Loading as pickle file success!")
         # if get UnpicklingError, try to load as csv file
         except pickle.UnpicklingError:
             data = pd.read_csv(tmpfile)
             loaded_dataset = load_csv_data(data)
+            logger.info("Loading as csv file success!")
 
         # otherwise the file maybe broken or wrong type
         except Exception as e:
@@ -1004,6 +1008,7 @@ def augment():
 
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         augment_result = search_result.augment(supplied_data=loaded_dataset, augment_columns=columns_formated)
+
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
         augment_result[res_id] = result_df.astype(str)
 
