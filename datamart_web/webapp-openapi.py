@@ -263,7 +263,7 @@ def _load_file_with(read_format: str, tmpfile):
             status = True
         else:
             raise ValueError("Unknown read format!")
-            
+
         logger.info("Loading {} as {} file success!".format(tmpfile, read_format))
 
     except Exception as e:
@@ -497,6 +497,8 @@ def search():
         # if not send the json via file
         if not query and request.form.get('query_json'):
             query = json.loads(request.form.get('query_json'))
+        if not query and request.files.get("query"):
+            query = json.load(request.files.get('query'))
         max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
 
         try:
@@ -533,6 +535,7 @@ def search():
         # start to search
         logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
+
         if need_wikifier:
             meta_for_wikifier = None
             logger.debug("Start running wikifier...")
