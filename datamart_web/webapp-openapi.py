@@ -574,19 +574,25 @@ def search():
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
-        for r in res:
-            materialize_info = r.serialize()
-            materialize_info_decoded = json.loads(materialize_info)
-            augmentation_part = materialize_info_decoded['augmentation']
-            cur = {
-                'augmentation': {'type': augmentation_part['properties'], 'left_columns': [augmentation_part['left_columns']], 'right_columns': [augmentation_part['right_columns']]},
-                'summary': parse_search_result(r),
-                'score': r.score(),
-                'metadata': r.get_metadata().to_json_structure(),
-                'id': r.id(),
-                'materialize_info': materialize_info
-            }
-            results.append(cur)
+        for i, r in enumerate(res):
+            try:
+                materialize_info = r.serialize()
+                materialize_info_decoded = json.loads(materialize_info)
+                augmentation_part = materialize_info_decoded['augmentation']
+                cur = {
+                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': [augmentation_part['left_columns']], 'right_columns': [augmentation_part['right_columns']]},
+                    'summary': parse_search_result(r),
+                    'score': r.score(),
+                    'metadata': r.get_metadata().to_json_structure(),
+                    'id': r.id(),
+                    'materialize_info': materialize_info
+                }
+                results.append(cur)
+
+            except Exception as e:
+                logger.error("Feteching No.{} result failed!".format(str(i)))
+                self._logger.debug(e, exc_info=True)
+            
         json_return = dict()
         json_return["results"] = results
         # return wrap_response(code='200',
