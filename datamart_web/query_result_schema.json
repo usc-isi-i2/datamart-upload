@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gitlab.com/datadrivendiscovery/datamart-api/query_result_schema.json",
+  "definitions": {
+    "augmentation_unit": {
+      "type": "array",
+      "description": "An array of column identifiers that represents an unit for the augmentation. In the simplest case, we have a single identifier, and in more complex cases, we have multiple identifiers (e.g.: columns 'latitude' and 'longitude' could be combined to join and/or concatenate with column 'country')."
+    }
+  },
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "The dataset identifier provided by DataMart."
+    },
+    "score": {
+      "type": "number",
+      "description": "A non-negative number that represents the relevance of this dataset to query. Larger scores indicate better matches. Scores across different DataMart systems are not comparable."
+    },
+    "summary": {
+      "type": "object",
+      "description": "Some detail description of the search result",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "title of the dataset"
+        },
+        "DataMart ID": {
+          "type": "string",
+          "description": "The id of the search result in datamart"
+        },
+        "URL": {
+          "type": "string",
+          "description": "The URL of the search result"
+        },
+        "Columns": {
+          "type": "array",
+          "description": "The column number and corresponding column name of each column in the search result",
+          "items": {
+            "type": "string"
+          }
+        },
+        "Recommend Join Columns": {
+          "type": "string",
+          "description": "The target column that name that this result aimed to join"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "The metadata associated with the dataset. isi's metadata follow d3m's metadata format.",
+      "properties": {
+        "$ref": "#/definitions/augmentation_unit"
+      }
+    },
+    "materialize_info": {
+      "type": "string",
+      "description": "the information need for materializing"
+    },
+    "first_10_rows": {
+      "type": "string",
+      "description": "The first 10 rows of the search result, saved in the format of csv"
+    },
+    "augmentation": {
+      "type": "object",
+      "description": "The augmentation suggested by the DataMart system.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "join",
+            "union",
+            "none"
+          ]
+        },
+        "left_columns": {
+          "type": "array",
+          "description": "The left-side columns for the augmentation, which correspond to the supplied dataset.",
+          "items": {
+            "$ref": "#/definitions/augmentation_unit"
+          }
+        },
+        "right_columns": {
+          "type": "array",
+          "description": "The right-side columns for the augmentation, which correspond to the DataMart dataset.",
+          "items": {
+            "$ref": "#/definitions/augmentation_unit"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "score",
+    "metadata",
+    "augmentation",
+    "materialize_info"
+  ]
+}

@@ -1,766 +1,795 @@
 {
-  "augmentation": {
-    "type": "join",
-    "left_columns": [
-      [
-        6
-      ]
-    ],
-    "right_columns": [
-      [
-        34
-      ]
-    ]
-  },
-  "summary": {
-    "title": "poverty csv",
-    "Datamart ID": "D43c9f76f-3c5d-4908-863e-02da2d682b4a",
-    "Score": "0.8750000000000544",
-    "URL": "http://dsbox02.isi.edu:9000/upload/local_datasets/poverty.csv",
-    "Columns": [
-      "[0] FIPStxt",
-      "[1] State",
-      "[2] Area_Name",
-      "[3] Rural-urban_Continuum_Code_2003",
-      "[4] Urban_Influence_Code_2003",
-      "[5] Rural-urban_Continuum_Code_2013",
-      "[6] Urban_Influence_Code_2013",
-      "[7] POVALL_2017",
-      "[8] CI90LBAll_2017",
-      "[9] CI90UBALL_2017",
-      "[10] PCTPOVALL_2017",
-      "[11] CI90LBALLP_2017",
-      "[12] CI90UBALLP_2017",
-      "[13] POV017_2017",
-      "[14] CI90LB017_2017",
-      "[15] CI90UB017_2017",
-      "[16] PCTPOV017_2017",
-      "[17] CI90LB017P_2017",
-      "[18] CI90UB017P_2017",
-      "[19] POV517_2017",
-      "[20] CI90LB517_2017",
-      "[21] CI90UB517_2017",
-      "[22] PCTPOV517_2017",
-      "[23] CI90LB517P_2017",
-      "[24] CI90UB517P_2017",
-      "[25] MEDHHINC_2017",
-      "[26] CI90LBINC_2017",
-      "[27] CI90UBINC_2017",
-      "[28] POV04_2017",
-      "[29] CI90LB04_2017",
-      "[30] CI90UB04_2017",
-      "[31] PCTPOV04_2017",
-      "[32] CI90LB04P_2017",
-      "[33] CI90UB04P_2017",
-      "[34] FIPStxt_wikidata",
-      "[35] CI90LBAll_wikidata",
-      "[36] POV517_wikidata",
-      "[37] CI90UB017_wikidata",
-      "[38] CI90UB04_wikidata",
-      "[39] CI90LB517_wikidata",
-      "[40] POV04_wikidata",
-      "[41] Area_wikidata",
-      "[42] CI90LB017_wikidata",
-      "[43] CI90UB517_wikidata",
-      "[44] POV017_wikidata",
-      "[45] CI90LB04_wikidata",
-      "[46] State_wikidata"
-    ],
-    "Recommend Join Columns": "FIPStxt_wikidata"
-  },
-  "score": 0.8750000000000544,
-  "metadata": [
-    {
-      "selector": [],
-      "metadata": {
-        "structural_type": "d3m.container.pandas.DataFrame",
-        "semantic_types": [
-          "https://metadata.datadrivendiscovery.org/types/Table"
+    "summary": " - Unemployment.csv -\n    * Datamart ID: D20eb2d7f-aafb-443e-8bf2-132ef103e98b\n    * Score: 0.8750000000000544\n    * URL: https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Unemployment.csv\n    * Columns: \n\t[0] FIPStxt\n\t[1] State\n\t[2] Area_name\n\t[3] Rural_urban_continuum_code_2013\n\t[4] Urban_influence_code_2013\n\t[5] Metro_2013\n\t[6]  Civilian_labor_force_2007 \n\t[7]  Employed_2007 \n\t[8]  Unemployed_2007 \n\t[9] Unemployment_rate_2007\n\t[10]  Civilian_labor_force_2008 \n\t[11]  Employed_2008 \n\t[12]  Unemployed_2008 \n\t[13] Unemployment_rate_2008\n\t[14] Civilian_labor_force_2009\n\t[15] Employed_2009\n\t[16] Unemployed_2009\n\t[17] Unemployment_rate_2009\n\t[18]  Civilian_labor_force_2010 \n\t[19]  Employed_2010 \n\t[20]  Unemployed_2010 \n\t[21] Unemployment_rate_2010\n\t[22]  Civilian_labor_force_2011 \n\t[23]  Employed_2011 \n\t[24]  Unemployed_2011 \n\t[25] Unemployment_rate_2011\n\t[26]  Civilian_labor_force_2012 \n\t[27]  Employed_2012 \n\t[28]  Unemployed_2012 \n\t[29] Unemployment_rate_2012\n\t[30]  Civilian_labor_force_2013 \n\t[31]  Employed_2013 \n\t[32]  Unemployed_2013 \n\t[33] Unemployment_rate_2013\n\t[34]  Civilian_labor_force_2014 \n\t[35]  Employed_2014 \n\t[36]  Unemployed_2014 \n\t[37] Unemployment_rate_2014\n\t[38]  Civilian_labor_force_2015 \n\t[39]  Employed_2015 \n\t[40]  Unemployed_2015 \n\t[41] Unemployment_rate_2015\n\t[42]  Civilian_labor_force_2016 \n\t[43]  Employed_2016 \n\t[44]  Unemployed_2016 \n\t[45] Unemployment_rate_2016\n\t[46] Civilian_labor_force_2017\n\t[47] Employed_2017\n\t[48] Unemployed_2017\n\t[49] Unemployment_rate_2017\n\t[50] Median_Household_Income_2017\n\t[51] Med_HH_Income_Percent_of_State_Total_2017\n\t[52] FIPStxt_wikidata\n\t[53] State_wikidata\n    * Recommend Join Columns: FIPStxt_wikidata\n",
+    "score": 0.8750000000000544,
+    "metadata": [
+      {
+        "selector": [],
+        "metadata": {
+          "structural_type": "d3m.container.pandas.DataFrame",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Table"
+          ],
+          "dimension": {
+            "name": "rows",
+            "semantic_types": [
+              "https://metadata.datadrivendiscovery.org/types/TabularRow"
+            ],
+            "length": 3275
+          },
+          "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__"
         ],
-        "dimension": {
-          "name": "rows",
+        "metadata": {
+          "dimension": {
+            "name": "columns",
+            "semantic_types": [
+              "https://metadata.datadrivendiscovery.org/types/TabularColumn"
+            ],
+            "length": 54
+          }
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          0
+        ],
+        "metadata": {
+          "name": "FIPStxt",
+          "structural_type": "str",
           "semantic_types": [
-            "https://metadata.datadrivendiscovery.org/types/TabularRow"
-          ],
-          "length": 3194
-        },
-        "schema": "https://metadata.datadrivendiscovery.org/schemas/v0/container.json"
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__"
-      ],
-      "metadata": {
-        "dimension": {
-          "name": "columns",
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Integer"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          1
+        ],
+        "metadata": {
+          "name": "State",
+          "structural_type": "str",
           "semantic_types": [
-            "https://metadata.datadrivendiscovery.org/types/TabularColumn"
-          ],
-          "length": 47
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          2
+        ],
+        "metadata": {
+          "name": "Area_name",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          3
+        ],
+        "metadata": {
+          "name": "Rural_urban_continuum_code_2013",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          4
+        ],
+        "metadata": {
+          "name": "Urban_influence_code_2013",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          5
+        ],
+        "metadata": {
+          "name": "Metro_2013",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          6
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2007 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          7
+        ],
+        "metadata": {
+          "name": " Employed_2007 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          8
+        ],
+        "metadata": {
+          "name": " Unemployed_2007 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          9
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2007",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          10
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2008 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          11
+        ],
+        "metadata": {
+          "name": " Employed_2008 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          12
+        ],
+        "metadata": {
+          "name": " Unemployed_2008 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          13
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2008",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          14
+        ],
+        "metadata": {
+          "name": "Civilian_labor_force_2009",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          15
+        ],
+        "metadata": {
+          "name": "Employed_2009",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          16
+        ],
+        "metadata": {
+          "name": "Unemployed_2009",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          17
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2009",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          18
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2010 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          19
+        ],
+        "metadata": {
+          "name": " Employed_2010 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          20
+        ],
+        "metadata": {
+          "name": " Unemployed_2010 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          21
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2010",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          22
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2011 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          23
+        ],
+        "metadata": {
+          "name": " Employed_2011 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          24
+        ],
+        "metadata": {
+          "name": " Unemployed_2011 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          25
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2011",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          26
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2012 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          27
+        ],
+        "metadata": {
+          "name": " Employed_2012 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          28
+        ],
+        "metadata": {
+          "name": " Unemployed_2012 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          29
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2012",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          30
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2013 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          31
+        ],
+        "metadata": {
+          "name": " Employed_2013 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          32
+        ],
+        "metadata": {
+          "name": " Unemployed_2013 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          33
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2013",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          34
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2014 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          35
+        ],
+        "metadata": {
+          "name": " Employed_2014 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          36
+        ],
+        "metadata": {
+          "name": " Unemployed_2014 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          37
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2014",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          38
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2015 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          39
+        ],
+        "metadata": {
+          "name": " Employed_2015 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          40
+        ],
+        "metadata": {
+          "name": " Unemployed_2015 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          41
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2015",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          42
+        ],
+        "metadata": {
+          "name": " Civilian_labor_force_2016 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          43
+        ],
+        "metadata": {
+          "name": " Employed_2016 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          44
+        ],
+        "metadata": {
+          "name": " Unemployed_2016 ",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          45
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2016",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          46
+        ],
+        "metadata": {
+          "name": "Civilian_labor_force_2017",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          47
+        ],
+        "metadata": {
+          "name": "Employed_2017",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          48
+        ],
+        "metadata": {
+          "name": "Unemployed_2017",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          49
+        ],
+        "metadata": {
+          "name": "Unemployment_rate_2017",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          50
+        ],
+        "metadata": {
+          "name": "Median_Household_Income_2017",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          51
+        ],
+        "metadata": {
+          "name": "Med_HH_Income_Percent_of_State_Total_2017",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Float"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          52
+        ],
+        "metadata": {
+          "name": "FIPStxt_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
+        }
+      },
+      {
+        "selector": [
+          "__ALL_ELEMENTS__",
+          53
+        ],
+        "metadata": {
+          "name": "State_wikidata",
+          "structural_type": "str",
+          "semantic_types": [
+            "https://metadata.datadrivendiscovery.org/types/Attribute",
+            "http://schema.org/Text"
+          ]
         }
       }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        0
-      ],
-      "metadata": {
-        "name": "FIPStxt",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        1
-      ],
-      "metadata": {
-        "name": "State",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        2
-      ],
-      "metadata": {
-        "name": "Area_Name",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        3
-      ],
-      "metadata": {
-        "name": "Rural-urban_Continuum_Code_2003",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        4
-      ],
-      "metadata": {
-        "name": "Urban_Influence_Code_2003",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        5
-      ],
-      "metadata": {
-        "name": "Rural-urban_Continuum_Code_2013",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        6
-      ],
-      "metadata": {
-        "name": "Urban_Influence_Code_2013",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        7
-      ],
-      "metadata": {
-        "name": "POVALL_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        8
-      ],
-      "metadata": {
-        "name": "CI90LBAll_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        9
-      ],
-      "metadata": {
-        "name": "CI90UBALL_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        10
-      ],
-      "metadata": {
-        "name": "PCTPOVALL_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        11
-      ],
-      "metadata": {
-        "name": "CI90LBALLP_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        12
-      ],
-      "metadata": {
-        "name": "CI90UBALLP_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        13
-      ],
-      "metadata": {
-        "name": "POV017_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        14
-      ],
-      "metadata": {
-        "name": "CI90LB017_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        15
-      ],
-      "metadata": {
-        "name": "CI90UB017_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        16
-      ],
-      "metadata": {
-        "name": "PCTPOV017_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        17
-      ],
-      "metadata": {
-        "name": "CI90LB017P_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        18
-      ],
-      "metadata": {
-        "name": "CI90UB017P_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        19
-      ],
-      "metadata": {
-        "name": "POV517_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        20
-      ],
-      "metadata": {
-        "name": "CI90LB517_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        21
-      ],
-      "metadata": {
-        "name": "CI90UB517_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        22
-      ],
-      "metadata": {
-        "name": "PCTPOV517_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        23
-      ],
-      "metadata": {
-        "name": "CI90LB517P_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        24
-      ],
-      "metadata": {
-        "name": "CI90UB517P_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        25
-      ],
-      "metadata": {
-        "name": "MEDHHINC_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        26
-      ],
-      "metadata": {
-        "name": "CI90LBINC_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        27
-      ],
-      "metadata": {
-        "name": "CI90UBINC_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        28
-      ],
-      "metadata": {
-        "name": "POV04_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        29
-      ],
-      "metadata": {
-        "name": "CI90LB04_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        30
-      ],
-      "metadata": {
-        "name": "CI90UB04_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        31
-      ],
-      "metadata": {
-        "name": "PCTPOV04_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        32
-      ],
-      "metadata": {
-        "name": "CI90LB04P_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        33
-      ],
-      "metadata": {
-        "name": "CI90UB04P_2017",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        34
-      ],
-      "metadata": {
-        "name": "FIPStxt_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        35
-      ],
-      "metadata": {
-        "name": "CI90LBAll_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        36
-      ],
-      "metadata": {
-        "name": "POV517_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        37
-      ],
-      "metadata": {
-        "name": "CI90UB017_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        38
-      ],
-      "metadata": {
-        "name": "CI90UB04_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        39
-      ],
-      "metadata": {
-        "name": "CI90LB517_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        40
-      ],
-      "metadata": {
-        "name": "POV04_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        41
-      ],
-      "metadata": {
-        "name": "Area_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        42
-      ],
-      "metadata": {
-        "name": "CI90LB017_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        43
-      ],
-      "metadata": {
-        "name": "CI90UB517_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        44
-      ],
-      "metadata": {
-        "name": "POV017_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        45
-      ],
-      "metadata": {
-        "name": "CI90LB04_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    },
-    {
-      "selector": [
-        "__ALL_ELEMENTS__",
-        46
-      ],
-      "metadata": {
-        "name": "State_wikidata",
-        "structural_type": "str",
-        "semantic_types": [
-          "http://schema.org/Text",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ]
-      }
-    }
-  ],
-  "id": "D43c9f76f-3c5d-4908-863e-02da2d682b4a",
-  "materialize_info": "{\"id\": \"D43c9f76f-3c5d-4908-863e-02da2d682b4a\", \"score\": 0.8750000000000544, \"metadata\": {\"connection_url\": \"http://dsbox02.isi.edu:9000\", \"search_result\": {\"variable\": {\"type\": \"uri\", \"value\": \"http://www.wikidata.org/entity/statement/D43c9f76f-3c5d-4908-863e-02da2d682b4a-24e9b20d-4ba9-4335-a6f0-50250401fcaa\"}, \"dataset\": {\"type\": \"uri\", \"value\": \"http://www.wikidata.org/entity/D43c9f76f-3c5d-4908-863e-02da2d682b4a\"}, \"url\": {\"type\": \"uri\", \"value\": \"http://dsbox02.isi.edu:9000/upload/local_datasets/poverty.csv\"}, \"file_type\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"csv\"}, \"extra_information\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"{\\\"column_meta_0\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Integer\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"FIPStxt\\\"}, \\\"column_meta_1\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"State\\\"}, \\\"column_meta_2\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"Area_Name\\\"}, \\\"column_meta_3\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Integer\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"Rural-urban_Continuum_Code_2003\\\"}, \\\"column_meta_4\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Integer\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"Urban_Influence_Code_2003\\\"}, \\\"column_meta_5\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Integer\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"Rural-urban_Continuum_Code_2013\\\"}, \\\"column_meta_6\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Integer\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"Urban_Influence_Code_2013\\\"}, \\\"column_meta_7\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POVALL_2017\\\"}, \\\"column_meta_8\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LBAll_2017\\\"}, \\\"column_meta_9\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UBALL_2017\\\"}, \\\"column_meta_10\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"PCTPOVALL_2017\\\"}, \\\"column_meta_11\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LBALLP_2017\\\"}, \\\"column_meta_12\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UBALLP_2017\\\"}, \\\"column_meta_13\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POV017_2017\\\"}, \\\"column_meta_14\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB017_2017\\\"}, \\\"column_meta_15\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB017_2017\\\"}, \\\"column_meta_16\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"PCTPOV017_2017\\\"}, \\\"column_meta_17\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB017P_2017\\\"}, \\\"column_meta_18\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB017P_2017\\\"}, \\\"column_meta_19\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POV517_2017\\\"}, \\\"column_meta_20\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB517_2017\\\"}, \\\"column_meta_21\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB517_2017\\\"}, \\\"column_meta_22\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"PCTPOV517_2017\\\"}, \\\"column_meta_23\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB517P_2017\\\"}, \\\"column_meta_24\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Float\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB517P_2017\\\"}, \\\"column_meta_25\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"MEDHHINC_2017\\\"}, \\\"column_meta_26\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LBINC_2017\\\"}, \\\"column_meta_27\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UBINC_2017\\\"}, \\\"column_meta_28\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POV04_2017\\\"}, \\\"column_meta_29\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB04_2017\\\"}, \\\"column_meta_30\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB04_2017\\\"}, \\\"column_meta_31\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"PCTPOV04_2017\\\"}, \\\"column_meta_32\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB04P_2017\\\"}, \\\"column_meta_33\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB04P_2017\\\"}, \\\"column_meta_34\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"FIPStxt_wikidata\\\"}, \\\"column_meta_35\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LBAll_wikidata\\\"}, \\\"column_meta_36\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POV517_wikidata\\\"}, \\\"column_meta_37\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB017_wikidata\\\"}, \\\"column_meta_38\\\": {\\\"semantic_type\\\": [\\\"https://metadata.datadrivendiscovery.org/types/CategoricalData\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB04_wikidata\\\"}, \\\"column_meta_39\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB517_wikidata\\\"}, \\\"column_meta_40\\\": {\\\"semantic_type\\\": [\\\"https://metadata.datadrivendiscovery.org/types/CategoricalData\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POV04_wikidata\\\"}, \\\"column_meta_41\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"Area_wikidata\\\"}, \\\"column_meta_42\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB017_wikidata\\\"}, \\\"column_meta_43\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90UB517_wikidata\\\"}, \\\"column_meta_44\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"POV017_wikidata\\\"}, \\\"column_meta_45\\\": {\\\"semantic_type\\\": [\\\"https://metadata.datadrivendiscovery.org/types/CategoricalData\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"CI90LB04_wikidata\\\"}, \\\"column_meta_46\\\": {\\\"semantic_type\\\": [\\\"http://schema.org/Text\\\", \\\"https://metadata.datadrivendiscovery.org/types/Attribute\\\"], \\\"name\\\": \\\"State_wikidata\\\"}, \\\"data_metadata\\\": {\\\"shape_0\\\": 3194, \\\"shape_1\\\": 47}, \\\"first_10_rows\\\": \\\",FIPStxt,State,Area_Name,Rural-urban_Continuum_Code_2003,Urban_Influence_Code_2003,Rural-urban_Continuum_Code_2013,Urban_Influence_Code_2013,POVALL_2017,CI90LBAll_2017,CI90UBALL_2017,PCTPOVALL_2017,CI90LBALLP_2017,CI90UBALLP_2017,POV017_2017,CI90LB017_2017,CI90UB017_2017,PCTPOV017_2017,CI90LB017P_2017,CI90UB017P_2017,POV517_2017,CI90LB517_2017,CI90UB517_2017,PCTPOV517_2017,CI90LB517P_2017,CI90UB517P_2017,MEDHHINC_2017,CI90LBINC_2017,CI90UBINC_2017,POV04_2017,CI90LB04_2017,CI90UB04_2017,PCTPOV04_2017,CI90LB04P_2017,CI90UB04P_2017,FIPStxt_wikidata,CI90LBAll_wikidata,POV517_wikidata,CI90UB017_wikidata,CI90UB04_wikidata,CI90LB517_wikidata,POV04_wikidata,Area_wikidata,CI90LB017_wikidata,CI90UB517_wikidata,POV017_wikidata,CI90LB04_wikidata,State_wikidata\\\\n0,0,US,United States,,,,,\\\\\\\"42,583,651\\\\\\\",\\\\\\\"42,342,619\\\\\\\",\\\\\\\"42,824,683\\\\\\\",13.4,13.3,13.5,\\\\\\\"13,353,202\\\\\\\",\\\\\\\"13,229,339\\\\\\\",\\\\\\\"13,477,065\\\\\\\",18.4,18.2,18.6,\\\\\\\"9,120,503\\\\\\\",\\\\\\\"9,033,090\\\\\\\",\\\\\\\"9,207,916\\\\\\\",17.3,17.1,17.5,\\\\\\\"60,336\\\\\\\",\\\\\\\"60,250\\\\\\\",\\\\\\\"60,422\\\\\\\",\\\\\\\"3,932,969\\\\\\\",\\\\\\\"3,880,645\\\\\\\",\\\\\\\"3,985,293\\\\\\\",20.2,19.9,20.5,,,,,,,,Q502737,,,,,Q920643\\\\n1,1000,AL,Alabama,,,,,\\\\\\\"802,263\\\\\\\",\\\\\\\"784,517\\\\\\\",\\\\\\\"820,009\\\\\\\",16.9,16.5,17.3,\\\\\\\"262,909\\\\\\\",\\\\\\\"253,694\\\\\\\",\\\\\\\"272,124\\\\\\\",24.4,23.5,25.3,\\\\\\\"180,594\\\\\\\",\\\\\\\"172,412\\\\\\\",\\\\\\\"188,776\\\\\\\",22.8,21.8,23.8,\\\\\\\"48,193\\\\\\\",\\\\\\\"47,451\\\\\\\",\\\\\\\"48,935\\\\\\\",\\\\\\\"78,986\\\\\\\",\\\\\\\"75,009\\\\\\\",\\\\\\\"82,963\\\\\\\",27.7,26.3,29.1,,,,,,,,Q29364,,,,,Q173\\\\n2,1001,AL,Autauga County,2.0,2.0,2.0,2.0,\\\\\\\"7,390\\\\\\\",\\\\\\\"6,147\\\\\\\",\\\\\\\"8,633\\\\\\\",13.4,11.1,15.7,\\\\\\\"2,542\\\\\\\",\\\\\\\"2,081\\\\\\\",\\\\\\\"3,003\\\\\\\",19.3,15.8,22.8,\\\\\\\"1,842\\\\\\\",\\\\\\\"1,492\\\\\\\",\\\\\\\"2,192\\\\\\\",18.6,15.1,22.1,\\\\\\\"58,343\\\\\\\",\\\\\\\"52,121\\\\\\\",\\\\\\\"64,565\\\\\\\",,,,,,,Q156168,Q46902724,Q62694263,Q29716874,Q29791211,Q62691716,Q814448,Q156168,,Q16605576,Q243384,Q814448,Q173\\\\n3,1003,AL,Baldwin County,4.0,5.0,3.0,2.0,\\\\\\\"21,199\\\\\\\",\\\\\\\"17,444\\\\\\\",\\\\\\\"24,954\\\\\\\",10.1,8.3,11.9,\\\\\\\"6,734\\\\\\\",\\\\\\\"5,079\\\\\\\",\\\\\\\"8,389\\\\\\\",14.7,11.1,18.3,\\\\\\\"4,871\\\\\\\",\\\\\\\"3,641\\\\\\\",\\\\\\\"6,101\\\\\\\",14.3,10.7,17.9,\\\\\\\"56,607\\\\\\\",\\\\\\\"52,439\\\\\\\",\\\\\\\"60,775\\\\\\\",,,,,,,Q156163,,Q37664748,Q28948255,Q29791211,Q52382454,Q814448,Q156163,Q59795394,Q34340032,,Q814448,Q173\\\\n4,1005,AL,Barbour County,6.0,6.0,6.0,6.0,\\\\\\\"7,414\\\\\\\",\\\\\\\"6,325\\\\\\\",\\\\\\\"8,503\\\\\\\",33.4,28.5,38.3,\\\\\\\"2,606\\\\\\\",\\\\\\\"2,262\\\\\\\",\\\\\\\"2,950\\\\\\\",50.3,43.7,56.9,\\\\\\\"1,904\\\\\\\",\\\\\\\"1,660\\\\\\\",\\\\\\\"2,148\\\\\\\",48.8,42.6,55.0,\\\\\\\"32,490\\\\\\\",\\\\\\\"29,218\\\\\\\",\\\\\\\"35,762\\\\\\\",,,,,,,Q109437,Q30053499,Q62694666,Q62142893,Q29791211,Q62692986,Q814448,Q109437,Q50568772,Q50908706,Q52633591,Q814448,Q173\\\\n5,1007,AL,Bibb County,1.0,1.0,1.0,1.0,\\\\\\\"4,137\\\\\\\",\\\\\\\"3,187\\\\\\\",\\\\\\\"5,087\\\\\\\",20.2,15.5,24.9,\\\\\\\"1,242\\\\\\\",936,\\\\\\\"1,548\\\\\\\",27.3,20.6,34.0,870,641,\\\\\\\"1,099\\\\\\\",26.8,19.8,33.8,\\\\\\\"45,795\\\\\\\",\\\\\\\"40,924\\\\\\\",\\\\\\\"50,666\\\\\\\",,,,,,,Q461204,Q58842548,Q62255086,Q62692127,Q29791211,Q641,Q814448,Q461204,Q19060646,Q35490124,Q37809988,Q814448,Q173\\\\n6,1009,AL,Blount County,1.0,1.0,1.0,1.0,\\\\\\\"7,343\\\\\\\",\\\\\\\"5,805\\\\\\\",\\\\\\\"8,881\\\\\\\",12.8,10.1,15.5,\\\\\\\"2,484\\\\\\\",\\\\\\\"1,881\\\\\\\",\\\\\\\"3,087\\\\\\\",18.5,14.0,23.0,\\\\\\\"1,763\\\\\\\",\\\\\\\"1,307\\\\\\\",\\\\\\\"2,219\\\\\\\",17.7,13.1,22.3,\\\\\\\"48,253\\\\\\\",\\\\\\\"43,784\\\\\\\",\\\\\\\"52,722\\\\\\\",,,,,,,Q111250,Q46787634,Q62693695,,Q29791211,Q18972735,Q814448,Q111250,Q62694519,Q59104300,Q33765608,Q814448,Q173\\\\n7,1011,AL,Bullock County,6.0,6.0,6.0,6.0,\\\\\\\"2,956\\\\\\\",\\\\\\\"2,316\\\\\\\",\\\\\\\"3,596\\\\\\\",34.4,27.0,41.8,\\\\\\\"1,015\\\\\\\",790,\\\\\\\"1,240\\\\\\\",48.3,37.6,59.0,732,562,902,49.0,37.6,60.4,\\\\\\\"29,113\\\\\\\",\\\\\\\"25,929\\\\\\\",\\\\\\\"32,297\\\\\\\",,,,,,,Q111259,Q59103817,Q18925305,Q61922816,Q29791211,Q27729836,Q814448,Q111259,Q62255098,Q18614788,Q52608450,Q814448,Q173\\\\n8,1013,AL,Butler County,6.0,6.0,6.0,6.0,\\\\\\\"4,154\\\\\\\",\\\\\\\"3,155\\\\\\\",\\\\\\\"5,153\\\\\\\",21.3,16.2,26.4,\\\\\\\"1,471\\\\\\\",\\\\\\\"1,085\\\\\\\",\\\\\\\"1,857\\\\\\\",33.0,24.3,41.7,\\\\\\\"1,049\\\\\\\",759,\\\\\\\"1,339\\\\\\\",31.8,23.0,40.6,\\\\\\\"36,842\\\\\\\",\\\\\\\"33,405\\\\\\\",\\\\\\\"40,279\\\\\\\",,,,,,,Q108871,Q30837658,Q49001600,Q62694361,Q29791211,Q759,Q814448,Q108871,Q35078655,Q51984112,Q57064773,Q814448,Q173\\\\n9,1015,AL,Calhoun County,3.0,2.0,3.0,2.0,\\\\\\\"19,832\\\\\\\",\\\\\\\"16,938\\\\\\\",\\\\\\\"22,726\\\\\\\",17.7,15.1,20.3,\\\\\\\"5,932\\\\\\\",\\\\\\\"4,701\\\\\\\",\\\\\\\"7,163\\\\\\\",24.2,19.2,29.2,\\\\\\\"4,021\\\\\\\",\\\\\\\"3,066\\\\\\\",\\\\\\\"4,976\\\\\\\",22.2,16.9,27.5,\\\\\\\"45,937\\\\\\\",\\\\\\\"43,419\\\\\\\",\\\\\\\"48,455\\\\\\\",,,,,,,Q108856,,,Q18063854,Q29791211,,Q814448,Q108856,Q55595249,,,Q814448,Q173\\\\n10,1017,AL,Chambers County,6.0,5.0,6.0,5.0,\\\\\\\"6,036\\\\\\\",\\\\\\\"4,653\\\\\\\",\\\\\\\"7,419\\\\\\\",18.2,14.0,22.4,\\\\\\\"2,071\\\\\\\",\\\\\\\"1,529\\\\\\\",\\\\\\\"2,613\\\\\\\",29.6,21.8,37.4,\\\\\\\"1,515\\\\\\\",\\\\\\\"1,092\\\\\\\",\\\\\\\"1,938\\\\\\\",30.1,21.7,38.5,\\\\\\\"36,883\\\\\\\",\\\\\\\"33,288\\\\\\\",\\\\\\\"40,478\\\\\\\",,,,,,,Q111280,Q28659531,Q18973442,Q36076323,Q29791211,Q22122153,Q814448,Q111280,Q62691976,Q62694888,,Q814448,Q173\\\\n\\\", \\\"local_storage\\\": \\\"/data00/dsbox/datamart/memcache_storage/datasets_cache/8473bb6a3a1db15b7d0c300288f3a6ff.h5\\\"}\"}, \"title\": {\"xml:lang\": \"en\", \"type\": \"literal\", \"value\": \"poverty csv\"}, \"keywords\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"fipstxt state area name rural urban continuum code 2003 urban influence code 2003 rural urban continuum code 2013 urban influence code 2013 povall 2017 ci90lball 2017 ci90uball 2017 pctpovall 2017 ci90lballp 2017 ci90uballp 2017 pov017 2017 ci90lb017 2017 ci90ub017 2017 pctpov017 2017 ci90lb017p 2017 ci90ub017p 2017 pov517 2017 ci90lb517 2017 ci90ub517 2017 pctpov517 2017 ci90lb517p 2017 ci90ub517p 2017 medhhinc 2017 ci90lbinc 2017 ci90ubinc 2017 pov04 2017 ci90lb04 2017 ci90ub04 2017 pctpov04 2017 ci90lb04p 2017 ci90ub04p 2017 fipstxt wikidata ci90lball wikidata pov517 wikidata ci90ub017 wikidata ci90ub04 wikidata ci90lb517 wikidata pov04 wikidata area wikidata ci90lb017 wikidata ci90ub517 wikidata pov017 wikidata ci90lb04 wikidata state wikidata\"}, \"datasetLabel\": {\"xml:lang\": \"en\", \"type\": \"literal\", \"value\": \"D43c9f76f-3c5d-4908-863e-02da2d682b4a\"}, \"variableName\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"FIPStxt_wikidata\"}, \"score\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#double\", \"type\": \"literal\", \"value\": \"0.8750000000000544\"}}, \"query_json\": {\"keywords\": [\"FIPS_wikidata\"], \"variables\": {\"FIPS_wikidata\": \"q509826 q109165 q496758 q507078 q488821 q27031 q156253 q58774 q495275 q74704 q115551 q32349 q26591 q108072 q507722 q491584 q490023 q484643 q108827 q498321 q115273 q496091 q495229 q203022 q421963 q500734 q513933 q493255 q507016 q109846 q205715 q485656 q485305 q494117 q484556 q505299 q484300 q484535 q490420 q491889 q366871 q496511 q502933 q508192 q505834 q507733 q503551 q26738 q496900 q943772 q489877 q49289 q511478 q249638 q115258 q498621 q496607 q257311 q489599 q488792 q491316 q115386 q486765 q497216 q113892 q511461 q494142 q54251 q502719 q506690 q111168 q490104 q379657 q502576 q489586 q492016 q484426 q389365 q115563 q496146 q490722 q156455 q508288 q514024 q490966 q495873 q54439 q188376 q108053 q501096 q485058 q240621 q374256 q502072 q494500 q485474 q24464 q379665 q494616 q496104 q501115 q114140 q489855 q27034 q491831 q1130480 q495269 q61414 q61026 q111729 q505405 q312734 q494228 q113354 q28308 q378896 q109279 q511487 q48910 q501848 q501084 q491406 q379585 q312254 q156467 q111957 q385931 q484294 q484388 q421956 q485526 q505428 q108403 q374422 q56149 q488690 q507365 q488698 q489711 q500897 q375652 q495022 q428902 q490784 q502397 q502345 q61143 q113396 q376640 q485047 q389573 q492066 q280826 q137562 q182644 q512699 q512911 q494518 q502473 q501108 q376562 q112137 q156471 q493029 q491878 q504329 q490914 q506191 q495880 q312750 q491136 q156431 q115227 q488874 q124637 q486087 q485408 q486503 q110592 q488224 q500312 q111622 q196014 q128137 q489779 q489327 q485808 q489620 q489702 q505398 q494223 q489536 q61379 q498395 q490134 q182176 q377023 q113185 q490266 q13188841 q115014 q490378 q486362 q112271 q501140 q502235 q509848 q502393 q494460 q489088 q500958 q485013 q490344 q492021 q376822 q115081 q494751 q26889 q71202 q494514 q489677 q497615 q486757 q510900 q491514 q490953 q48856 q485441 q386189 q494248 q496716 q496132 q504391 q26756 q494086 q489912 q487744 q511647 q491837 q108077 q477870 q494485 q498020 q375108 q494494 q503486 q491547 q486105 q484335 q61470 q113201 q113834 q544539 q495191 q491882 q488865 q500598 q28311 q495588 q486064 q491160 q501022 q491021 q167580 q486293 q484668 q495867 q63718 q427315 q501092 q485420 q495137 q109810 q500871 q113041 q490874 q495326 q485741 q496693 q493605 q507609 q490140 q489861 q487686 q504415 q492053 q104994 q487677 q495105 q493443 q58712 q485502 q61150 q506300 q490505 q484563 q494764 q110384 q483916 q494947 q54082 q487578 q505515 q926589 q489595 q488912 q61202 q483958 q112442 q484734 q27018 q490129 q115568 q133853 q506209 q490283 q496242 q493260 q375803 q203049 q507459 q502732 q486389 q494480 q507353 q156388 q485509 q512925 q485402 q108861 q477951 q495171 q494774 q378527 q502356 q490219 q497607 q494241 q27233 q825807 q426746 q26689 q421960 q488810 q502707 q376464 q501043 q489069 q27025 q109705 q504445 q495581 q108866 q461204 q487280 q506376 q113220 q494198 q497695 q336948 q484420 q490029 q107126 q109686 q508220 q505444 q115182 q156481 q375996 q61526 q486179 q61148 q502081 q501839 q484279 q109442 q108618 q115104 q108087 q488687 q491004 q505874 q74290 q54086 q111663 q494799 q496077 q111391 q29445 q495613 q109298 q486067 q379654 q110539 q486288 q488813 q492044 q389783 q507966 q71190 q495169 q494818 q379663 q484624 q492032 q495608 q108846 q498148 q495116 q111385 q486325 q109209 q485017 q490703 q508247 q496664 q113962 q488853 q486491 q506145 q156366 q111316 q376353 q486198 q113017 q496486 q490999 q156486 q111859 q115316 q511747 q501256 q112737 q491301 q888563 q163097 q26614 q374527 q491529 q54258 q501055 q491911 q156580 q501587 q507811 q487572 q484361 q47894 q506181 q504422 q201014 q488488 q505411 q491759 q502925 q505941 q118716 q26519 q502543 q114026 q486357 q112993 q24648 q61160 q26712 q491633 q489999 q114503 q486621 q491903 q496440 q487738 q377131 q426360 q493529 q108408 q491129 q115428 q501858 q340605 q502447 q176068 q495195 q503014 q490813 q114992 q156637 q484231 q494552 q188275 q491862 q751202 q485549 q484247 q484146 q507472 q63719 q488206 q486466 q113906 q490649 q387216 q495414 q109204 q282188 q491432 q502463 q488769 q512816 q494806 q502377 q26883 q490450 q156387 q490796 q489939 q403184 q490318 q488517 q175799 q271915 q489576 q491991 q485944 q485720 q502715 q509745 q509910 q490494 q502240 q494129 q501242 q377157 q340591 q374547 q495398 q156177 q485592 q156444 q505354 q495052 q431826 q61216 q506151 q507616 q111913 q486248 q501123 q110403 q26723 q112793 q502743 q26528 q490949 q486507 q491148 q505359 q488943 q156566 q109986 q495126 q61365 q486081 q489659 q378438 q484780 q511084 q496475 q496197 q156380 q28286 q253186 q496685 q61176 q490124 q113423 q111633 q61086 q498312 q26754 q156181 q511150 q497964 q61167 q487288 q2613700 q490190 q506489 q503468 q486143 q491173 q26601 q284840 q428298 q484287 q484659 q512901 q491046 q490144 q501830 q505848 q485780 q488512 q431440 q251277 q110900 q493088 q506162 q370710 q110768 q61370 q49222 q491327 q488566 q110212 q27045 q486535 q156629 q1177705 q504385 q495930 q110773 q488572 q484183 q484570 q501323 q110426 q498141 q486517 q490210 q111753 q110412 q497737 q18424 q494760 q503883 q109836 q484748 q485235 q483937 q498362 q487254 q115356 q495388 q494463 q511935 q491121 q112634 q312731 q488219 q495382 q61472 q377046 q26891 q494093 q486099 q486626 q498042 q376053 q402945 q502437 q502077 q49231 q502581 q109646 q253538 q484603 q312470 q484607 q489377 q114550 q127184 q337348 q483954 q500751 q494624 q491850 q54253 q63953 q497652 q504312 q488505 q26716 q486184 q113151 q494192 q26762 q193230 q506975 q474999 q495160 q110532 q502549 q48831 q484567 q341915 q502288 q498028 q376129 q485922 q491553 q486800 q54442 q130006 q112488 q854630 q493709 q487534 q503511 q502411 q346959 q156568 q58771 q336167 q112619 q278589 q505987 q491452 q486530 q111254 q108131 q489682 q502729 q26676 q327080 q156257 q137509 q156273 q501270 q495310 q31091 q781165 q498353 q192650 q376899 q490065 q403544 q498034 q127972 q494207 q506557 q498286 q156213 q503889 q493102 q485245 q503076 q426262 q949766 q61032 q108386 q489259 q505417 q495151 q485361 q107973 q373575 q500854 q507838 q351808 q484538 q61350 q156575 q112915 q115480 q490014 q494893 q515166 q496764 q115344 q108397 q488796 q504441 q491267 q490972 q108372 q54438 q496722 q491032 q404898 q400753 q494174 q507266 q485969 q26710 q488186 q495246 q501036 q503461 q491996 q495261 q486380 q114969 q108424 q512993 q302852 q26880 q486394 q108093 q58711 q489468 q496568 q490522 q113843 q108143 q115583 q28523 q491988 q501582 q507063 q495285 q311908 q54160 q483947 q484340 q220005 q377122 q156613 q490656 q512799 q490994 q506309 q484452 q338052 q111720 q511964 q502431 q461562 q111409 q490843 q1139833 q488522 q336229 q490839 q112125 q495280 q486229 q484150 q109616 q510934 q375002 q127978 q192992 q484745 q484465 q501263 q490498 q493071 q495142 q506172 q109641 q491208 q495219 q490789 q491556 q495645 q490405 q312746 q110640 q500818 q490287 q496125 q486000 q490488 q484760 q484577 q501014 q495738 q156287 q112869 q266493 q387555 q506921 q496577 q485364 q495340 q486961 q503438 q486174 q109503 q484629 q484381 q486848 q109830 q495834 q488171 q109303 q503442 q494081 q488675 q491479 q487243 q490400 q111380 q486218 q487716 q111298 q502373 q137828 q26526 q490077 q128075 q484771 q26744 q489477 q133860 q495856 q377035 q494216 q507308 q61129 q109751 q109631 q156377 q337067 q112673 q156623 q48850 q379474 q495154 q61384 q488528 q504863 q507281 q484296 q500680 q312453 q111936 q502929 q311894 q109756 q503071 q54163 q490423 q502047 q484354 q2613391 q491190 q485209 q489980 q507943 q484282 q503546 q2613601 q351865 q506187 q502503 q115266 q496729 q61294 q48891 q374452 q509798 q376096 q376034 q495072 q484664 q504350 q490647 q501835 q515150 q486270 q504318 q494560 q495990 q384737 q110187 q501163 q932966 q494152 q502210 q491976 q488840 q490750 q486336 q61358 q495067 q312449 q502640 q110624 q107146 q110680 q489471 q177678 q374989 q489457 q513982 q495006 q485434 q507028 q506235 q491954 q156628 q108391 q505310 q48874 q115337 q489625 q488166 q487725 q494755 q485799 q512787 q502069 q492493 q156156 q94663 q507757 q504830 q61077 q488537 q113756 q489553 q494203 q490088 q489332 q491931 q403777 q494254 q510885 q513010 q498128 q27240 q26584 q492488 q501248 q490884 q491945 q374200 q498377 q495862 q110482 q61 q342803 q484681 q374442 q27245 q490161 q507488 q503000 q63771 q493024 q496771 q490112 q511498 q118743 q487283 q484378 q505499 q312509 q496971 q495181 q499295 q500758 q61204 q491508 q513805 q500918 q271601 q61368 q506727 q54073 q494998 q495998 q506197 q56151 q494958 q500908 q484342 q336322 q494620 q118127 q108058 q113875 q503455 q512767 q495479 q500813 q503583 q483982 q495368 q488679 q491519 q484620 q844012 q486123 q485631 q259095 q112499 q495332 q109317 q489747 q495839 q501982 q110983 q494768 q262708 q108851 q110340 q490727 q485984 q507088 q61010 q495965 q156278 q495209 q513744 q110516 q61042 q113919 q109785 q109447 q500698 q485950 q109636 q54443 q489751 q494810 q128079 q490357 q108957 q109825 q175756 q167656 q485715 q494716 q61315 q48937 q513919 q470626 q110262 q503554 q503059 q54072 q489312 q82605 q495906 q26628 q505868 q312563 q115396 q28321 q495640 q495132 q509786 q484404 q488818 q156340 q501292 q156448 q487236 q493450 q26895 q174913 q368006 q491157 q115589 q114904 q506363 q490306 q495719 q491184 q16861 q486476 q489743 q494634 q295787 q110486 q507438 q45441 q61012 q27041 q61036 q311921 q493049 q54089 q498014 q494211 q500861 q508618 q484349 q336183 q54444 q511524 q847676 q509757 q18426 q486513 q951290 q491970 q26506 q926619 q312455 q506779 q483990 q489787 q507414 q26719 q111894 q61461 q109308 q485412 q485620 q58683 q112781 q489687 q281681 q484156 q372648 q110684 q61084 q484521 q485460 q491011 q488582 q498123 q507907 q494575 q113132 q489756 q27009 q507112 q1125008 q111744 q594313 q156463 q484639 q376576 q156642 q261380 q489056 q156163 q335121 q489684 q484548 q505886 q495216 q496086 q426398 q375125 q507099 q185533 q115324 q108803 q485729 q489318 q108499 q111774 q489007 q376764 q498327 q54246 q485561 q337776 q109661 q127238 q375991 q338939 q111844 q109160 q495899 q500742 q497424 q485926 q496109 q269164 q56152 q379660 q374908 q179954 q502400 q495918 q495448 q61170 q505861 q507892 q504846 q484493 q502278 q496152 q498155 q115556 q495687 q483888 q501277 q491026 q61157 q127970 q489546 q494899 q490879 q486317 q374765 q494476 q108612 q486471 q490835 q502487 q487599 q500947 q495273 q500784 q501350 q512732 q496009 q512832 q501074 q374404 q501968 q495603 q490033 q495264 q111273 q111540 q501331 q494970 q486458 q484755 q506937 q502875 q312155 q502739 q494077 q156429 q486448 q28285 q507126 q507931 q503064 q489690 q421974 q500416 q486480 q495031 q111098 q484786 q156186 q61339 q494905 q26701 q496700 q61521 q167565 q497999 q500654 q491214 q502569 q1124720 q495289 q488879 q502036 q27238 q497871 q374358 q484330 q489430 q486376 q61500 q490799 q112565 q507957 q156385 q505968 q484791 q503516 q484457 q484401 q61381 q486372 q145006 q495359 q376729 q110760 q491292 q82367 q489486 q497890 q484194 q304791 q490550 q32348 q398939 q496025 q503501 q111566 q108428 q496602 q108842 q492346 q156370 q489919 q496886 q110750 q28292 q109451 q61363 q26616 q490427 q54231 q111250 q490019 q27844 q495045 q691614 q488859 q27051 q505292 q485062 q485804 q488805 q156374 q488683 q507216 q111694 q26766 q490908 q341865 q495315 q500674 q48902 q56145 q26807 q489324 q485896 q113748 q496161 q506202 q58684 q167583 q373886 q109170 q110407 q507881 q26605 q486238 q501319 q490414 q110417 q490710 q486187 q507575 q156643 q489880 q113313 q484513 q485467 q490716 q58691 q484325 q112078 q502021 q504355 q501602 q506538 q485912 q511120 q487681 q494598 q494952 q509770 q491281 q490690 q353108 q507180 q493107 q112550 q486664 q58686 q114123 q505453 q29124 q487731 q496737 q490807 q113096 q486040 q495570 q484234 q114459 q491894 q61018 q500702 q490471 q486486 q490671 q490512 q58759 q500569 q156216 q502880 q484648 q492036 q495979 q506015 q94783 q504450 q26914 q506574 q502516 q512259 q496292 q377952 q485641 q128080 q513818 q484461 q488885 q486305 q494771 q489993 q377171 q507169 q181967 q112977 q285625 q108856 q280838 q109651 q485600 q501568 q501974 q111647 q494186 q111286 q505317 q501779 q500984 q111291 q512746 q495662 q502564 q495564 q495672 q54441 q506315 q495658 q485452 q501761 q486401 q502404 q512951 q500977 q82510 q336190 q506168 q496096 q498684 q133854 q493074 q498336 q408744 q505438 q511922 q114529 q377181 q168144 q501948 q110528 q494931 q488181 q54076 q56153 q504842 q485660 q495344 q490157 q493125 q374460 q183263 q494626 q489306 q280844 q163529 q111613 q489265 q489273 q497489 q135328 q505510 q498072 q495198 q376483 q506682 q113056 q156276 q111979 q496596 q498116 q488693 q38022 q495969 q376616 q195658 q109795 q497899 q499542 q180785 q507782 q26610 q181015 q486313 q61200 q497642 q494916 q506697 q156479 q108047 q304671 q109289 q505380 q486133 q487605 q109695 q65433 q495667 q113255 q373953 q502479 q495356 q304289 q491112 q490642 q130009 q156639 q491646 q501827 q501284 q500767 q493250 q501785 q110555 q491068 q490683 q507153 q484346 q496003 q82499 q488649 q502014 q495376 q61352 q489062 q489729 q490255 q495165 q506351 q484153 q63951 q494146 q376990 q501959 q498301 q506907 q109761 q491868 q484124 q490215 q488492 q501575 q113079 q498307 q485752 q108111 q108626 q488668 q497953 q133857 q495349 q485791 q376446 q485536 q484133 q515205 q503081 q488847 q502952 q490986 q497928 q111245 q494541 q494121 q494776 q486838 q485710 q489783 q502414 q506722 q508254 q61024 q495185 q486215 q485301 q484015 q494413 q114423 q512868 q379540 q156440 q506547 q109690 q502560 q511691 q491872 q501559 q493033 q835104 q376776 q495951 q176307 q491196 q490390 q109512 q506525 q111517 q486207 q112807 q490436 q263742 q350001 q178341 q497200 q110904 q374649 q488892 q376947 q488481 q484542 q502592 q491537 q497817 q493715 q115332 q484596 q495417 q491288 q506498 q387978 q490322 q490848 q485001 q497824 q491256 q485484 q28316 q513092 q489463 q487581 q514038 q130008 q500933 q61458 q484729 q109293 q501954 q26885 q302918 q501843 q54260 q27037 q495096 q61029 q312737 q341755 q495937 q489897 q349995 q152891 q490443 q61354 q490864 q507870 q111368 q156168 q48867 q374604 q113275 q484551 q501172 q490454 q48931 q280820 q496139 q498372 q507770 q484509 q112061 q507826 q489616 q492048 q497861 q109670 q500663 q108379 q112584 q514093 q486386 q820502 q167589 q486344 q485491 q1139827 q529958 q113805 q502364 q61020 q491533 q156503 q486043 q490395 q156437 q484672 q502554 q61014 q430938 q485038 q842902 q374410 q111928 q493599 q79804 q112934 q54447 q494161 q112882 q312497 q484991 q491035 q112069 q54235 q475301 q110504 q111831 q501147 q510915 q494919 q488560 q26699 q111876 q263418 q48920 q108122 q492652 q506563 q504838 q156346 q490920 q156220 q111782 q503870 q374968 q485980 q501819 q491447 q367632 q489796 q493044 q506175 q505841 q497830 q507256 q488461 q48917 q495037 q485020 q450374 q284439 q156468 q500670 q340608 q61048 q376876 q497702 q277728 q497984 q502342 q495649 q61034 q501345 q513758 q54262 q493236 q61135 q486191 q495223 q501809 q402938 q109626 q248521 q484488 q114445 q490272 q110764 q485239 q485646 q495799 q486398 q115200 q54238 q495112 q488672 q486261 q510122 q376546 q501101 q502920 q503366 q109457 q490181 q48834 q489869 q290157 q497979 q491927 q26619 q181325 q26898 q485448 q156632 q508209 q489891 q502784 q490745 q112834 q115404 q82505 q486095 q113333 q512981 q506342 q490903 q486435 q495944 q484501 q490409 q312149 q501815 q494794 q74633 q493079 q485430 q486614 q493054 q376505 q284806 q487564 q495017 q486366 q108503 q491144 q506506 q109969 q502496 q491343 q54254 q110130 q109508 q490482 q485582 q505999 q108821 q390141 q108607 q502257 q485463 q513905 q506385 q494072 q402259 q494630 q156500 q376106 q489083 q932951 q192753 q494822 q491427 q490779 q5925 q495958 q176480 q492012 q487322 q109790 q489873 q483973 q511834 q511849 q509813 q487415 q429814 q496176 q695782 q491311 q487616 q490740 q503478 q507336 q486994 q491626 q427732 q847673 q52250 q513775 q486301 q504410 q490769 q340606 q111220 q507321 q484740 q130083 q111672 q503505 q484685 q509895 q495147 q491936 q506157 q110575 q485726 q484612 q502521 q506215 q111575 q120080 q490121 q495013 q484222 q128096 q109275 q156361 q54440 q115125 q113029 q114948 q114323 q504856 q511908 q61153 q495201 q484273 q505854 q506220 q26502 q179950 q504360 q382993 q54064 q494556 q26564 q370310 q110978 q494815 q113237 q156570 q107982 q70979 q376042 q501060 q489663 q501000 q54240 q491140 q113117 q47944 q111584 q494233 q484385 q502507 q109709 q498295 q312201 q49290 q495625 q115025 q490859 q511806 q494912 q271613 q497634 q496862 q485787 q502419 q502777 q490095 q496169 q511679 q496629 q111259 q491116 q111821 q377162 q156411 q502285 q488868 q114843 q485543 q494564 q491276 q113763 q503093 q488468 q485370 q376086 q385365 q491456 q495043 q255943 q489613 q502360 q486328 q111946 q112115 q501964 q374979 q114884 q486091 q312473 q58692 q28496 q501067 q108137 q506068 q376803 q61330 q506512 q492070 q311904 q61039 q485513 q490150 q112652 q156577 q48926 q372373 q485650 q113773 q495090 q61289 q502380 q484527 q502442 q110495 q156297 q115413 q489642 q494167 q195664 q485224 q502587 q489099 q489159 q489610 q485044 q175035 q1139839 q484371 q111886 q495595 q484304 q137516 q497482 q1124916 q505422 q26595 q156306 q490695 q499547 q495120 q507399 q498332 q484268 q40881 q842938 q485920 q511772 q502526 q502207 q496045 q114479 q484411 q485030 q502737 q372796 q502351 q377234 q507918 q26907 q486054 q403310 q109215 q484440 q109526 q58694 q486071 q265079 q497854 q498077 q489853 q48927 q311897 q312586 q182112 q506357 q510947 q346925 q491941 q506225 q128077 q483942 q112526 q515177 q504371 q484478 q374663 q486112 q489075 q515220 q512713 q497938 q109656 q490652 q486352 q501340 q487016 q486011 q491052 q484586 q193072 q485539 q341708 q501236 q490446 q490360 q497992 q502213 q511510 q110570 q484224 q370329 q110655 q484142 q71100 q114301 q111593 q496656 q135330 q507629 q503329 q489716 q28499 q182845 q502451 q115349 q169952 q493957 q494636 q501789 q485042 q484367 q108436 q341639 q26598 q108952 q487403 q156582 q497880 q110421 q491623 q369211 q113793 q485795 q111921 q486874 q505305 q156445 q484582 q491590 q164603 q489762 q493222 q495175 q494526 q495078 q513950 q109155 q485746 q495633 q501939 q486440 q485577 q502492 q507244 q506531 q487610 q374589 q108494 q29118 q108832 q497284 q488543 q110779 q504284 q142369 q502483 q504294 q491178 q58698 q507427 q483847 q489668 q512686 q156358 q497646 q504335 q82603 q502511 q503864 q113864 q111549 q540907 q488917 q112456 q485910 q490734 q88 q500803 q502200 q107977 q115043 q502459 q505282 q501157 q494923 q337270 q490989 q507853 q503521 q490946 q54065 q224910 q61348 q375608 q400757 q283657 q18432 q115216 q115577 q493951 q484505 q506370 q496115 q267164 q112149 q108962 q485553 q513994 q485221 q61181 q94669 q488922 q115298 q486139 q486843 q126829 q502222 q489106 q74661 q491616 q111867 q109804 q110336 q54165 q495204 q491543 q489901 q261672 q495234 q54445 q486281 q505287 q48863 q156342 q376120 q505975 q496744 q28503 q114043 q507000 q484767 q486309 q505980 q486060 q491762 q156353 q494791 q111766 q108367 q500939 q27011 q506951 q485588 q502273 q507230 q848649 q502424 q503495 q490925 q114862 q156452 q496636 q110389 q376059 q503492 q491966 q61478 q376175 q489652 q502031 q493228 q61296 q501029 q489942 q492057 q109150 q511069 q376592 q112512 q108127 q490896 q488210 q490757 q495629 q485596 q490980 q485558 q337915 q111400 q514008 q18419 q61484 q488531 q430328 q488553 q497971 q115463 q498066 q507743 q509926 q488175 q61502 q489673 q339724 q61327 q504435 q490383 q63729 q497804 q486654 q648752 q490869 q156618 q115061 q302165 q488826 q498675 q511470 q486920 q111530 q111235 q505993 q488653 q26760 q485250 q501823 q108798 q109265 q156464 q490184 q506569 q486154 q368766 q504850 q486006 q491221 q61131 q112086 q28274 q377011 q173867 q486167 q108067 q506752 q511106 q486150 q495252 q468557 q490937 q484776 q484559 q487704 q503088 q494134 q507117 q374382 q339175 q497908 q513792 q501914 q384754 q74686 q109284 q500793 q24646 q494236 q486499 q506230 q110561 q492026 q63958 q109518 q512937 q491126 q499302 q111310 q108788 q506768 q502250 q506321 q486538 q492355 q58689 q376755 q489222 q485455 q504375 q507294 q502945 q112714 q94673 q500891 q489793 q108106 q485204 q491017 q491982 q503538 q498346 q134080 q486431 q376703 q484590 q511876 q485532 q376838 q112698 q374973 q505505 q56146 q54091 q490168 q497845 q383739 q486526 q156188 q498163 q490774 q496678 q488831 q502368 q111421 q389551 q501606 q342043 q485426 q486633 q501927 q114923 q156488 q489163 q26730 q504397 q483893 q376136 q108784 q498024 q484530 q113984 q501312 q110325 q491331 q484398 q504379 q494803 q484633 q495985 q198529 q502269 q156270 q488548 q484474 q26527 q485528 q487003 q127973 q489648 q505644 q490116 q312740 q304065 q489915 q501151 q400747 q501563 q376527 q485478 q486210 q501989 q484616 q501051 q156291 q303491 q484290 q501796 q61173 q490259 q494990 q497628 q505387 q498613 q498341 q376024 q508271 q127975 q495974 q484600 q495393 q306343 q111759 q188204 q497728 q485213 q113815 q498319 q111709 q374495 q489481 q483895 q26622 q403319 q485470 q156265 q491569 q115433 q489935 q498104 q5092 q493083 q49149 q506479 q110755 q504345 q491339 q351887 q496583 q48878 q112107 q490477 q497810 q502959 q178281 q26735 q486231 q374471 q61346 q503023 q496616 q61145 q501078 q71136 q491321 q502468 q496708 q110257 q49014 q111790 q110510 q260871 q493134 q61355 q271609 q386271 q56144 q49259 q489447 q502244 q486522 q494579 q494926 q496589 q491390 q494569 q490002 q501306 q137916 q484496 q138141 q495891 q488659 q502348 q509861 q108837 q109981 q513833 q497208 q108534 q490325 q204761 q374484 q502984 q486137 q495003 q28283 q512885 q486078 q51733 q502054 q493243 q485736 q509092 q491436 q505347 q487334 q54236 q211360 q58696 q486075 q485291 q486444 q280815 q491919 q374342 q513878 q486160 q494536 q491272 q109779 q27023 q27024 q386885 q501596 q61468 q312748 q485623 q484395 q488701 q111904 q156496 q113940 q502086 q61007 q505333 q503446 q502050 q489767 q375008 q486255 q491073 q505272 q506291 q495409 q489571 q491285 q509880 q485571 q491959 q288606 q496622 q511164 q490386 q498058 q109851 q54446 q489420 q496751 q257334 q27229 q112846 q506892 q501800 q494104 q108520 q483857 q162560 q511659 q495691 q505638 q108418 q495885 q490678 q112768 q513078 q487692 q505884 q492061 q108117 q115247 q484239 q486791 q48905 q117917 q500845 q501804 q511095 q484159 q495059 q153251 q506332 q485615 q374626 q156650 q496644 q54161 q511788 q489847 q370654 q26587 q495677 q502294 q498276 q54093 q488194 q113783 q27021 q490762 q109665 q492819 q48933 q111266 q17174784 q501298 q497795 q503877 q110739 q489986 q112823 q491108 q109270 q490369 q113823 q115289 q486265 q112686 q502230 q483923 q492310 q513891 q16554 q193167 q509838 q494936 q496070 q43421 q501555 q111304 q61317 q495654 q488576 q486118 q500880 q484574 q491702 q485378 q375143 q485229 q491243 q26697 q279452 q506772 q109820 q497602 q108793 q450159 q426699 q113854 q337688 q156191 q338424 q109815 q374950 q510244 q495239 q485388 q366959 q109975 q374334 q500776 q110565 q506552 q488499 q506064 q491843 q484408 q506086 q115148 q499551 q115281 q496406 q200696 q123766 q497172 q54079 q484752 q109681 q496031 q485974 q513968 q494164 q501130 q497377 q430113 q494943 q502456 q497707 q484263 q311901 q109437 q485006 q485628 q115166 q110606 q494471 q127979 q491470 q335017 q247715 q156459 q112220 q483950 q486453 q177562 q511135 q109622 q494138 q491525 q336337 q156619 q56154 q156295 q507382 q48896 q156647 q507981 q113005 q484450 q507047 q506326 q494098 q376004 q506337 q111174 q496558 q502722 q202454 q45438 q501918 q61165 q156350 q115272 q489886 q111851 q489864 q342428 q490958 q111280 q492040 q497917 q61005 q486348 q156475 q491949 q496980 q312742 q619609 q493112 q493037 q491170 q312451 q489735 q61138 q500838 q110491 q495851 q495925 q112603 q111374 q494156 q505392 q372364 q500686 q375019 q74628 q507139 q485445 q486659 q115419 q511713 q485035 q486243 q491152 q484391 q498356 q27840 q114339 q24645 q156634 q58688 q486495 q507798 q507587 q500711 q591156 q1124743 q491236 q489369 q376113 q486048 q502712 q488201 q586070 q337204 q485024 q108871 q495682 q492342 q493610 q111968 q341679 q312475 q109312 q111686 q484431 q510407 q490251 q183135 q494180 q738043 q512965 q501935 q496962 q483932 q61481 q119372 q485276 q500645 q489092 q489894 q511761 q501976 q28488 q484418 q510920 q473605 q108101 q376330 q485383 q486651 q496447 q497788 q108083 q495912 q491229 q54066 q491201 q376069 q485392 q384890 q502727 q26631 q502386 q495157 q485524 q493040 q504366 q504428 q500992 q251267 q489079 q288592 q503451 q504403 q26705 q495257 q280596 q376849 q506987 q377148 q490852 q312744 q39450 q489591 q115307 q490108 q113293 q505276 q373348 q374890 q496453 q54234 q112953 q484482 q376102 q483862 q492888 q112957 q502428 q493092 q421970 q494508 q26740 q113375 q488475 q337402 q312487 q491463 q491899 q506676 q495845 q511723 q491857 q490009 q110670 q490432 q484470 q495620 q110500\"}, \"keywords_search\": [], \"variables_search\": {}}, \"search_type\": \"general\"}, \"augmentation\": {\"properties\": \"join\", \"right_columns\": [34], \"left_columns\": [6]}, \"datamart_type\": \"isi\"}",
-  "first_10_rows": ",FIPStxt,State,Area_Name,Rural-urban_Continuum_Code_2003,Urban_Influence_Code_2003,Rural-urban_Continuum_Code_2013,Urban_Influence_Code_2013,POVALL_2017,CI90LBAll_2017,CI90UBALL_2017,PCTPOVALL_2017,CI90LBALLP_2017,CI90UBALLP_2017,POV017_2017,CI90LB017_2017,CI90UB017_2017,PCTPOV017_2017,CI90LB017P_2017,CI90UB017P_2017,POV517_2017,CI90LB517_2017,CI90UB517_2017,PCTPOV517_2017,CI90LB517P_2017,CI90UB517P_2017,MEDHHINC_2017,CI90LBINC_2017,CI90UBINC_2017,POV04_2017,CI90LB04_2017,CI90UB04_2017,PCTPOV04_2017,CI90LB04P_2017,CI90UB04P_2017,FIPStxt_wikidata,CI90LBAll_wikidata,POV517_wikidata,CI90UB017_wikidata,CI90UB04_wikidata,CI90LB517_wikidata,POV04_wikidata,Area_wikidata,CI90LB017_wikidata,CI90UB517_wikidata,POV017_wikidata,CI90LB04_wikidata,State_wikidata\n0,0,US,United States,,,,,\"42,583,651\",\"42,342,619\",\"42,824,683\",13.4,13.3,13.5,\"13,353,202\",\"13,229,339\",\"13,477,065\",18.4,18.2,18.6,\"9,120,503\",\"9,033,090\",\"9,207,916\",17.3,17.1,17.5,\"60,336\",\"60,250\",\"60,422\",\"3,932,969\",\"3,880,645\",\"3,985,293\",20.2,19.9,20.5,,,,,,,,Q502737,,,,,Q920643\n1,1000,AL,Alabama,,,,,\"802,263\",\"784,517\",\"820,009\",16.9,16.5,17.3,\"262,909\",\"253,694\",\"272,124\",24.4,23.5,25.3,\"180,594\",\"172,412\",\"188,776\",22.8,21.8,23.8,\"48,193\",\"47,451\",\"48,935\",\"78,986\",\"75,009\",\"82,963\",27.7,26.3,29.1,,,,,,,,Q29364,,,,,Q173\n2,1001,AL,Autauga County,2.0,2.0,2.0,2.0,\"7,390\",\"6,147\",\"8,633\",13.4,11.1,15.7,\"2,542\",\"2,081\",\"3,003\",19.3,15.8,22.8,\"1,842\",\"1,492\",\"2,192\",18.6,15.1,22.1,\"58,343\",\"52,121\",\"64,565\",,,,,,,Q156168,Q46902724,Q62694263,Q29716874,Q29791211,Q62691716,Q814448,Q156168,,Q16605576,Q243384,Q814448,Q173\n3,1003,AL,Baldwin County,4.0,5.0,3.0,2.0,\"21,199\",\"17,444\",\"24,954\",10.1,8.3,11.9,\"6,734\",\"5,079\",\"8,389\",14.7,11.1,18.3,\"4,871\",\"3,641\",\"6,101\",14.3,10.7,17.9,\"56,607\",\"52,439\",\"60,775\",,,,,,,Q156163,,Q37664748,Q28948255,Q29791211,Q52382454,Q814448,Q156163,Q59795394,Q34340032,,Q814448,Q173\n4,1005,AL,Barbour County,6.0,6.0,6.0,6.0,\"7,414\",\"6,325\",\"8,503\",33.4,28.5,38.3,\"2,606\",\"2,262\",\"2,950\",50.3,43.7,56.9,\"1,904\",\"1,660\",\"2,148\",48.8,42.6,55.0,\"32,490\",\"29,218\",\"35,762\",,,,,,,Q109437,Q30053499,Q62694666,Q62142893,Q29791211,Q62692986,Q814448,Q109437,Q50568772,Q50908706,Q52633591,Q814448,Q173\n5,1007,AL,Bibb County,1.0,1.0,1.0,1.0,\"4,137\",\"3,187\",\"5,087\",20.2,15.5,24.9,\"1,242\",936,\"1,548\",27.3,20.6,34.0,870,641,\"1,099\",26.8,19.8,33.8,\"45,795\",\"40,924\",\"50,666\",,,,,,,Q461204,Q58842548,Q62255086,Q62692127,Q29791211,Q641,Q814448,Q461204,Q19060646,Q35490124,Q37809988,Q814448,Q173\n6,1009,AL,Blount County,1.0,1.0,1.0,1.0,\"7,343\",\"5,805\",\"8,881\",12.8,10.1,15.5,\"2,484\",\"1,881\",\"3,087\",18.5,14.0,23.0,\"1,763\",\"1,307\",\"2,219\",17.7,13.1,22.3,\"48,253\",\"43,784\",\"52,722\",,,,,,,Q111250,Q46787634,Q62693695,,Q29791211,Q18972735,Q814448,Q111250,Q62694519,Q59104300,Q33765608,Q814448,Q173\n7,1011,AL,Bullock County,6.0,6.0,6.0,6.0,\"2,956\",\"2,316\",\"3,596\",34.4,27.0,41.8,\"1,015\",790,\"1,240\",48.3,37.6,59.0,732,562,902,49.0,37.6,60.4,\"29,113\",\"25,929\",\"32,297\",,,,,,,Q111259,Q59103817,Q18925305,Q61922816,Q29791211,Q27729836,Q814448,Q111259,Q62255098,Q18614788,Q52608450,Q814448,Q173\n8,1013,AL,Butler County,6.0,6.0,6.0,6.0,\"4,154\",\"3,155\",\"5,153\",21.3,16.2,26.4,\"1,471\",\"1,085\",\"1,857\",33.0,24.3,41.7,\"1,049\",759,\"1,339\",31.8,23.0,40.6,\"36,842\",\"33,405\",\"40,279\",,,,,,,Q108871,Q30837658,Q49001600,Q62694361,Q29791211,Q759,Q814448,Q108871,Q35078655,Q51984112,Q57064773,Q814448,Q173\n9,1015,AL,Calhoun County,3.0,2.0,3.0,2.0,\"19,832\",\"16,938\",\"22,726\",17.7,15.1,20.3,\"5,932\",\"4,701\",\"7,163\",24.2,19.2,29.2,\"4,021\",\"3,066\",\"4,976\",22.2,16.9,27.5,\"45,937\",\"43,419\",\"48,455\",,,,,,,Q108856,,,Q18063854,Q29791211,,Q814448,Q108856,Q55595249,,,Q814448,Q173\n10,1017,AL,Chambers County,6.0,5.0,6.0,5.0,\"6,036\",\"4,653\",\"7,419\",18.2,14.0,22.4,\"2,071\",\"1,529\",\"2,613\",29.6,21.8,37.4,\"1,515\",\"1,092\",\"1,938\",30.1,21.7,38.5,\"36,883\",\"33,288\",\"40,478\",,,,,,,Q111280,Q28659531,Q18973442,Q36076323,Q29791211,Q22122153,Q814448,Q111280,Q62691976,Q62694888,,Q814448,Q173\n"
-}
+    ],
+    "datamart_id": "D20eb2d7f-aafb-443e-8bf2-132ef103e98b",
+    "materialize_info": "{\"id\": \"D20eb2d7f-aafb-443e-8bf2-132ef103e98b\", \"score\": 0.8750000000000544, \"metadata\": {\"connection_url\": \"http://sitaware.isi.edu:8080/bigdata/namespace/wdq/sparql\", \"search_result\": {\"variable\": {\"type\": \"uri\", \"value\": \"http://www.wikidata.org/entity/statement/D20eb2d7f-aafb-443e-8bf2-132ef103e98b-082e3910-d80f-463c-91f0-7b4c20a01f37\"}, \"dataset\": {\"type\": \"uri\", \"value\": \"http://www.wikidata.org/entity/D20eb2d7f-aafb-443e-8bf2-132ef103e98b\"}, \"url\": {\"type\": \"uri\", \"value\": \"https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/master/example_datasets/Unemployment.csv\"}, \"file_type\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"csv\"}, \"extra_information\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"{'column_meta_0': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Integer'], 'name': 'FIPStxt'}, 'column_meta_1': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'State'}, 'column_meta_2': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'Area_name'}, 'column_meta_3': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Rural_urban_continuum_code_2013'}, 'column_meta_4': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Urban_influence_code_2013'}, 'column_meta_5': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Metro_2013'}, 'column_meta_6': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2007 '}, 'column_meta_7': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2007 '}, 'column_meta_8': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2007 '}, 'column_meta_9': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2007'}, 'column_meta_10': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2008 '}, 'column_meta_11': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2008 '}, 'column_meta_12': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2008 '}, 'column_meta_13': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2008'}, 'column_meta_14': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Civilian_labor_force_2009'}, 'column_meta_15': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Employed_2009'}, 'column_meta_16': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployed_2009'}, 'column_meta_17': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2009'}, 'column_meta_18': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2010 '}, 'column_meta_19': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2010 '}, 'column_meta_20': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2010 '}, 'column_meta_21': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2010'}, 'column_meta_22': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2011 '}, 'column_meta_23': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2011 '}, 'column_meta_24': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2011 '}, 'column_meta_25': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2011'}, 'column_meta_26': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2012 '}, 'column_meta_27': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2012 '}, 'column_meta_28': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2012 '}, 'column_meta_29': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2012'}, 'column_meta_30': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2013 '}, 'column_meta_31': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2013 '}, 'column_meta_32': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2013 '}, 'column_meta_33': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2013'}, 'column_meta_34': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2014 '}, 'column_meta_35': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2014 '}, 'column_meta_36': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2014 '}, 'column_meta_37': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2014'}, 'column_meta_38': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2015 '}, 'column_meta_39': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2015 '}, 'column_meta_40': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2015 '}, 'column_meta_41': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2015'}, 'column_meta_42': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Civilian_labor_force_2016 '}, 'column_meta_43': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': ' Employed_2016 '}, 'column_meta_44': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': ' Unemployed_2016 '}, 'column_meta_45': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2016'}, 'column_meta_46': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Civilian_labor_force_2017'}, 'column_meta_47': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Employed_2017'}, 'column_meta_48': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployed_2017'}, 'column_meta_49': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Unemployment_rate_2017'}, 'column_meta_50': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'Median_Household_Income_2017'}, 'column_meta_51': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Float'], 'name': 'Med_HH_Income_Percent_of_State_Total_2017'}, 'column_meta_52': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'FIPStxt_wikidata'}, 'column_meta_53': {'semantic_type': ['https://metadata.datadrivendiscovery.org/types/Attribute', 'http://schema.org/Text'], 'name': 'State_wikidata'}, 'data_metadata': {'shape_0': 3275, 'shape_1': 54}}\"}, \"title\": {\"xml:lang\": \"en\", \"type\": \"literal\", \"value\": \"Unemployment.csv\"}, \"keywords\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"FIPStxt State Area_name Rural_urban_continuum_code_2013 Urban_influence_code_2013 Metro_2013  Civilian_labor_force_2007   Employed_2007   Unemployed_2007  Unemployment_rate_2007  Civilian_labor_force_2008   Employed_2008   Unemployed_2008  Unemployment_rate_2008 Civilian_labor_force_2009 Employed_2009 Unemployed_2009 Unemployment_rate_2009  Civilian_labor_force_2010   Employed_2010   Unemployed_2010  Unemployment_rate_2010  Civilian_labor_force_2011   Employed_2011   Unemployed_2011  Unemployment_rate_2011  Civilian_labor_force_2012   Employed_2012   Unemployed_2012  Unemployment_rate_2012  Civilian_labor_force_2013   Employed_2013   Unemployed_2013  Unemployment_rate_2013  Civilian_labor_force_2014   Employed_2014   Unemployed_2014  Unemployment_rate_2014  Civilian_labor_force_2015   Employed_2015   Unemployed_2015  Unemployment_rate_2015  Civilian_labor_force_2016   Employed_2016   Unemployed_2016  Unemployment_rate_2016 Civilian_labor_force_2017 Employed_2017 Unemployed_2017 Unemployment_rate_2017 Median_Household_Income_2017 Med_HH_Income_Percent_of_State_Total_2017 FIPStxt_wikidata State_wikidata\"}, \"datasetLabel\": {\"xml:lang\": \"en\", \"type\": \"literal\", \"value\": \"D20eb2d7f-aafb-443e-8bf2-132ef103e98b\"}, \"variableName\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#string\", \"type\": \"literal\", \"value\": \"FIPStxt_wikidata\"}, \"score\": {\"datatype\": \"http://www.w3.org/2001/XMLSchema#double\", \"type\": \"literal\", \"value\": \"0.8750000000000544\"}}, \"query_json\": {\"keywords\": [\"FIPS_wikidata\"], \"variables\": {\"FIPS_wikidata\": \"q501800 q493260 q494142 q61005 q156496 q107973 q107977 q376034 q156276 q61077 q506768 q485378 q508288 q500891 q495191 q490184 q491894 q486538 q112652 q128077 q504422 q487243 q484150 q502442 q497810 q488874 q496722 q511691 q346925 q54163 q495072 q127973 q374358 q138141 q505387 q485974 q497707 q54065 q108499 q497652 q28321 q109170 q506342 q373348 q496971 q951290 q501914 q108067 q372796 q108408 q496091 q111753 q494919 q486288 q484381 q501563 q502564 q162560 q498123 q58712 q493102 q495120 q484620 q156618 q490848 q109681 q487744 q26760 q507459 q486095 q498307 q1124720 q114479 q156429 q490966 q114862 q489327 q496644 q507153 q489062 q486376 q484294 q113201 q503076 q111790 q484791 q495880 q484752 q488885 q485030 q110768 q164603 q54234 q489677 q495223 q494799 q56144 q500939 q156358 q110764 q511106 q18432 q27021 q488917 q490104 q490272 q156475 q485620 q312470 q500793 q153251 q503081 q504850 q58759 q109636 q484420 q111566 q113132 q489648 q507609 q484586 q126829 q113773 q498034 q112456 q374484 q114948 q500984 q156613 q114123 q115125 q485582 q115563 q489880 q492026 q497216 q113843 q426699 q108127 q844012 q505310 q306343 q502364 q48891 q485370 q506225 q156448 q489652 q271601 q163529 q502036 q495925 q341639 q502240 q374589 q505980 q110187 q115577 q502459 q26502 q487564 q26756 q493605 q504391 q491456 q513982 q108534 q112793 q503877 q496558 q490157 q111831 q113333 q490446 q495359 q260871 q495246 q311894 q484367 q58694 q489553 q487731 q304671 q54260 q54246 q115298 q513805 q156370 q508271 q431826 q61202 q54064 q495003 q115025 q490784 q501819 q490181 q492032 q61181 q485539 q489083 q485600 q488668 q108397 q506779 q486231 q494471 q500312 q502404 q484685 q484378 q491529 q505299 q110900 q494152 q341679 q490874 q488171 q493957 q491301 q501350 q496862 q498024 q340591 q497634 q492355 q488194 q496622 q339175 q61355 q505305 q506907 q491229 q512699 q496685 q262708 q503883 q501256 q511524 q61472 q491945 q113815 q145006 q488831 q505987 q312750 q484538 q489877 q486448 q485950 q490958 q498372 q484659 q507427 q156177 q932966 q502348 q487738 q108122 q156257 q484268 q489873 q495252 q156643 q500698 q312563 q505975 q490112 q54073 q266493 q109751 q400747 q506676 q249638 q156270 q312744 q133853 q500663 q509813 q506351 q495116 q127979 q61020 q496139 q61521 q502451 q113940 q496025 q205715 q376353 q501036 q490522 q492048 q115272 q502549 q377181 q156467 q375996 q271915 q486517 q27024 q485588 q502468 q490678 q193072 q376838 q261380 q109830 q111851 q487288 q54446 q490306 q495885 q377952 q111273 q496146 q490322 q368006 q113275 q505292 q490671 q108494 q26712 q192753 q494072 q491931 q271613 q514008 q506385 q45441 q26907 q495918 q496077 q379474 q510407 q111867 q108520 q26710 q490946 q501242 q502492 q61502 q505276 q26601 q488186 q489273 q156639 q505333 q507244 q494755 q490703 q490116 q484300 q498341 q496596 q485364 q110500 q54440 q485478 q496486 q485795 q491311 q111709 q494970 q489613 q484335 q691614 q491919 q110407 q428902 q109981 q127972 q61370 q26676 q109804 q506172 q506951 q501096 q503000 q485305 q489796 q376803 q495142 q61352 q507798 q26744 q491702 q489711 q112499 q490762 q61010 q511876 q486626 q491190 q156181 q489935 q503059 q515166 q497899 q110680 q494192 q494768 q488659 q156374 q113029 q108137 q28496 q507088 q386271 q490859 q486123 q505354 q502554 q61339 q374527 q257311 q494494 q403310 q82605 q485910 q489591 q109160 q366959 q484574 q507881 q111220 q82505 q491850 q512799 q491256 q506376 q54236 q496132 q496693 q507957 q486229 q492488 q495479 q111613 q461562 q484551 q375125 q492016 q111380 q82510 q501115 q484457 q491201 q503551 q61216 q502345 q502592 q504375 q504403 q485301 q486398 q507399 q496589 q512746 q54442 q490482 q502737 q377162 q486054 q489620 q195658 q108143 q430328 q491390 q490454 q498356 q513792 q486305 q820502 q377157 q61150 q489106 q586070 q496700 q506722 q490994 q112149 q513010 q489716 q70979 q61153 q494560 q504415 q110655 q502945 q511806 q48937 q502712 q489642 q488481 q493443 q501964 q486207 q108391 q490972 q369211 q108111 q502732 q156459 q502526 q110403 q484501 q483923 q26519 q24648 q506337 q111575 q490129 q28274 q505453 q491927 q489222 q18419 q488853 q485470 q490839 q109155 q491121 q110389 q506332 q502230 q494117 q109779 q484418 q111904 q502014 q120080 q484342 q513818 q494476 q511964 q507782 q486486 q490722 q284439 q349995 q61354 q49222 q507230 q167656 q168144 q488543 q503014 q486075 q781165 q489625 q108101 q495448 q152891 q94783 q491243 q109447 q336948 q484493 q506145 q502722 q421956 q240621 q375108 q108618 q29445 q509092 q484629 q224910 q386189 q504350 q350001 q495112 q505422 q127975 q18426 q109785 q502288 q502719 q505272 q495275 q502360 q111421 q494751 q507126 q490734 q312742 q28503 q507047 q491831 q494514 q489546 q491982 q505861 q183263 q496176 q501830 q109656 q506727 q337204 q402259 q932951 q496737 q507139 q486614 q375991 q304289 q491108 q506175 q497284 q156346 q495845 q487236 q489756 q500845 q502235 q493255 q61379 q488566 q156486 q503870 q506168 q113220 q513919 q427732 q486265 q376616 q133857 q486466 q888563 q491339 q178341 q484478 q109270 q506563 q109790 q61484 q495581 q487280 q505884 q261672 q498141 q501809 q513744 q502351 q337402 q493709 q501101 q113854 q470626 q497615 q511908 q115281 q483954 q500933 q511135 q511679 q494121 q26528 q111374 q108793 q485561 q491011 q501568 q27233 q488488 q429814 q498276 q484505 q40881 q113892 q17174784 q503366 q112488 q61148 q495154 q61461 q61143 q376113 q312509 q220005 q156577 q501823 q88 q486471 q506363 q379657 q27240 q61138 q52250 q403319 q488675 q495862 q502222 q494156 q488912 q485209 q485804 q501078 q112807 q501804 q499302 q376446 q501587 q375008 q496616 q498346 q108832 q496003 q495356 q109165 q512937 q494480 q496729 q376102 q178281 q61018 q493250 q497208 q486336 q486328 q511084 q486843 q494098 q112137 q179950 q511150 q489787 q26891 q109836 q156366 q494198 q486458 q114339 q492066 q485408 q489869 q163097 q112869 q177678 q512787 q156385 q490690 q108403 q506547 q493125 q502560 q484624 q485799 q167583 q61365 q109518 q505505 q501959 q501172 q48926 q485445 q502386 q113906 q515177 q486317 q182176 q488517 q486143 q506215 q495388 q489861 q110606 q495078 q61032 q495229 q54082 q507981 q489088 q502569 q58771 q505999 q505405 q501022 q495834 q377046 q496980 q110510 q485224 q113005 q111622 q504371 q505417 q492346 q61350 q113396 q491236 q112673 q490745 q493715 q496583 q484142 q487572 q491026 q487605 q485543 q486105 q501839 q487334 q63958 q110426 q501989 q110555 q489919 q502496 q341865 q488206 q507931 q111766 q491427 q378527 q384754 q489897 q263742 q26889 q495209 q27034 q61007 q110336 q61084 q511487 q61165 q26701 q495181 q502729 q512767 q486210 q421960 q337915 q511461 q491759 q111936 q468557 q110750 q513878 q108386 q263418 q109646 q498286 q54086 q493029 q109756 q497871 q484535 q156629 q43421 q500654 q485024 q495958 q495169 q511478 q494500 q619609 q27045 q485532 q503486 q502503 q156353 q512925 q495951 q484577 q108612 q109622 q498621 q496568 q505941 q506557 q58691 q497938 q496031 q486530 q502463 q490088 q112125 q342803 q503468 q156191 q495147 q501939 q175799 q29124 q484664 q111540 q118716 q485062 q490427 q500947 q502431 q502294 q489690 q494952 q489783 q511713 q506690 q485452 q486495 q494716 q112953 q257334 q1139833 q386885 q428298 q485752 q269164 q374950 q384737 q491126 q498148 q110592 q484404 q512965 q502933 q483947 q491976 q487415 q495658 q110739 q488847 q485710 q498104 q493107 q497984 q109665 q156287 q156350 q486664 q508209 q490219 q74686 q156637 q108837 q501014 q511069 q506162 q111316 q508618 q512713 q389783 q835104 q490383 q511935 q503093 q484603 q494164 q108827 q278589 q494518 q489886 q340605 q485460 q497702 q506326 q484496 q494134 q486800 q156464 q484385 q489993 q484340 q495031 q484509 q111979 q507281 q502507 q505282 q1124743 q490512 q113237 q111744 q156380 q255943 q490386 q501340 q48927 q108821 q494626 q511834 q507733 q26735 q501948 q505444 q488683 q113984 q490789 q484771 q484426 q498684 q506068 q486091 q54089 q489942 q489610 q490796 q494822 q156220 q490550 q484590 q486522 q111759 q115386 q500908 q505834 q488505 q113017 q494236 q491556 q500751 q115166 q491052 q376729 q54262 q489729 q495052 q181325 q486621 q498336 q176480 q488892 q495280 q312746 q489599 q376053 q109686 q484648 q495645 q502397 q485013 q112086 q496197 q489793 q489864 q496758 q485430 q115081 q506498 q490287 q489430 q115349 q491068 q503889 q493529 q496886 q110532 q497880 q487016 q109690 q372364 q63718 q128075 q26610 q487686 q490357 q511788 q156361 q487322 q48834 q493610 q485038 q500992 q491762 q112619 q495613 q501976 q56154 q283657 q501779 q109293 q494598 q115266 q61526 q492012 q47894 q511120 q2613700 q484482 q501074 q484760 q504450 q489915 q491173 q461204 q486372 q495906 q493037 q502984 q502784 q109457 q376483 q28311 q484745 q489447 q484146 q339724 q374989 q501761 q506506 q54091 q496242 q490488 q507294 q27011 q112565 q61346 q110516 q495891 q58774 q847673 q71136 q108851 q337270 q484755 q26619 q61468 q54251 q489894 q486139 q496716 q494167 q485455 q115227 q156291 q501000 q336337 q490779 q490009 q337348 q115480 q156500 q500880 q484780 q491470 q487692 q494912 q488572 q498395 q492040 q491966 q502715 q499547 q485922 q486526 q484234 q284806 q109303 q109670 q484672 q502400 q825807 q26689 q376096 q400757 q502473 q495160 q484563 q501555 q485969 q499542 q108803 q61204 q108856 q506937 q489099 q490210 q511922 q58689 q484527 q490903 q312155 q493071 q26631 q156440 q502210 q498613 q487254 q491959 q515220 q492493 q495691 q109508 q484287 q376059 q109451 q497908 q495738 q489312 q110482 q26587 q475301 q507365 q281681 q495264 q304065 q373575 q502959 q111174 q24645 q486301 q111886 q502456 q26762 q312740 q501785 q484767 q156273 q491479 q496045 q491537 q111530 q497695 q504428 q450374 q489847 q485509 q498295 q71190 q110539 q485596 q61348 q483958 q487578 q111876 q495382 q54072 q26914 q485528 q503495 q501968 q486394 q128080 q128079 q61200 q31091 q488859 q27238 q484156 q506574 q279452 q111259 q491406 q496678 q156647 q502050 q490369 q111928 q484222 q501927 q109442 q501248 q493040 q26716 q484474 q497999 q156628 q497728 q491633 q376505 q111168 q497804 q182644 q510900 q491214 q491221 q498319 q495219 q497200 q421963 q312473 q489659 q280844 q502581 q174913 q483895 q490443 q486218 q496125 q110640 q943772 q495285 q180785 q491543 q488548 q48920 q27009 q112993 q494936 q492021 q489259 q61157 q115404 q490390 q335121 q495289 q111286 q156455 q114043 q490251 q490498 q486112 q108058 q485741 q502424 q54165 q253186 q495151 q502521 q488175 q491857 q176307 q112915 q390141 q374422 q489999 q58692 q504441 q110325 q502411 q111298 q114026 q489463 q511498 q489163 q370310 q181015 q113096 q507575 q253538 q491327 q337776 q529958 q515205 q511647 q111517 q495269 q493236 q497845 q108846 q341915 q110755 q108866 q115316 q488805 q490843 q156488 q513933 q374452 q498072 q61012 q486248 q185533 q488512 q501123 q505874 q494575 q496664 q374334 q503511 q496602 q490710 q513775 q507266 q501954 q111409 q196014 q484263 q500734 q491616 q486184 q485549 q494161 q494460 q489477 q486011 q494077 q211360 q104994 q506752 q497628 q486309 q496070 q94669 q489762 q26616 q109846 q926589 q111844 q502587 q58696 q109284 q504385 q492036 q504379 q112846 q489420 q485920 q495201 q247715 q491623 q490360 q486081 q501935 q127970 q128137 q74661 q490757 q74704 q497642 q493049 q182845 q109631 q484734 q490423 q494552 q137916 q110684 q484600 q484556 q115337 q109651 q506489 q491208 q501277 q384890 q61042 q494228 q485276 q111694 q112061 q511510 q486386 q114445 q514038 q494616 q491569 q485660 q489673 q489457 q368766 q495965 q110978 q113151 q495564 q505359 q508247 q487599 q503442 q484991 q507180 q494104 q489663 q61173 q188275 q494413 q376136 q505347 q110257 q490908 q54253 q486048 q156503 q500854 q500742 q496453 q54443 q485787 q2613391 q493083 q508254 q156156 q511164 q487403 q26740 q353108 q489571 q495851 q110262 q485631 q192992 q490400 q484361 q48856 q108861 q26723 q312586 q504284 q490029 q56149 q490259 q501147 q109526 q376175 q374256 q498312 q389551 q111647 q506772 q156634 q497489 q495195 q108424 q493228 q507472 q27023 q504830 q486261 q202454 q484740 q156297 q115216 q506321 q500838 q109209 q113255 q404898 q495157 q495417 q375608 q488701 q501130 q504312 q370654 q507308 q490108 q485467 q367632 q484521 q61145 q493450 q109761 q489891 q169952 q491184 q503064 q486651 q490134 q507629 q502213 q111921 q490989 q500680 q494541 q156253 q502880 q515150 q489901 q496962 q505886 q485441 q497646 q490140 q280826 q489069 q491321 q426360 q490649 q512816 q488679 q502081 q509848 q484330 q26506 q112115 q485420 q495043 q492819 q495937 q61167 q111672 q111266 q494771 q506892 q498377 q109150 q502207 q490471 q496744 q61026 q503505 q341755 q112107 q54444 q502487 q376899 q488865 q505380 q26705 q485392 q496169 q502031 q490215 q495570 q110421 q54161 q501140 q403544 q130008 q485980 q495603 q485526 q109851 q494241 q108842 q373953 q491432 q507811 q497979 q113783 q111774 q494207 q54160 q501163 q501292 q501084 q505993 q495985 q490986 q127978 q486791 q490168 q491178 q492044 q500416 q503071 q156566 q376640 q110486 q486060 q491868 q496109 q507907 q491035 q374342 q494081 q110760 q494636 q115014 q495990 q489471 q485984 q54438 q491144 q494223 q494634 q485720 q336167 q738043 q118127 q483937 q503088 q61381 q123766 q113423 q507000 q494556 q500871 q484411 q109308 q495013 q486344 q503864 q114423 q495326 q112781 q506220 q111385 q501270 q493024 q375652 q379663 q484231 q502479 q489306 q63771 q16554 q115551 q486513 q114503 q484273 q94663 q503538 q377122 q137516 q503521 q112834 q130006 q500686 q492070 q507256 q484567 q494485 q374382 q485780 q497424 q109969 q489318 q374495 q507353 q501284 q374604 q28488 q108117 q494764 q485463 q506309 q494233 q485250 q111291 q108798 q338424 q61294 q486099 q504856 q483990 q507063 q492652 q474999 q49231 q376106 q488537 q488528 q376876 q280815 q134080 q284840 q484450 q108083 q26754 q115247 q114301 q370710 q495045 q402938 q491281 q490953 q502419 q502200 q370329 q495198 q502929 q337688 q495234 q490014 q490980 q486401 q490642 q490807 q377171 q108087 q501789 q495310 q156186 q485235 q489265 q402945 q142369 q499551 q115419 q506230 q488698 q489684 q497890 q513078 q498353 q110491 q484133 q502875 q336190 q377023 q63951 q61317 q484616 q312731 q490505 q56152 q509826 q110384 q351808 q259095 q648752 q512868 q477951 q486480 q156570 q188376 q485729 q926619 q79804 q507870 q488492 q497917 q48910 q489702 q494093 q502086 q489853 q495799 q110417 q110504 q506512 q26591 q486043 q29118 q491878 q127184 q251277 q491954 q501151 q112698 q506569 q485221 q505317 q507414 q304791 q156388 q485035 q403184 q167580 q512981 q488813 q156445 q61414 q382993 q496708 q156306 q109795 q374890 q489616 q504863 q28292 q376042 q506538 q54441 q39450 q113823 q484513 q486281 q491911 q111235 q511095 q487716 q48931 q486215 q495185 q156213 q486243 q156437 q506235 q507757 q502269 q28308 q61029 q110904 q112584 q26898 q501051 q505868 q379660 q56146 q495633 q495974 q374471 q488690 q486352 q115273 q488826 q495682 q489767 q374663 q108053 q484570 q486000 q483857 q108428 q490283 q509861 q61458 q505515 q115568 q497795 q507112 q135328 q113079 q312149 q485245 q484643 q509880 q74633 q505499 q494463 q504435 q137562 q490683 q389573 q496636 q486255 q494943 q495979 q495719 q110212 q494086 q114323 q340606 q490477 q491936 q498155 q303491 q491949 q288592 q490019 q61296 q511747 q501323 q507892 q513891 q488868 q501974 q495687 q485474 q193230 q507838 q494916 q500776 q115583 q61330 q49290 q511470 q486167 q473605 q487003 q490450 q486431 q130009 q111633 q112957 q502021 q48878 q112220 q485412 q484015 q61470 q110779 q484559 q594313 q110624 q842902 q491553 q492061 q377148 q513092 q338939 q113056 q376576 q385931 q110670 q302852 q54240 q175756 q495867 q489912 q486040 q61039 q108372 q156582 q491021 q49259 q501575 q491646 q61176 q112550 q495344 q500645 q28316 q108788 q387978 q485558 q342043 q498321 q484349 q502356 q489332 q54445 q501055 q156168 q495332 q494174 q493599 q28286 q490432 q501606 q501835 q486071 q495409 q500598 q311904 q26605 q506197 q113313 q485641 q497602 q156278 q484681 q500818 q61170 q498020 q496607 q312453 q486160 q505854 q374979 q496104 q327080 q491452 q507616 q501559 q366871 q486118 q495969 q156431 q82367 q496577 q487681 q485213 q503446 q376592 q489159 q488649 q27844 q54235 q489779 q484461 q490344 q507722 q512911 q514093 q372373 q198529 q494776 q485402 q156377 q484282 q495022 q110340 q110565 q109503 q490325 q71100 q112512 q502393 q496440 q26628 q505968 q491882 q510920 q506202 q494794 q56145 q483950 q484395 q486293 q491525 q54254 q61129 q491996 q113185 q376849 q494791 q111593 q502368 q494931 q494129 q502069 q507117 q109709 q510934 q495096 q49149 q489486 q490121 q113117 q54076 q486187 q51733 q115332 q192650 q498042 q495839 q112078 q503554 q489056 q28499 q111957 q484408 q109695 q495165 q488769 q485204 q490095 q491547 q504842 q488582 q490266 q494774 q156340 q27037 q495620 q485020 q509786 q108871 q498327 q500813 q501067 q110983 q16861 q195664 q204761 q115258 q491129 q484279 q497788 q485646 q501157 q398939 q488943 q491843 q374973 q502054 q493951 q26584 q18424 q312455 q499295 q495105 q491196 q2613601 q486389 q484633 q509926 q490925 q488821 q494803 q507078 q485058 q403777 q486838 q376703 q376069 q488687 q54079 q504318 q489369 q376004 q271609 q491004 q108379 q487534 q108418 q490937 q483893 q506531 q483916 q484398 q26895 q107126 q115556 q111280 q500897 q61036 q115413 q63719 q376947 q487610 q494958 q26730 q311897 q491170 q491272 q509770 q495257 q156580 q156468 q156632 q156452 q486848 q497928 q500702 q54238 q374649 q502077 q426262 q498014 q280838 q495998 q421974 q54439 q488818 q486499 q27025 q156619 q494536 q485491 q111913 q61160 q502739 q376764 q494138 q485628 q497953 q489682 q495873 q374547 q496764 q504410 q491988 q110528 q501827 q485448 q114529 q495368 q512951 q510915 q489687 q488219 q115043 q484440 q111584 q489668 q290157 q179954 q111968 q494186 q110561 q109317 q500670 q61014 q495216 q486191 q108131 q5925 q111400 q488553 q495930 q486357 q512885 q503329 q495398 q501982 q47944 q495856 q94673 q501345 q505841 q502925 q113763 q494998 q486313 q486765 q377035 q489075 q485524 q496511 q1177705 q338052 q509910 q113793 q854630 q489481 q494818 q486961 q491152 q109661 q251267 q488672 q497830 q504846 q108952 q492342 q113919 q498116 q495239 q110495 q109298 q489939 q156471 q491514 q513833 q486633 q494947 q484548 q498028 q498066 q503546 q377011 q28285 q24646 q485383 q486476 q376129 q295787 q112271 q61327 q486348 q502047 q61500 q203022 q502437 q488922 q112768 q490727 q502543 q506157 q487581 q490750 q506209 q485808 q124637 q285625 q484290 q335017 q497861 q489536 q26885 q502952 q108503 q502414 q751202 q156411 q115356 q495340 q503451 q311921 q506921 q494180 q496751 q111720 q112442 q506987 q489468 q507336 q483973 q346959 q486006 q502727 q491991 q501092 q379585 q373886 q484239 q491508 q27051 q408744 q495126 q506191 q500977 q484530 q484776 q115324 q387555 q112526 q484401 q512901 q156216 q490150 q114459 q501796 q504838 q503455 q500784 q492053 q490077 q485791 q203049 q491837 q58711 q486503 q115289 q495625 q336183 q26738 q374410 q486362 q488693 q506357 q502250 q485434 q26622 q113293 q509798 q495629 q490716 q492057 q510122 q181967 q374765 q109975 q495017 q495132 q374968 q503461 q486366 q502428 q351865 q484431 q500711 q504294 q110570 q506291 q488166 q45438 q502640 q421970 q111894 q496152 q494579 q490852 q494926 q508192 q430113 q485736 q26614 q110412 q488796 q495672 q505411 q486137 q115428 q372648 q27018 q113864 q156188 q489735 q511659 q490161 q507016 q133854 q485042 q379654 q61086 q109986 q495588 q115433 q26564 q848649 q156623 q486535 q426746 q27840 q486150 q82499 q493079 q487725 q374442 q495067 q501848 q61368 q498301 q156444 q74628 q156568 q486444 q507028 q267164 q491140 q842938 q489595 q115589 q426398 q113748 q507321 q112977 q26880 q487704 q336229 q389365 q492310 q497971 q61289 q115148 q49014 q111782 q109204 q504397 q156265 q494630 q376755 q505392 q484786 q484639 q113375 q497824 q491276 q48850 q496900 q498128 q490920 q156650 q486198 q111310 q497172 q491017 q485536 q501602 q494923 q502511 q491519 q111821 q504355 q501060 q312748 q491862 q114884 q505287 q26699 q511772 q312497 q111254 q489079 q48902 q58683 q487616 q26598 q483942 q490914 q496292 q114140 q490033 q312475 q74290 q494815 q63729 q137509 q490494 q65433 q494526 q490255 q491032 q488210 q484224 q490190 q493054 q486133 q114992 q485239 q495137 q113756 q495899 q376330 q501918 q503023 q490647 q488181 q498163 q54231 q512732 q512832 q490023 q493074 q498058 q376990 q112714 q61363 q491331 q485577 q483888 q490799 q137828 q488201 q501596 q495608 q26527 q502576 q375803 q488499 q507216 q486874 q507743 q112634 q495349 q340608 q495059 q486659 q1125008 q501029 q486491 q486087 q491136 q28523 q110130 q514024 q108367 q111098 q115061 q491292 q491285 q54258 q375019 q490695 q484470 q490414 q112934 q108607 q109512 q507943 q489980 q26766 q485291 q61315 q493134 q495667 q490884 q494810 q175035 q312254 q54066 q484159 q500767 q501298 q506479 q501815 q494564 q486174 q115182 q282188 q61358 q486067 q265079 q507488 q115396 q485361 q490740 q510885 q494146 q111859 q491112 q375143 q495273 q484596 q375002 q490124 q487677 q491046 q379540 q485553 q156342 q115200 q312737 q500674 q280596 q494508 q312449 q497737 q490656 q108077 q109820 q495006 q493222 q311901 q501312 q379665 q502707 q491590 q484183 q498362 q485944 q484391 q502447 q177562 q494893 q491463 q5092 q505644 q506975 q502342 q13188841 q485006 q374626 q495171 q498332 q130083 q497817 q506315 q501043 q496115 q503492 q486064 q302165 q490879 q113834 q493044 q495654 q488576 q496475 q109437 q156481 q488531 q377234 q374404 q71202 q38022 q108957 q488810 q485388 q193167 q495393 q26883 q109215 q61478 q496629 q502278 q489576 q108106 q490652 q485229 q156387 q507169 q505638 q502920 q108626 q502257 q107982 q490999 q847676 q505428 q505398 q504345 q114550 q502483 q505510 q485656 q495414 q110773 q48867 q108784 q376120 q486757 q510244 q484388 q115104 q385365 q48874 q490813 q495912 q491157 q58698 q113805 q486994 q511849 q504445 q511761 q501843 q109626 q544539 q495376 q510947 q491160 q508220 q506682 q109265 q201014 q111250 q109616 q501263 q483847 q488468 q109312 q495204 q336322 q497964 q114904 q505848 q496656 q496447 q485623 q377131 q507438 q111391 q485502 q500758 q109641 q156163 q485044 q501582 q376822 q494254 q490065 q491889 q494620 q48863 q200696 q513968 q494990 q302918 q483932 q376562 q489586 q502273 q486154 q490318 q491316 q490436 q111549 q502072 q494248 q503583 q506300 q503501 q26719 q32348 q114969 q485513 q376546 q486380 q501331 q490144 q486325 q949766 q61481 q497377 q115307 q27229 q493112 q496086 q173867 q540907 q485896 q490769 q489855 q49289 q156575 q485484 q113962 q491073 q488840 q485926 q484465 q376024 q156463 q497482 q26526 q501858 q497854 q108436 q507853 q312201 q376527 q485726 q502244 q498077 q507770 q495261 q109705 q61 q27245 q61034 q506015 q109289 q489986 q127238 q117917 q63953 q48831 q111946 q1139839 q486440 q48933 q506525 q504360 q507918 q497607 q61135 q484748 q506697 q507382 q509838 q82603 q112686 q484729 q496771 q32349 q491899 q56153 q110575 q491584 q484452 q505438 q312487 q491941 q374908 q494899 q695782 q107146 q495640 q495649 q183135 q485592 q490378 q485047 q54447 q1124916 q500958 q27041 q492888 q506181 q378896 q496096 q507826 q489747 q48905 q495175 q61131 q503478 q500569 q156479 q484325 q491267 q501236 q509895 q486435 q491626 q490405 q503516 q497992 q491903 q58686 q491447 q483982 q26595 q115463 q495677 q341708 q135330 q489377 q167589 q118743 q484124 q490864 q111729 q312734 q506064 q488522 q288606 q506187 q54093 q431440 q182112 q26807 q108093 q494203 q376464 q502373 q61024 q484296 q500803 q374200 q24464 q484354 q113354 q488224 q485017 q489007 q502516 q488792 q109279 q119372 q509745 q494905 q502777 q108047 q488879 q493033 q490409 q486507 q58688 q156642 q58684 q506151 q506086 q491148 q109825 q111245 q490774 q378438 q494806 q490395 q491872 q507099 q513905 q311908 q61048 q351887 q490896 q484582 q484668 q495662 q176068 q484607 q477870 q489324 q167565 q493243 q484194 q376086 q513758 q113875 q495595 q494760 q494211 q513950 q512686 q504329 q488475 q494216 q484153 q48917 q188204 q108962 q486453 q111368 q109275 q108072 q504335 q488653 q485912 q111686 q485001 q383739 q280820 q489743 q113041 q502380 q484371 q488461 q502285 q504366 q109815 q512993 q513994 q487283 q501319 q342428 q133860 q484488 q507966 q495315 q501108 q484542 q490420 q484612 q491116 q61384 q485571 q376776 q496406 q512259 q430938 q490949 q1130480 q27031 q509757 q484346 q112823 q128096 q483862 q111663 q48896 q400753 q485650 q112737 q111304 q502743 q485615 q495037 q495944 q500918 q491533 q488560 q485746 q277728 q493088 q500861 q484304 q491436 q495090 q489751 q485426 q115344 q494569 q591156 q490869 q507587 q498675 q491343 q486920 q114843 q56151 q506552 q494624 q1139827 q112069 q490835 q496161 q109810 q486270 q506370 q112882 q489092 q374460 q114923 q484247 q156295 q511723 q485715 q486654 q450159 q491970 q112603 q248521 q26697 q486179 q503438 q493092 q496009 q490002 q337067 q502377 q491288 q501306 q387216 q312451 q486078 q28283 q486238 q427315\"}, \"keywords_search\": [], \"title_search\": \"\"}, \"search_type\": \"general\"}, \"augmentation\": {\"properties\": \"join\", \"right_columns\": [52], \"left_columns\": [6]}, \"datamart_type\": \"isi\"}"
+  }
