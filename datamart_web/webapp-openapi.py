@@ -1517,4 +1517,10 @@ def generate_dataset_metadata():
 
 if __name__ == '__main__':
     generate_dataset_metadata()
-    app.run(host="0.0.0.0", port=9000, debug=False)
+    import socket
+    hostname = socket.gethostname()
+    if hostname == "dsbox02":
+        context = ('./certs/wildcard_isi.crt', './certs/wildcard_isi.key')
+        app.run(host="0.0.0.0", port=9000, debug=False, ssl_context=context) 
+    else:
+        app.run(host="0.0.0.0", port=9000, debug=False)

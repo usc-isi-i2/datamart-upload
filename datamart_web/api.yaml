@@ -864,7 +864,7 @@ paths:
 components:
   schemas:
     Query:
-      $ref: "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/resi_api_new_swagger/datamart_web/query_input_schema.json"
+      $ref: "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/query_input_schema.json"
     Error:
       description: "JSON object returned by API on client errors"
       properties:
@@ -877,7 +877,7 @@ components:
       items:
         $ref: "#/components/schemas/Result"
     Result:
-      $ref: "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/resi_api_new_swagger/datamart_web/query_input_schema.json"
+      $ref: "https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/query_input_schema.json"
     # # # SearchResult:
     # #   type: object
     # #   properties:
