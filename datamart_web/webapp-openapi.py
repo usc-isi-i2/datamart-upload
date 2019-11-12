@@ -16,6 +16,7 @@ import requests
 import copy
 import time
 import redis
+import socket
 import inspect
 import datetime
 import frozendict
@@ -341,6 +342,16 @@ def record_error_to_file(e, function_from):
     logger.error(error_message)
     logger.error(str(e))
     logger.error(str(traceback.format_exc()))
+
+
+@app.before_request
+def before_request():
+    hostname = socket.gethostname()
+    if hostname == "dsbox02" and not request.is_secure:
+        url = request.url.replace("http://", "https://", 1)
+        code = 301
+        return redirect(url, code=code)
+
 
 @app.route('/')
 def hello():
@@ -1517,7 +1528,6 @@ def generate_dataset_metadata():
 
 if __name__ == '__main__':
     generate_dataset_metadata()
-    import socket
     hostname = socket.gethostname()
     if hostname == "dsbox02":
         context = ('./certs/wildcard_isi.crt', './certs/wildcard_isi.key')
