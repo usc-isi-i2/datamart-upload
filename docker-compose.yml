@@ -7,12 +7,16 @@ services:
       - memcached
       - blazegraph_satellite
       - redis
+      - datamart_wikifier
     ports:
       - "9000:9000"
     volumes:
       - .:/app/datamart-upload
-      - /nfs1/dsbox-repo/kyao/datamart-devel/datamart-userend:/app/datamart-userend
+      - ../datamart-userend:/app/datamart-userend
       - /nfs1/dsbox-repo/data/datasets-v32/seed_datasets_data_augmentation:/data
+  datamart_wikifier:
+    network_mode: "host"
+    image: "datamart-wikifier:latest"
   memcached:
     network_mode: "host"
     image: "memcached:alpine"
