@@ -13,7 +13,10 @@ services:
     volumes:
       - .:/app/datamart-upload
       - ../datamart-userend:/app/datamart-userend
-      - /nfs1/dsbox-repo/data/datasets-v32/seed_datasets_data_augmentation:/data
+      # Data dir at DataMachines      
+      - /data/datasets/seed_datasets_data_augmentation:/data
+      # Data dir at ISI
+      # - /nfs1/dsbox-repo/data/datasets-v32/seed_datasets_data_augmentation:/data
   datamart_wikifier:
     network_mode: "host"
     image: "datamart-wikifier:latest"
