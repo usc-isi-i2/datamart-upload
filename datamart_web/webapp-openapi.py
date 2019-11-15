@@ -983,7 +983,7 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        use_cache = None
+        
         if request.values.get('use_cache'):
             use_cache = request.values.get('use_cache')
             if use_cache.lower() == "false":
@@ -991,8 +991,10 @@ def augment():
             elif use_cache.lower() == "true":
                 use_cache = True
             else:
+                use_cache = None
                 logger.warning("Unknown value for use_cache as " + str(use_cache))
         else:
+            use_cache = None
             logger.info("use_cache value not detected")
 
         return_format = request.values.get('format')
@@ -1050,15 +1052,20 @@ def augment():
 
         if need_wikifier:
             logger.debug("Start running wikifier...")
-            search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
+            search_result_wikifier = DatamartSearchResult(search_result={}, 
+                                                          supplied_data=None, 
+                                                          query_json={},
                                                           search_type="wikifier")
-            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset, use_cache=use_cache)
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset, 
+                                                            use_cache=use_cache)
             logger.debug("Wikifier finished, start running download...")
         else:
             logger.debug("Wikifier skipped, start running download...")
 
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
-        augment_result = search_result.augment(supplied_data=loaded_dataset, augment_columns=columns_formated)
+        augment_result = search_result.augment(supplied_data=loaded_dataset, 
+                                               augment_columns=columns_formated, 
+                                               use_cache=use_cache)
 
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
         augment_result[res_id] = result_df.astype(str)
