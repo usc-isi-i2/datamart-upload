@@ -983,6 +983,17 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
+        if request.values.get('use_cache'):
+            use_cache = request.values.get('use_cache')
+            if use_cache.lower() == "false":
+                use_cache = False
+            elif use_cache.lower() == "true":
+                use_cache = True
+            else:
+                logger.warning("Unknown value for use_cache as " + str(use_cache))
+        else:
+            logger.info("use_cache value not detected")
+
         return_format = request.values.get('format')
         # if not get return format, set defauld as csv
         if return_format is None:
@@ -1040,7 +1051,7 @@ def augment():
             logger.debug("Start running wikifier...")
             search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
                                                           search_type="wikifier")
-            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
+            loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset, use_cache=use_cache)
             logger.debug("Wikifier finished, start running download...")
         else:
             logger.debug("Wikifier skipped, start running download...")
@@ -1329,7 +1340,7 @@ def upload_function(request, test_mode=False):
 @cross_origin()
 def get_local_datasets(dataset_name):
     """
-    This function is used to work as a fake "http" server that enable to generate a url for the dataset in local disks
+    This function is used to work as a dummy http server that enable to generate a url for the dataset in local disks
     can also used for supporting the datasets user uploaded directly (in the future)
     """
     try:

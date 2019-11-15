@@ -59,10 +59,12 @@ Following packages are required to be installed:
  - `OWL-RL` package stored on `/data00/dsbox/datamart/datamart_new/OWL-RL` which support multi-processes
 
 
-Currently, the detail config used is `gunicorn webapp-openapi:app -b 0.0.0.0:9000 -w 20 --preload --timeout 1800`
+Currently, the detail config used is `gunicorn webapp-openapi:app -b 0.0.0.0:9000 -w 20 --preload --timeout 1800 --certfile=./certs/wildcard_isi.crt --keyfile=./certs/wildcard_isi.key`
  - `-b`: where the service should be running. Currenly it is running on local port 9000
  - `-w`: How many processes(cores) that can be maximum used. Currenly it is 20 processes
  - `--timeout`: it will automatically kill the connection session after 1800 seconds. Which means any join attempt tooks larger than 30 minutes will be killed.
+ - `--keyfile/certfile`: Now on dsbox02, we use https link instead of http, those certification / key file only existed on dsbox02 machine. 
+ - If run on locally for testing purpose, you can run `python webapp-openapi.py` to start the rest service directly.
 
 #### Memcache Service
 This is the cache system used for datamart. For details, please refer to [here](https://github.com/usc-isi-i2/datamart-userend/tree/d3m/datamart_isi/cache "here")
@@ -93,6 +95,6 @@ To add a token, just copy a exist pair from the `password_tokens.json` and creat
 #### cache files
 There are also some other files that stored some extra information.
 - The wikifier choice file. This is currently stored on `/data00/dsbox/datamart/memcache_storage/other_cache/wikifier_choice.json`. This file contains the option on whether a given dataset need to be wikified or not. Basically it is only required to be copied by hand if migrating the system, otherwise the information will be automatically added to the file during uploading the dataset.
-- 
-
-- The wikifier target cache. This is used for memorizing the corresponding wikifier
+- The general augment cache. This is used for memorizing the augment results.The cache files are currently stored on `/data00/dsbox/datamart/memcache_storage/general_search_cache`.
+- The wikifier target cache. This is used for memorizing the corresponding wikifier. The cache files are currently stored on `/data00/dsbox/datamart/memcache_storage/wikifier_cache`.
+- The datasets cache. This is used for memorizing the metadata for the supplied data as if sent from NYU'S rest api service, metadata will not be sent (only a csv file will received). The cache files are currently stored on `/data00/dsbox/datamart/memcache_storage/datasets_cache`.
