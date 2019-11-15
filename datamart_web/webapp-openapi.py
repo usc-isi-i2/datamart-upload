@@ -983,6 +983,7 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
+        use_cache = None
         if request.values.get('use_cache'):
             use_cache = request.values.get('use_cache')
             if use_cache.lower() == "false":
