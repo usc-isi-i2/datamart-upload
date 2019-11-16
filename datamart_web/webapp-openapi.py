@@ -74,8 +74,8 @@ password_record_file = "../datamart_isi/upload/upload_password_config.json"
 
 
 dataset_paths = ["/data",  # for docker
-                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_data_augmentation",  # for dsbox server
-                 "/nfs1/dsbox-repo/data/datasets/seed_datasets_current",  # for dsbox server
+                 "/data00/dsbox/dataset/datasets/seed_datasets_data_augmentation",  # for dsbox02 server
+                 "/data00/dsbox/dataset/datasets/seed_datasets_current",  # for dsbox02 server
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 DATAMART_SERVER = connection.get_general_search_server_url()
