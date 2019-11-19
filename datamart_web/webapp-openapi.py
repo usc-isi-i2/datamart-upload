@@ -37,6 +37,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi import config_services
 from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
+from datamart_isi.utilities.download_manager import DownloadManager
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
@@ -228,7 +229,7 @@ def load_csv_data(data) -> d3m_Dataset:
         return_ds.metadata = return_ds.metadata.update(metadata=metadata_each_column, selector=metadata_selector)
     metadata_all_level = {
         "id": "datamart_search_" + str(hash(data.values.tobytes())),
-        "version": "2.0",
+        "version": "4.0.0",
         "name": "user given input from datamart userend",
         "location_uris": ('file:///tmp/datasetDoc.json',),
         "digest": "",
@@ -240,6 +241,9 @@ def load_csv_data(data) -> d3m_Dataset:
     return return_ds
 
 def _load_file_with(read_format: str, tmpfile):
+    """
+    Inner function used for `load_input_supplied_data`
+    """
     try:
         if read_format == "zip": 
             # try to load as d3m dataset
@@ -585,24 +589,55 @@ def search():
             limit=max_return_docs) or []
         logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
-        for i, r in enumerate(res):
+        for i, each_res in enumerate(res):
             try:
-                materialize_info = r.serialize()
+                materialize_info = each_res.serialize()
                 materialize_info_decoded = json.loads(materialize_info)
                 augmentation_part = materialize_info_decoded['augmentation']
+                search_type = materialize_info_decoded["metadata"]['search_type']
+
+                # for vector search results and wikidata search results, we need to fetech the results
+                try:
+                    if search_type == "vector":
+                        q_nodes_list = materialize_info_decoded["metadata"]['search_result']['q_nodes_list'][:10]
+                        target_column_name = materialize_info_decoded["metadata"]['search_result']['target_q_node_column_name']
+                        first_10_rows_df = DownloadManager.fetch_fb_embeddings(q_nodes_list=q_nodes_list, 
+                                                                                 target_q_node_column_name=target_column_name)
+                        first_10_rows_info = first_10_rows_df.to_csv(index=False)
+                        
+                    elif search_type == "wikidata":
+                        p_nodes = each_res.id().split("___")
+                        p_nodes = p_nodes[1: -1]
+                        materialize_info = {"p_nodes_needed": p_nodes}
+                        temp_df = Utils.materialize(materialize_info)
+                        first_10_rows_info = temp_df.to_csv(index=False)
+
+                    elif search_type == "general":
+                        extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
+                        temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
+                        if 'Unnamed: 0' in temp_df.columns:
+                            temp_df = temp_df.drop(columns=['Unnamed: 0'])
+                        first_10_rows_info = temp_df.to_csv(index=False)
+
+                except Exception as e:
+                    logger.error("Feteching the first 10 rows failed!")
+                    logger.debug(e, exc_info=True)
+                    first_10_rows_info = ""
+
                 cur = {
                     'augmentation': {'type': augmentation_part['properties'], 'left_columns': [augmentation_part['left_columns']], 'right_columns': [augmentation_part['right_columns']]},
-                    'summary': parse_search_result(r),
-                    'score': r.score(),
-                    'metadata': r.get_metadata().to_json_structure(),
-                    'id': r.id(),
+                    'summary': parse_search_result(each_res),
+                    'score': each_res.score(),
+                    'metadata': each_res.get_metadata().to_json_structure(),
+                    'id': each_res.id(),
+                    'sample': first_10_rows_info,
                     'materialize_info': materialize_info
                 }
                 results.append(cur)
 
             except Exception as e:
                 logger.error("Feteching No.{} result failed!".format(str(i)))
-                self._logger.debug(e, exc_info=True)
+                logger.debug(e, exc_info=True)
             
         json_return = dict()
         json_return["results"] = results
