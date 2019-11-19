@@ -604,12 +604,12 @@ def search():
                         first_10_rows_df = DownloadManager.fetch_fb_embeddings(q_nodes_list=q_nodes_list, 
                                                                                  target_q_node_column_name=target_column_name)
                         first_10_rows_info = first_10_rows_df.to_csv(index=False)
-                        
+
                     elif search_type == "wikidata":
                         p_nodes = each_res.id().split("___")
                         p_nodes = p_nodes[1: -1]
-                        materialize_info = {"p_nodes_needed": p_nodes}
-                        temp_df = Utils.materialize(materialize_info)
+                        materialize_info_wikidata = {"p_nodes_needed": p_nodes}
+                        temp_df = Utils.materialize(materialize_info_wikidata)
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                     elif search_type == "general":
