@@ -25,16 +25,20 @@ import bcrypt
 
 from wikifier.wikifier import produce
 from flask_cors import CORS, cross_origin
+from flask import Flask, request, send_file, Response, redirect
+from flasgger import Swagger
+from rq import Queue
+from werkzeug.contrib.fixers import ProxyFix
+from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
+
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
 from d3m.metadata.base import ALL_ELEMENTS
-from flask import Flask, request, send_file, Response, redirect
 from datamart_isi import config as config_datamart
-from datamart_isi.utilities import connection
-from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi import config_services
+from datamart_isi.utilities import connection
 from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.download_manager import DownloadManager
@@ -42,8 +46,7 @@ from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
-from flasgger import Swagger
-from rq import Queue
+
 
 
 logger = logging.getLogger()
@@ -608,7 +611,7 @@ def search():
                     elif search_type == "wikidata":
                         p_nodes = each_res.id().split("___")
                         p_nodes = p_nodes[1: -1]
-                        materialize_info_wikidata = {"p_nodes_needed": p_nodes}
+                        materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
                         temp_df = Utils.materialize(materialize_info_wikidata)
                         first_10_rows_info = temp_df.to_csv(index=False)
 
@@ -1101,6 +1104,11 @@ def augment():
         augment_result = search_result.augment(supplied_data=loaded_dataset, 
                                                augment_columns=columns_formated, 
                                                use_cache=use_cache)
+
+        # if get string here, it means augment failed
+        if isinstance(augment_result, str):
+            return wrap_response(code='400',
+                                 msg=augment_result)
 
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
         augment_result[res_id] = result_df.astype(str)
