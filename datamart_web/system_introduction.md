@@ -31,7 +31,7 @@ It will take up to 128GB memories. So please ensure leave enough space for the s
 This is the old version of wikifier. Basically it requires a Redis server, a data file(a large json) and a Flask server for POST interface. ~~Currenly it is running on minds03 machine,~~ the data has been copied to `dsbox02` server.
 The following config is used to start the redis service in docker:
 - `$ docker run --detach -m 50g --name wikifier-redis --publish 6379:6379 --volume=$HOME/data:/data --entrypoint redis-server redis --appendonly yes`
-- The memory limit on this redis server is set to 50GB
+- ~~-The memory limit on this redis server is set to 50GB~~ No memory usage limit on redis now.
 - The data file of redis is stored at `/data00/dsbox/datamart/data`
 
 #### Wikifier Service (new)
@@ -59,10 +59,11 @@ Following packages are required to be installed:
  - `OWL-RL` package stored on `/data00/dsbox/datamart/datamart_new/OWL-RL` which support multi-processes
 
 
-Currently, the detail config used is `gunicorn webapp-openapi:app -b 0.0.0.0:9000 -w 20 --preload --timeout 1800 --certfile=./certs/wildcard_isi.crt --keyfile=./certs/wildcard_isi.key`
- - `-b`: where the service should be running. Currenly it is running on local port 9000
+Currently, the detail config used is `gunicorn webapp-openapi:app -b 0.0.0.0:8999 -w 20 --preload --timeout 1800 --certfile=./certs/wildcard_isi.crt --keyfile=./certs/wildcard_isi.key`
+ - `-b`: where the service should be running. Currenly it is running on local port 8999 (to ensure we can redirect both http and https). The access from outside (both `http://dsbox02.isi.edu:9000` and `https://dsbox02.isi.edu:9000`) will be redirected to `https://dsbox02.isi.edu:8999` as configured on `nginx`.
  - `-w`: How many processes(cores) that can be maximum used. Currenly it is 20 processes
  - `--timeout`: it will automatically kill the connection session after 1800 seconds. Which means any join attempt tooks larger than 30 minutes will be killed.
+ - `preload`: load the whole module before starting, this can ensure no critical bug which cause system down will happened.
  - `--keyfile/certfile`: Now on dsbox02, we use https link instead of http, those certification / key file only existed on dsbox02 machine. 
  - If run on locally for testing purpose, you can run `python webapp-openapi.py` to start the rest service directly.
 

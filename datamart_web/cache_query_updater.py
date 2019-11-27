@@ -19,6 +19,8 @@ from d3m.base import utils as d3m_utils
 from datamart_isi.utilities import d3m_wikifier
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.utilities import connection
+from datamart_isi.cache.materializer_cache import MaterializerCache
+
 
 # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
 _logger = logging.getLogger(__name__)
@@ -178,7 +180,7 @@ class DatamartCacheUpdater:
         update_cache_manager = MaterializerCache("http://dsbox02.isi.edu:9000")
         result = self.run_sparql_query(query_get_all_datasets, blaze_graph_server_address)
         for each_dataset_info in result:
-            df_without_wikifier = Utils.materialize(metadata=each_dataset_info, run_wikifier=False)
+            df_without_wikifier = MaterializerCache.materialize(metadata=each_dataset_info, run_wikifier=False)
             df_with_wikifier = wikifier.produce(df_without_wikifier)
             key_not_run_wikifier = update_cache_manager.get_hash_key(each_dataset_info, run_wikifier=False)
             key_run_wikifier = update_cache_manager.get_hash_key(each_dataset_info, run_wikifier=True)

@@ -43,6 +43,7 @@ from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, D
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.download_manager import DownloadManager
 from datamart_isi.utilities.utils import Utils
+from datamart_isi.cache.materializer_cache import MaterializerCache
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
@@ -612,7 +613,7 @@ def search():
                         p_nodes = each_res.id().split("___")
                         p_nodes = p_nodes[1: -1]
                         materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
-                        temp_df = Utils.materialize(materialize_info_wikidata)
+                        temp_df = MaterializerCache.materialize(materialize_info_wikidata)
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                     elif search_type == "general":
@@ -844,7 +845,7 @@ def download_by_id(id):
             p_nodes = datamart_id.split("___")
             p_nodes = p_nodes[1: -1]
             materialize_info = {"p_nodes_needed": p_nodes}
-            result_df = Utils.materialize(materialize_info)
+            result_df = MaterializerCache.materialize(materialize_info)
 
         else:  # len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
@@ -871,7 +872,7 @@ def download_by_id(id):
             if len(results) == 0:
                 return wrap_response('400', msg="Can't find corresponding dataset with given id.")
             logger.debug("Start materialize the dataset...")
-            result_df = Utils.materialize(metadata=results[0])
+            result_df = MaterializerCache.materialize(metadata=results[0])
 
         # else:
         # return wrap_response('400', msg="FAIL MATERIALIZE - Unknown input id format.")
