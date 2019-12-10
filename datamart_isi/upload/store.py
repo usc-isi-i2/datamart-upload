@@ -12,6 +12,7 @@ import os
 import hashlib
 
 from requests.auth import HTTPBasicAuth
+from pandas.util import hash_pandas_object
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 from etk.etk_module import ETKModule
@@ -218,8 +219,9 @@ class Datamart_isi_upload:
             }
             try:
                 result = general_materializer.get(metadata=file_metadata).to_csv(index=False)
-            except:
-                raise ValueError("Loading online data from " + input_dir + "failed!")
+            except Exception as e:
+                _logger.debug(e, exc_info=True)
+                raise ValueError("Loading online data from " + input_dir + " failed!")
                 # remove last \n so that we will not get an extra useless row
             if result[-1] == "\n":
                 result = result[:-1]
@@ -328,10 +330,25 @@ class Datamart_isi_upload:
         return all_wikifier_res, all_metadata
 
 
-    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int, uploader_information, job=None):
+    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int, uploader_information, **kwargs):
         self._logger.debug("Start modeling data into blazegraph format...")
         start = time.time()
-        self.modeled_data_id = str(uuid.uuid4())
+        job = kwargs.get("job", None)
+        need_process_columns = kwargs.get("need_process_columns", None)
+        if need_process_columns is None:
+            need_process_columns = list(range(input_dfs[number].shape[1]))
+        else:
+            for each_column_number in need_process_columns:
+                if each_column_number >= input_dfs[number].shape[1]:
+                    raise ValueError("The given column number {} exceed the dataset's column length as {}.".format(each_column_number, str(input_dfs[number].shape[1])))
+
+        # updated v2019.12.5: now use the md5 value of dataframe hash as the dataset id
+        pandas_id = str(hash_pandas_object(input_dfs[number]).sum())
+        hash_generator = hashlib.md5()
+        hash_generator.update(pandas_id.encode('utf-8'))
+        hash_url_key = hash_generator.hexdigest()
+        self.modeled_data_id = hash_url_key
+
         if metadata is None or metadata[number] is None:
             metadata = {}
         extra_information = {}
@@ -340,14 +357,19 @@ class Datamart_isi_upload:
         file_type = metadata[number].get("file_type") or ""
         # TODO: if no url given?
         url = metadata[number].get("url") or "http://"
-        if type(keywords) is list:
-            words_processed = []
-            for each in keywords:
+
+        # update v2019.12.6, now adapt special requirement from keywords
+        if type(keywords) is str:
+            keywords_list = keywords.split(",")
+        words_processed = []
+        for each in keywords_list:
+            if each.startswith("*&#") and each.endswith("*&#"):
+                self._logger.info("Special requirement from keyword area detected as {}".format(each))
+                special_requirement = json.loads(each[3: -3])
+                extra_information['special_requirement'] = special_requirement
+            else:
                 words_processed.extend(remove_punctuation(each))
-            keywords = " ".join(words_processed)
-        else:
-            words_processed = remove_punctuation(keywords)
-            keywords = " ".join(set(words_processed))
+        keywords = " ".join(set(words_processed))
 
         node_id = 'D' + str(self.modeled_data_id)
         q = WDItem(node_id)
@@ -401,7 +423,7 @@ class Datamart_isi_upload:
 
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
         # each columns
-        for i in range(input_dfs[number].shape[1]):
+        for i in need_process_columns:
             if job is not None:
                 job.meta['step'] = "Modeling ({}/{}) column ...".format(str(i), str(input_dfs[number].shape[1]))
                 job.save_meta()
