@@ -30,7 +30,7 @@ It will take up to 128GB memories. So please ensure leave enough space for the s
 #### Wikifier Service (identifier)
 This is the old version of wikifier. Basically it requires a Redis server, a data file(a large json) and a Flask server for POST interface. ~~Currenly it is running on minds03 machine,~~ the data has been copied to `dsbox02` server.
 The following config is used to start the redis service in docker:
-- `$ docker run --detach -m 50g --name wikifier-redis --publish 6379:6379 --volume=$HOME/data:/data --entrypoint redis-server redis --appendonly yes`
+- `$ docker run --detach --name wikifier-redis --publish 6379:6379 --volume=$HOME/data:/data --entrypoint redis-server redis --appendonly yes`
 - ~~-The memory limit on this redis server is set to 50GB~~ No memory usage limit on redis now.
 - The data file of redis is stored at `/data00/dsbox/datamart/data`
 

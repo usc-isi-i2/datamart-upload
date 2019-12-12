@@ -294,12 +294,17 @@ paths:
           * **run_wikifier**: If true, run the wikifier to add additional columns based on entity resolution.
           * **use_cache**: If true, the system will use cached result if exists. If choose **default**, the system will determine base on the system config.
           </p>'
+
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               properties:
+                data:
+                  type: string
+                  format: binary
+                  description: 'supplied data file in csv for general format or zip/pkl for d3m format'
                 task:
                   type: string
                   description: 'The search result task (json-like str) from Search API you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/sample_search_result_wikidata.txt">example1</a> or <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/sample_search_result_general.txt">example2</a>'
@@ -311,7 +316,7 @@ paths:
           description: '<p>Supplied data file. It could be a d3m-dataset-id or a filepath</p>'
           schema:
             type: string
-          required: true
+          required: false
           examples:
             filepath:
               value: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/test_search_data.csv

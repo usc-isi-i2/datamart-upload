@@ -23,7 +23,6 @@ import frozendict
 import rq
 import bcrypt
 
-from wikifier.wikifier import produce
 from flask_cors import CORS, cross_origin
 from flask import Flask, request, send_file, Response, redirect
 from flasgger import Swagger
@@ -36,6 +35,9 @@ from d3m.base import utils as d3m_utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
 from d3m.metadata.base import ALL_ELEMENTS
+
+from wikifier.wikifier import produce
+from wikifier.utils import wikifier_for_ethiopia_dataset
 from datamart_isi import config as config_datamart
 from datamart_isi import config_services
 from datamart_isi.utilities import connection
@@ -123,7 +125,7 @@ def is_redis_available(redis_conn):
     # for debugging condition, should not run on redis
     if "dsbox" not in hostname:
         return False
-        
+
     try:
         redis_conn.get(None)  # getting None returns None or throws an exception
     except (redis.exceptions.ConnectionError, redis.exceptions.BusyLoadingError):
@@ -277,6 +279,8 @@ def _load_file_with(read_format: str, tmpfile):
             zip.extractall(destination)
             loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
             status = True
+            # remove unzipped files
+            shutil.rmtree(destination)
 
         elif read_format == "pkl":
             # pkl format
@@ -599,8 +603,6 @@ def search():
 
         if need_wikifier:
             meta_for_wikifier = None
-            _logger.debug("Start running wikifier...")
-            # if a specific list of wikifier targets was sent (usually generated from ta2 system)
             if query and "keywords" in query.keys():
                 for i, kw in enumerate(query["keywords"]):
                     if config_datamart.wikifier_column_mark in kw:
@@ -617,6 +619,7 @@ def search():
                                                           search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
             _logger.debug("Wikifier finished, start running search...")
+
         else:
             _logger.debug("Wikifier skipped, start running search...")
 
@@ -891,7 +894,7 @@ def download_by_id(id):
             p_nodes = datamart_id.split("___")
             p_nodes = p_nodes[1: -1]
             materialize_info = {"p_nodes_needed": p_nodes}
-            result_df = MaterializerCache.materialize(materialize_info)
+            result_df = MaterializerCache.materialize(materialize_info, run_wikifier=False)
 
         else:  # len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
@@ -918,7 +921,7 @@ def download_by_id(id):
             if len(results) == 0:
                 return wrap_response('400', msg="Can't find corresponding dataset with given id.")
             _logger.debug("Start materialize the dataset...")
-            result_df = MaterializerCache.materialize(metadata=results[0])
+            result_df = MaterializerCache.materialize(metadata=results[0], run_wikifier=False)
 
         # else:
         # return wrap_response('400', msg="FAIL MATERIALIZE - Unknown input id format.")
