@@ -361,6 +361,8 @@ class Datamart_isi_upload:
         # update v2019.12.6, now adapt special requirement from keywords
         if type(keywords) is str:
             keywords_list = keywords.split(",")
+        else:
+            keywords_list = keywords
         words_processed = []
         for each in keywords_list:
             if each.startswith("*&#") and each.endswith("*&#"):
@@ -458,6 +460,8 @@ class Datamart_isi_upload:
         translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
+            import pdb
+            pdb.set_trace()
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
                 semantic_type_url = "http://schema.org/DateTime"
@@ -465,17 +469,18 @@ class Datamart_isi_upload:
                 end_date = max(column_data)
 
                 TemporalGranularity = {'second': 14, 'minute': 13, 'hour': 12, 'day': 11, 'month': 10, 'year': 9}
-                if any(column_data.dt.second != 0):
+                # updated v2019.12.12: check details, only treat as the granularity if we found more than 1 values for this granularity
+                if any(column_data.dt.second != 0) and len(column_data.dt.second.unique()) > 1:
                     time_granularity = TemporalGranularity['second']
-                elif any(column_data.dt.minute != 0):
+                elif any(column_data.dt.minute != 0) and len(column_data.dt.minute.unique()) > 1:
                     time_granularity = TemporalGranularity['minute']
-                elif any(column_data.dt.hour != 0):
+                elif any(column_data.dt.hour != 0) and len(column_data.dt.hour.unique()) > 1:
                     time_granularity = TemporalGranularity['hour']
-                elif any(column_data.dt.day != 0):
+                elif any(column_data.dt.day != 0) and len(column_data.dt.day.unique()) > 1:
                     time_granularity = TemporalGranularity['day']
-                elif any(column_data.dt.month != 0):
+                elif any(column_data.dt.month != 0) and len(column_data.dt.month.unique()) > 1:
                     time_granularity = TemporalGranularity['month']
-                elif any(column_data.dt.year != 0):
+                elif any(column_data.dt.year != 0) and len(column_data.dt.year.unique()) > 1:
                     time_granularity = TemporalGranularity['year']
                 else:
                     raise Exception('Dates do not in a right format.')

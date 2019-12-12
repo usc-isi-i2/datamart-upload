@@ -167,6 +167,9 @@ paths:
             type: string
             default: "false"
             enum: ["true", "false"]
+        # - in: formData
+          # name: query_json
+          
       requestBody:
         content:
           multipart/form-data:
@@ -177,17 +180,20 @@ paths:
                   type: string
                   format: binary
                   description: 'supplied data file in csv for general format or zip/pkl for d3m format'
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Query"
-            examples:
-              keyword_search:
-                summary: "Search using the keywords 'poverty rate' and 'education'"
-                value:
-                  keywords:
-                    - "poverty rate"
-                    - "education"
-                  variables: []
+                query_json:
+                  type: string
+                  format: json
+                  description: "keywords and variables for search"
+                  schema:
+                      $ref: "#/components/schemas/Query"
+                  examples:
+                      keyword_search:
+                        summary: "Search using the keywords 'poverty rate' and 'education'"
+                        value:
+                          keywords:
+                            - "poverty rate"
+                            - "education"
+                          variables: []
       responses:
         '200':
           description: successful operation
