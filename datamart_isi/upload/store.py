@@ -437,8 +437,10 @@ class Datamart_isi_upload:
             self._logger.info("Currently settting modeling each column maximum time as " + str(model_column_time_limit) + " seconds.")
             res = timeout_call(model_column_time_limit, self.process_one_column, [input_dfs[number].iloc[:,i], q, i, semantic_type])
             # res = self.process_one_column(column_data=input_dfs[number].iloc[:,i], item=q, column_number=i, semantic_type=semantic_type)
-            if not res:
+            if res is None:
                 self._logger.error("Error when modeling column " + str(i) + ". Maybe timeout? Will skip.")
+            else:
+                q = res
         self.doc.kg.add_subject(q)
         end2 = time.time()
         self._logger.info("Modeling detail data finished. Totally take " + str(end2 - end1) + " seconds.")
@@ -460,8 +462,6 @@ class Datamart_isi_upload:
         translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
-            import pdb
-            pdb.set_trace()
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
                 semantic_type_url = "http://schema.org/DateTime"
@@ -517,11 +517,11 @@ class Datamart_isi_upload:
             statement.add_qualifier('P1545', QuantityValue(column_number))  # column index
             end1 = time.time()
             self._logger.info("Processing finished, totally take " + str(end1 - start) + " seconds.")
-            return True
+            return item
         except Exception as e:
             self._logger.error("[ERROR] processing column No." + str(column_number) + " failed!")
             self._logger.debug(e, exc_info=True)
-            return False
+            return None
         
     def output_to_ttl(self, file_path: str, file_format="ttl"):                        
         """
