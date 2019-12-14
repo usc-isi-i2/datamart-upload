@@ -95,6 +95,21 @@ datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
 REDIS_MANAGER = RedisManager()
 
+def load_keywords_augment_resources():
+    sys.path.append(os.path.join(os.getcwd(), '..', "datamart_keywords_augment"))
+    if os.path.exists("fuzzy_search_core.pkl"):
+        try:
+            with open("fuzzy_search_core.pkl","rb") as f:
+                FUZZY_SEARCH_CORE = pickle.load(f)
+        except ModuleNotFoundError:
+            _logger.error("Can't load keywords augment core model! Please check the path!")
+            FUZZY_SEARCH_CORE = None
+    else:
+        FUZZY_SEARCH_CORE = None
+    return FUZZY_SEARCH_CORE
+    
+FUZZY_SEARCH_CORE = load_keywords_augment_resources()
+
 app = Flask(__name__)
 CORS(app, resources={r"/api": {"origins": "*"}})
 app.config['SWAGGER'] = {
@@ -1701,23 +1716,8 @@ def generate_dataset_metadata():
     print('Done generate_dataset_metadata')
 
 
-def load_keywords_augment_resources():
-    sys.path.append(os.path.join(os.getcwd(), '..', "datamart_keywords_augment"))
-    if os.path.exists("fuzzy_search_core.pkl"):
-        try:
-            with open("fuzzy_search_core.pkl","rb") as f:
-                FUZZY_SEARCH_CORE = pickle.load(f)
-        except ModuleNotFoundError:
-            _logger.error("Can't load keywords augment core model! Please check the path!")
-            FUZZY_SEARCH_CORE = None
-    else:
-        FUZZY_SEARCH_CORE = None
-    return FUZZY_SEARCH_CORE
-
 if __name__ == '__main__':
-    generate_dataset_metadata()
-    global FUZZY_SEARCH_CORE
-    FUZZY_SEARCH_CORE = load_keywords_augment_resources()
+    # generate_dataset_metadata()
     if hostname == "dsbox02":
         context = ('./certs/wildcard_isi.crt', './certs/wildcard_isi.key')
         app.run(host="0.0.0.0", port=9000, debug=False, ssl_context=context) 
