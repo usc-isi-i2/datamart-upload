@@ -107,10 +107,10 @@ def load_keywords_augment_resources():
     else:
         FUZZY_SEARCH_CORE = None
     return FUZZY_SEARCH_CORE
-    
-FUZZY_SEARCH_CORE = load_keywords_augment_resources()
 
 app = Flask(__name__)
+_logger.info("Loading for keywords augmentation!!")
+FUZZY_SEARCH_CORE = load_keywords_augment_resources()
 CORS(app, resources={r"/api": {"origins": "*"}})
 app.config['SWAGGER'] = {
     'title': 'Datamart Link Panel',
