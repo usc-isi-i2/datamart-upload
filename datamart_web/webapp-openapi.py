@@ -86,15 +86,6 @@ dataset_paths = ["/data",  # for docker
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
 
-hostname = socket.gethostname()
-_logger.info("Current hostname is: {}".format(hostname))
-DATAMART_SERVER = connection.get_general_search_server_url()
-DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
-datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
-                                               query_server=DATAMART_SERVER)
-Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
-REDIS_MANAGER = RedisManager()
-
 def load_keywords_augment_resources():
     sys.path.append(os.path.join(os.getcwd(), '..', "datamart_keywords_augment"))
     if os.path.exists("fuzzy_search_core.pkl"):
@@ -108,9 +99,20 @@ def load_keywords_augment_resources():
         FUZZY_SEARCH_CORE = None
     return FUZZY_SEARCH_CORE
 
-app = Flask(__name__)
+hostname = socket.gethostname()
+_logger.info("Current hostname is: {}".format(hostname))
 _logger.info("Loading for keywords augmentation!!")
 FUZZY_SEARCH_CORE = load_keywords_augment_resources()
+_logger.info("Loading finished!!")
+DATAMART_SERVER = connection.get_general_search_server_url()
+DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
+datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
+                                               query_server=DATAMART_SERVER)
+Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
+REDIS_MANAGER = RedisManager()
+
+app = Flask(__name__)
+
 CORS(app, resources={r"/api": {"origins": "*"}})
 app.config['SWAGGER'] = {
     'title': 'Datamart Link Panel',
