@@ -7,6 +7,7 @@ import uuid
 import time
 import datetime
 import logging
+import re
 import json
 import os
 import hashlib
@@ -33,7 +34,7 @@ from datamart_isi.utilities.timeout import Timeout, timeout_call
 from datamart_isi.utilities import connection
 from datamart_isi import config as config_datamart
 from datamart_isi.cache.general_search_cache import GeneralSearchCache
-from datamart_isi.utilities.d3m_wikifier import save_wikifier_choice
+from datamart_isi.utilities.d3m_wikifier import save_wikifier_choice, check_is_q_node_column
 
 DATAMRT_SERVER = connection.get_general_search_server_url()
 
@@ -255,7 +256,8 @@ class Datamart_isi_upload:
             
             if do_wikifier:
                 self._logger.info("Will run wikifier!")
-                wikifier_res = wikifier.produce(each_df)
+                # not use cache during upload
+                wikifier_res = wikifier.produce(each_df, use_cache=False)
 
             else:
                 self._logger.info("Not run wikifier!")
@@ -341,6 +343,11 @@ class Datamart_isi_upload:
             for each_column_number in need_process_columns:
                 if each_column_number >= input_dfs[number].shape[1]:
                     raise ValueError("The given column number {} exceed the dataset's column length as {}.".format(each_column_number, str(input_dfs[number].shape[1])))
+ 
+            for each_col in range(input_dfs[number].shape[1]):
+                if each_col not in need_process_columns and check_is_q_node_column(input_dfs[number], each_col):
+                    self._logger.info("Automatically add Q node column at No.{} {} as index list!".format(str(each_col), str(input_dfs[number].columns[each_col])))
+                    need_process_columns.append(each_col)
 
         # updated v2019.12.5: now use the md5 value of dataframe hash as the dataset id
         pandas_id = str(hash_pandas_object(input_dfs[number]).sum())
@@ -468,22 +475,8 @@ class Datamart_isi_upload:
                 start_date = min(column_data)
                 end_date = max(column_data)
 
-                TemporalGranularity = {'second': 14, 'minute': 13, 'hour': 12, 'day': 11, 'month': 10, 'year': 9}
                 # updated v2019.12.12: check details, only treat as the granularity if we found more than 1 values for this granularity
-                if any(column_data.dt.second != 0) and len(column_data.dt.second.unique()) > 1:
-                    time_granularity = TemporalGranularity['second']
-                elif any(column_data.dt.minute != 0) and len(column_data.dt.minute.unique()) > 1:
-                    time_granularity = TemporalGranularity['minute']
-                elif any(column_data.dt.hour != 0) and len(column_data.dt.hour.unique()) > 1:
-                    time_granularity = TemporalGranularity['hour']
-                elif any(column_data.dt.day != 0) and len(column_data.dt.day.unique()) > 1:
-                    time_granularity = TemporalGranularity['day']
-                elif any(column_data.dt.month != 0) and len(column_data.dt.month.unique()) > 1:
-                    time_granularity = TemporalGranularity['month']
-                elif any(column_data.dt.year != 0) and len(column_data.dt.year.unique()) > 1:
-                    time_granularity = TemporalGranularity['year']
-                else:
-                    raise Exception('Dates do not in a right format.')
+                time_granularity = datamart_utils.map_d3m_granularity_to_value(datamart_utils.get_time_granularity(column_data))
 
                 start_time = TimeValue(Literal(start_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'), time_granularity, 0)
                 end_time = TimeValue(Literal(end_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'), time_granularity, 0)

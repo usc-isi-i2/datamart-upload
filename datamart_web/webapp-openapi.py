@@ -1611,6 +1611,7 @@ def check_upload_status():
 
 
 @app.route('/embeddings/fb/<qnode>', methods=['GET'])
+@cross_origin()
 def fetch_fb_embeddings(qnode):
     qnodes = qnode.split(',')
     qnode_uris = [wikidata_uri_template.format(qnode.upper().strip()) for qnode in qnodes]
@@ -1649,6 +1650,37 @@ def fetch_fb_embeddings(qnode):
     return None
 
 
+@app.route('/keywords_augmentation/<string:keywords>', methods=['GET'])
+@cross_origin()
+def keywords_augmentation(keywords):
+    """
+        (original project link: https://github.com/usc-isi-i2/data-label-augmentation/tree/mint-fuzzy)
+        use fuzzy search to augment input keywords to increase the possiblity to hit
+        inputs: a list of keywords, separate by comma ","
+        returns: a list of augmented keywords, separate by comma ","
+    """
+    try:
+        keywords = list(map(lambda x: x.strip(), keywords.split(',')))
+        _logger.info("Original keywords are: {}".format(str(keywords)))
+        if FUZZY_SEARCH_CORE is not None:
+            augmented_res = FUZZY_SEARCH_CORE.get_word_map(keywords)
+            new_keywords = []
+            for original_keywords, v in augmented_res.items():
+                new_keywords.append(original_keywords)
+                for extra_keywords in v.keys():
+                    new_keywords.append(extra_keywords)
+            _logger.info("Augmented keywords are: {}".format(str(new_keywords)))
+
+        else:
+            _logger.warning("Keywords augmentation core not loaded! Can't augment.")
+            new_keywords = keywords
+        return wrap_response(code='200', msg=",".join(new_keywords))
+
+    except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
 def generate_dataset_metadata():
     '''
     Add D3M dataset metadata to cache
@@ -1669,8 +1701,23 @@ def generate_dataset_metadata():
     print('Done generate_dataset_metadata')
 
 
+def load_keywords_augment_resources():
+    sys.path.append(os.path.join(os.getcwd(), '..', "datamart_keywords_augment"))
+    if os.path.exists("fuzzy_search_core.pkl"):
+        try:
+            with open("fuzzy_search_core.pkl","rb") as f:
+                FUZZY_SEARCH_CORE = pickle.load(f)
+        except ModuleNotFoundError:
+            _logger.error("Can't load keywords augment core model! Please check the path!")
+            FUZZY_SEARCH_CORE = None
+    else:
+        FUZZY_SEARCH_CORE = None
+    return FUZZY_SEARCH_CORE
+
 if __name__ == '__main__':
     generate_dataset_metadata()
+    global FUZZY_SEARCH_CORE
+    FUZZY_SEARCH_CORE = load_keywords_augment_resources()
     if hostname == "dsbox02":
         context = ('./certs/wildcard_isi.crt', './certs/wildcard_isi.key')
         app.run(host="0.0.0.0", port=9000, debug=False, ssl_context=context) 
