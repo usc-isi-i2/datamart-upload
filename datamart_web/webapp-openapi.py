@@ -622,7 +622,7 @@ def search():
             meta_for_wikifier = None
             if query and "keywords" in query.keys():
                 for i, kw in enumerate(query["keywords"]):
-                    if config_datamart.wikifier_column_mark in kw:
+                    if kw and config_datamart.wikifier_column_mark in kw:
                         meta_for_wikifier = json.loads(query["keywords"].pop(i))[config_datamart.wikifier_column_mark]
                         break
                 if meta_for_wikifier:
@@ -695,7 +695,7 @@ def search():
                     first_10_rows_info = ""
 
                 cur = {
-                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': [augmentation_part['left_columns']], 'right_columns': [augmentation_part['right_columns']]},
+                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': augmentation_part['left_columns'], 'right_columns': augmentation_part['right_columns']},
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
                     'metadata': each_res.get_metadata().to_json_structure(),
