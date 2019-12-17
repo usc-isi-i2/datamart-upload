@@ -8,6 +8,17 @@ from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.upload import store
 
+# import pdb
+# pdb.set_trace()
+# # define a Handler which writes INFO messages or higher to the sys.stderr
+# console = logging.StreamHandler()
+# console.setLevel(logging.DEBUG)
+# # set a format which is simpler for console use
+# formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
+# # tell the handler to use this format
+# console.setFormatter(formatter)
+# # add the handler to the root logger
+# logging.getLogger('').addHandler(console)
 
 def upload_to_datamart(datamart_upload_address, dataset_information):
     logger = logging.getLogger()
@@ -20,15 +31,6 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
                         filename='datamart_upload_worker_{}.log'.format(os.getpid()),
                         filemode='w'
                         )
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
 
     start_time = time.time()
     job = get_current_job()
