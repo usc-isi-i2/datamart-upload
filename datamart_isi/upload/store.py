@@ -454,6 +454,7 @@ class Datamart_isi_upload:
         self._logger.debug("Start processing No." + str(column_number) + " column.")
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
+
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
                 semantic_type_url = "http://schema.org/DateTime"
@@ -462,7 +463,7 @@ class Datamart_isi_upload:
 
                 # updated v2019.12.12: check details, only treat as the granularity if we found more than 1 values for this
                 # granularity
-                time_granularity = datamart_utils.map_d3m_granularity_to_value(datamart_utils.get_time_granularity(column_data))
+                time_granularity = datamart_utils.map_granularity_to_value(datamart_utils.get_time_granularity(column_data))
 
                 start_time = TimeValue(Literal(start_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'),
                                        time_granularity, 0)
