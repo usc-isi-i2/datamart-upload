@@ -103,7 +103,7 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
                 job.meta['progress'] = str(50 + (i+1) / len(df) * 50) + "%"
                 job.save_meta()
 
-            if need_process_columns and len(current_need_process_columns) > i:
+            if need_process_columns and len(need_process_columns) > i:
                 current_need_process_columns = need_process_columns[i]
             else:
                 current_need_process_columns = None
