@@ -3,13 +3,16 @@ import requests
 import wikifier
 import typing
 import time
-import datetime
 import logging
 import urllib
 import re
 import json
 import os
 import hashlib
+
+from datetime import datetime
+from datetime import timezone
+from datetime import timedelta
 
 from pandas.util import hash_pandas_object
 from etk.etk import ETK
@@ -211,7 +214,7 @@ class Datamart_isi_upload:
         self._logger.info("Loading finished. Totally take " + str(end1 - start) + " seconds.")
         if job is not None:
             job.meta['step'] = "materialization finished, start running wikifier..."
-            job.meta['loading dataset used'] = str(datetime.timedelta(seconds=end1 - start))
+            job.meta['loading dataset used'] = str(timedelta(seconds=end1 - start))
             job.save_meta()
 
         all_wikifier_res = []
@@ -260,7 +263,7 @@ class Datamart_isi_upload:
             self._logger.info("Wikifier finished. Totally take " + str(end2 - end1) + " seconds.")
             if job is not None:
                 job.meta['step'] = "wikifier running finished, start generating metadata..."
-                job.meta['wikifier used'] = str(datetime.timedelta(seconds=end2 - end1))
+                job.meta['wikifier used'] = str(timedelta(seconds=end2 - end1))
                 job.save_meta()
 
             # process datetime column to standard datetime
@@ -300,7 +303,7 @@ class Datamart_isi_upload:
         self._logger.info("Preprocess finished. Totally take " + str(end2 - end1) + " seconds.")
         if job is not None:
             job.meta['step'] = "metadata generating finished..."
-            job.meta['metadata generating used'] = str(datetime.timedelta(seconds=end2 - end1))
+            job.meta['metadata generating used'] = str(timedelta(seconds=end2 - end1))
             job.save_meta()
         return all_wikifier_res, all_metadata
 
@@ -408,7 +411,7 @@ class Datamart_isi_upload:
         end1 = time.time()
         if job is not None:
             job.meta['step'] = "Modeling abstarct data finished."
-            job.meta['modeling abstarct'] = str(datetime.timedelta(seconds=end1 - start))
+            job.meta['modeling abstarct'] = str(timedelta(seconds=end1 - start))
             job.save_meta()
 
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
@@ -438,7 +441,7 @@ class Datamart_isi_upload:
         self._logger.info("Modeling detail data finished. Totally take " + str(end2 - end1) + " seconds.")
         if job is not None:
             job.meta['step'] = "Modeling finished. Start uploading..."
-            job.meta['modeling'] = str(datetime.timedelta(seconds=end2 - end1))
+            job.meta['modeling'] = str(timedelta(seconds=end2 - end1))
             job.save_meta()
 
     def process_one_column(self, column_data: pd.Series, item: WDItem, column_number: int,
@@ -461,13 +464,14 @@ class Datamart_isi_upload:
                 start_date = min(column_data)
                 end_date = max(column_data)
 
-                # updated v2019.12.12: check details, only treat as the granularity if we found more than 1 values for this
-                # granularity
+                # updated v2019.12.12: check details, only treat as the granularity if we found more than 1 values for this granularity
                 time_granularity = datamart_utils.map_granularity_to_value(datamart_utils.get_time_granularity(column_data))
+                start_time_str = datetime.fromtimestamp(start_date.timestamp(),tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+                end_time_str = datetime.fromtimestamp(end_date.timestamp(),tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
-                start_time = TimeValue(Literal(start_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'),
+                start_time = TimeValue(Literal(start_time_str, type_=LiteralType.dateTime), Item('Q1985727'),
                                        time_granularity, 0)
-                end_time = TimeValue(Literal(end_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'),
+                end_time = TimeValue(Literal(end_time_str, type_=LiteralType.dateTime), Item('Q1985727'),
                                      time_granularity, 0)
 
                 statement.add_qualifier('C2011', start_time)
@@ -525,6 +529,7 @@ class Datamart_isi_upload:
         self._logger.info("Start uploading...")
         # upload
         extracted_data = self.doc.kg.serialize("ttl")
+
         headers = {'Content-Type': 'application/x-turtle', }
         response = requests.post(self.update_server, data=extracted_data.encode('utf-8'), headers=headers)
         self._logger.info('Upload file finished with status code: {}!'.format(response.status_code))
