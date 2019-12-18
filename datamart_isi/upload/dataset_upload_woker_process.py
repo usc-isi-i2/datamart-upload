@@ -8,17 +8,15 @@ from rq import get_current_job
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.upload import store
 
-# import pdb
-# pdb.set_trace()
-# # define a Handler which writes INFO messages or higher to the sys.stderr
-# console = logging.StreamHandler()
-# console.setLevel(logging.DEBUG)
-# # set a format which is simpler for console use
-# formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
-# # tell the handler to use this format
-# console.setFormatter(formatter)
-# # add the handler to the root logger
-# logging.getLogger('').addHandler(console)
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+# set a format which is simpler for console use
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
 
 def upload_to_datamart(datamart_upload_address, dataset_information):
     logger = logging.getLogger()
@@ -105,7 +103,10 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
                 job.meta['progress'] = str(50 + (i+1) / len(df) * 50) + "%"
                 job.save_meta()
 
-            current_need_process_columns = need_process_columns[i]
+            if need_process_columns and len(current_need_process_columns) > i:
+                current_need_process_columns = need_process_columns[i]
+            else:
+                current_need_process_columns = None
             datamart_upload_instance.model_data(input_dfs=df, metadata=meta, 
                                                 number=i, uploader_information=user_information, 
                                                 job=job, need_process_columns=current_need_process_columns)
