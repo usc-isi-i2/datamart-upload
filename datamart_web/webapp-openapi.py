@@ -614,6 +614,21 @@ def search():
         if augment_with_time:
             _logger.warning("Will consider augment with time columns!")
 
+        if request.values.get('consider_time'):
+            consider_time = request.values.get('consider_time')
+            if consider_time.lower() == "false":
+                consider_time = False
+            elif consider_time.lower() == "true":
+                consider_time = True
+        else:
+            consider_time = True
+
+        if not consider_time:
+            if augment_with_time is True:
+                _logger.warning("Augment with time is set to be true! consider_time parameter will be useless.")
+            else:
+                _logger.warning("Will not consider time columns augmentation from datamart!")
+
         # start to search
         _logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
@@ -656,7 +671,9 @@ def search():
                 supplied_data=loaded_dataset,
                 consider_wikifier_columns_only=consider_wikifier_columns_only,
                 augment_with_time=augment_with_time,
+                consider_time=consider_time
                 ).get_next_page(limit=max_return_docs) or []
+        
         _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for i, each_res in enumerate(res):

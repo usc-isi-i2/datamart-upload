@@ -167,6 +167,13 @@ paths:
             type: string
             default: "false"
             enum: ["true", "false"]
+        - in: query
+          name: consider_time
+          description: if set to true, the time column(if exists), will be also considered (only time columns for join, different from augment_with_time) during generating search results. If set to false, no time columns will be considered.
+          schema:
+            type: string
+            default: "true"
+            enum: ["true", "false"]
         # - in: formData
           # name: query_json
           
