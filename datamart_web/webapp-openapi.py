@@ -174,7 +174,7 @@ def wrap_response(code, msg='', data=None, **kwargs):
         'message': msg or ('Success' if code == '200' else 'Failed'),
         'data': data,
         **kwargs
-    }, indent=2, default=lambda x: str(x))
+    }, indent=2, default=lambda x: str(x)), code
 
 
 def read_file(files, key, _type):
@@ -545,7 +545,7 @@ def wikifier():
 
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])
-        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL WIKIFIER - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/search', methods=['POST'])
