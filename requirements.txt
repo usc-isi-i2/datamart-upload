@@ -17,7 +17,7 @@ rq==1.1.0
 bcrypt>=3.1.7
 gunicorn>=19.9.0
 tables>=3.5.2
-gensim
+gensim>=3.4
 nltk
 PyYAML
 pyjarowinkler

@@ -238,31 +238,28 @@ paths:
       requestBody:
         content:
           application/json:
+            description: "keywords and variables for search"
             schema:
               $ref: '#/components/schemas/Query'
             examples:
-              no_variables:
-                value: null
               temporal_variable:
+                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value should be 'month', 'day', or 'second'"
                 value:
+                  keywords:
+                    - "new york"
+                    - "taxi"
                   variables:
                     temporal_variable:
                       start: 2018-01-01T01
                       end: 2018-07-01T01
                       granularity: hour
-                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value should be 'month', 'day', or 'second'"
-      parameters:
-        - in: query
-          name: keywords
-          description: Keywords that match a dataset. In each item, input one keyword.
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: false
-          example: ['Date', 'Dewpoint', 'Wind']
+              keywords_searching:
+                description: "Search using the keywords 'poverty rate' and 'education'"
+                value:
+                  keywords:
+                    - "poverty rate"
+                    - "education"
+                  variables: {}
       responses:
         '200':
           description: successful operation

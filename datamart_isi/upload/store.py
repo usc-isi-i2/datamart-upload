@@ -366,6 +366,10 @@ class Datamart_isi_upload:
                 extra_information['special_requirement'] = special_requirement
             else:
                 words_processed.extend(remove_punctuation(each))
+        # updated v2020.1.3: now also do keywords augmentation during uploading process
+        words_processed = datamart_utils.keywords_augmentation(words_processed)
+        # also augment title and save as keywords
+        words_processed.extend(datamart_utils.keywords_augmentation(remove_punctuation(title, "list")))
         keywords = " ".join(set(words_processed))
 
         node_id = 'D' + str(self.modeled_data_id)

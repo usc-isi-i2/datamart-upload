@@ -744,27 +744,65 @@ def search():
 def search_without_data():
     try:
         _logger.debug("Start running search_without_data...")
-        keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
-        keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
-        if request.data:
-            variables = json.loads(str(request.data, "utf-8"))
-            variables_search: dict() = variables['variables'] if variables != None else {}
-            query_wrapped = DatamartQuery(keywords_search=keywords_search, variables_search=variables_search)
+        # check that each parameter meets the requirements
+        query = read_file(request.values, 'query', 'json')
+        # if not send the json via file
+        if not query and request.form.get('query_json'):
+            query = json.loads(request.form.get('query_json'))
+        if not query and request.files.get("query"):
+            query = json.load(request.files.get('query'))
+        if not query and request.json:
+            query = request.json
+        max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
+
+        if query:
+            keywords = query.get("keywords", [])
+            variables = query.get("variables", {})
+            if variables is None:
+                variables = {}
         else:
-            query_wrapped = DatamartQuery(keywords_search=keywords_search)
+            return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
+
+        _logger.debug("The search's keywords are: {}".format(str(keywords)))
+        _logger.debug("The search's variables are: {}".format(str(variables)))
+
+        # query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
+
+        # keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
+        # keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
+        # if request.data:
+        #     variables = json.loads(str(request.data, "utf-8"))
+        #     variables_search: dict() = variables['variables'] if variables != None else {}
+        # else:
+        #     query_wrapped = DatamartQuery(keywords_search=keywords_search)
+
+        query_wrapped = DatamartQuery(keywords_search=keywords, variables_search=variables)
 
         _logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         res = datamart_instance.search(query=query_wrapped).get_next_page() or []
         _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
-        for r in res:
+        for each_res in res:
+            materialize_info = each_res.serialize()
+            materialize_info_decoded = json.loads(materialize_info)
+            search_type = materialize_info_decoded["metadata"]['search_type']
+            if search_type == "general":
+                extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
+                temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
+                if 'Unnamed: 0' in temp_df.columns:
+                    temp_df = temp_df.drop(columns=['Unnamed: 0'])
+                first_10_rows_info = temp_df.to_csv(index=False)
+            else:
+                first_10_rows_info = ""
             cur = {
-                "summary": parse_search_result(r),
-                'score': r.score(),
-                'metadata': r.get_metadata().to_json_structure(),
-                'datamart_id': r.id(),
-                'materialize_info': r.serialize()
+                'augmentation': {'type': "", 'left_columns': [], 'right_columns':[]},
+                'summary': parse_search_result(each_res),
+                'score': each_res.score(),
+                'metadata': each_res.get_metadata().to_json_structure(),
+                'id': each_res.id(),
+                'sample': first_10_rows_info,
+                'materialize_info': materialize_info
             }
             results.append(cur)
         if not results:
