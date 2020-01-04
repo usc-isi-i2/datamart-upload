@@ -151,8 +151,32 @@ paths:
           description: whether to run wikifier on supplied data or not. Default value is true. If not run wikifier, the search speed will be quicker but the wikidata related parts will be missed.
           schema:
             type: string
-            default: true
-            enum: [true, false]
+            default: "true"
+            enum: ["true", "false"]
+        - in: query
+          name: consider_wikifier_columns_only
+          description: if set to true, only search results with wikifiered left columns(from supplied data) will be considered and returned.
+          schema:
+            type: string
+            default: "false"
+            enum: ["true", "false"]
+        - in: query
+          name: augment_with_time
+          description: if set to true, the time column(if exists), will be also considered (totally 2 columns as left columns for join) during generating search results.
+          schema:
+            type: string
+            default: "false"
+            enum: ["true", "false"]
+        - in: query
+          name: consider_time
+          description: if set to true, the time column(if exists), will be also considered (only time columns for join, different from augment_with_time) during generating search results. If set to false, no time columns will be considered.
+          schema:
+            type: string
+            default: "true"
+            enum: ["true", "false"]
+        # - in: formData
+          # name: query_json
+          
       requestBody:
         content:
           multipart/form-data:
@@ -163,17 +187,20 @@ paths:
                   type: string
                   format: binary
                   description: 'supplied data file in csv for general format or zip/pkl for d3m format'
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Query"
-            examples:
-              keyword_search:
-                summary: "Search using the keywords 'poverty rate' and 'education'"
-                value:
-                  keywords:
-                    - "poverty rate"
-                    - "education"
-                  variables: []
+                query_json:
+                  type: string
+                  format: json
+                  description: "keywords and variables for search"
+                  schema:
+                      $ref: "#/components/schemas/Query"
+                  examples:
+                      keyword_search:
+                        summary: "Search using the keywords 'poverty rate' and 'education'"
+                        value:
+                          keywords:
+                            - "poverty rate"
+                            - "education"
+                          variables: []
       responses:
         '200':
           description: successful operation
@@ -211,31 +238,28 @@ paths:
       requestBody:
         content:
           application/json:
+            description: "keywords and variables for search"
             schema:
               $ref: '#/components/schemas/Query'
             examples:
-              no_variables:
-                value: null
               temporal_variable:
+                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value should be 'month', 'day', or 'second'"
                 value:
+                  keywords:
+                    - "new york"
+                    - "taxi"
                   variables:
                     temporal_variable:
                       start: 2018-01-01T01
                       end: 2018-07-01T01
                       granularity: hour
-                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value should be 'month', 'day', or 'second'"
-      parameters:
-        - in: query
-          name: keywords
-          description: Keywords that match a dataset. In each item, input one keyword.
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: false
-          example: ['Date', 'Dewpoint', 'Wind']
+              keywords_searching:
+                description: "Search using the keywords 'poverty rate' and 'education'"
+                value:
+                  keywords:
+                    - "poverty rate"
+                    - "education"
+                  variables: {}
       responses:
         '200':
           description: successful operation
@@ -263,7 +287,9 @@ paths:
         differ. During search the training dataset is given to the **/serach** endpoint. Then, the search result can be
         used either to augment the training dataset or the testing dataset.
 
-        This method only returns the rows of the dataset that joins well with the complementary datamart dataset. If no rows can be joined, an error is raised.
+        This method only returns the rows of the dataset that joins well with the complementary datamart dataset. If no rows can be joined, an error will be raised.
+
+        **Notice**: To keep the d3m system still runable, the augment opeartion will not add extra rows. If same join key found on the dataset specified on complementary dataset, only the first row will be used to augment.
         Request body:
           * **task**: A string containing a result return by the **/search** endpoint.
 
@@ -278,12 +304,17 @@ paths:
           * **run_wikifier**: If true, run the wikifier to add additional columns based on entity resolution.
           * **use_cache**: If true, the system will use cached result if exists. If choose **default**, the system will determine base on the system config.
           </p>'
+
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               properties:
+                data:
+                  type: string
+                  format: binary
+                  description: 'supplied data file in csv for general format or zip/pkl for d3m format'
                 task:
                   type: string
                   description: 'The search result task (json-like str) from Search API you can try to copy the content from <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/sample_search_result_wikidata.txt">example1</a> or <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/sample_search_result_general.txt">example2</a>'
@@ -295,7 +326,7 @@ paths:
           description: '<p>Supplied data file. It could be a d3m-dataset-id or a filepath</p>'
           schema:
             type: string
-          required: true
+          required: false
           examples:
             filepath:
               value: https://raw.githubusercontent.com/usc-isi-i2/datamart-upload/rest_api_stable/datamart_web/test_search_data.csv
@@ -552,6 +583,12 @@ paths:
             type: string
             example: auto
             enum: [auto, true, false]
+        - name: need_process_columns
+          in: query
+          schema:
+            type: string
+          required: false
+          description: 'User can speicify which columns in numbers want to be indexed and saved to datamart. If given, only the speicified columns will be indexed and can be considered as join columns. e.g.: **2, 3, 5** this means only index column No.2, 3 and 5. If not given, all columns will be parsed. <br> If has multiple dataset, split with **||**. For example, **2,3 || 4, 5 || None **'
         - name: file_type
           in: query
           schema:
@@ -641,6 +678,12 @@ paths:
             type: string
             example: auto
             enum: [auto, true, false]
+        - name: need_process_columns
+          in: query
+          schema:
+            type: string
+          required: false
+          description: 'User can speicify which columns in numbers want to be indexed and saved to datamart. If given, only the speicified columns will be indexed and can be considered as join columns. e.g.: **2, 3, 5** this means only index column No.2, 3 and 5. If not given, all columns will be parsed. <br> If has multiple dataset, split with **||**. For example, **2,3 || none || 4, 5 ** which means no limit on second dataset'
         - name: file_type
           in: query
           schema:

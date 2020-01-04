@@ -1,62 +1,57 @@
 import pandas as pd
 import requests
-import string
 import wikifier
 import typing
-import uuid
 import time
-import datetime
 import logging
+import urllib
+import re
 import json
 import os
 import hashlib
 
-from requests.auth import HTTPBasicAuth
+from datetime import datetime
+from datetime import timezone
+from datetime import timedelta
+
+from pandas.util import hash_pandas_object
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 from etk.etk_module import ETKModule
 from etk.wikidata.entity import WDProperty, WDItem, change_recorder, serialize_change_record
-from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityValue, StringValue, URLValue, MonolingualText, Literal, LiteralType
-from etk.wikidata.statement import WDReference
-# from etk.wikidata import serialize_change_record
+from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityValue, StringValue, URLValue, MonolingualText, \
+    Literal, LiteralType
 from etk.wikidata.truthy import TruthyUpdater
-# from dsbox.datapreprocessing.cleaner.data_profile import Profiler, Hyperparams as ProfilerHyperparams
-# from dsbox.datapreprocessing.cleaner.cleaning_featurizer import CleaningFeaturizer, CleaningFeaturizerHyperparameter
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
-from datamart_isi.utilities.utils import Utils as datamart_utils
-from datamart_isi.materializers.general_materializer import GeneralMaterializer
-from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
+
 from io import StringIO
 from collections import defaultdict
-from datamart_isi.utilities.timeout import Timeout, timeout_call
+from wikifier.utils import remove_punctuation
+
 from datamart_isi.utilities import connection
+from datamart_isi.utilities.timeout import timeout_call
+from datamart_isi.utilities.utils import Utils as datamart_utils
+from datamart_isi.utilities.d3m_wikifier import save_wikifier_choice, check_is_q_node_column
+from datamart_isi.materializers.general_materializer import GeneralMaterializer
+from datamart_isi.materializers.wikitables_materializer import WikitablesMaterializer
 from datamart_isi import config as config_datamart
 from datamart_isi.cache.general_search_cache import GeneralSearchCache
-from datamart_isi.utilities.d3m_wikifier import save_wikifier_choice
 
-DATAMRT_SERVER = connection.get_general_search_server_url()
+DATAMART_SERVER = connection.get_general_search_server_url()
 
-
-def remove_punctuation(input_str) -> typing.List[str]:
-    translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
-    words_processed = str(input_str).lower().translate(translator).split()
-    return words_processed
 
 class Datamart_isi_upload:
     """
     Main class for uploading part
     """
-    def __init__(self, query_server=None, update_server=None):
-        self._logger = logging.getLogger(__name__)
-        self.punctuation_table = str.maketrans(dict.fromkeys(string.punctuation))
-        if query_server and update_server:
-            self.query_server = query_server
-            self.update_server = update_server
-        else:
-            self.query_server = DATAMRT_SERVER
-            self.update_server = DATAMRT_SERVER
 
-        # initialize
+    def __init__(self, query_server=DATAMART_SERVER, update_server=DATAMART_SERVER):
+        self._logger = logging.getLogger(__name__)
+        self.query_server = query_server
+        self.update_server = update_server
+        self.cache_manager = GeneralSearchCache()
+        self.modeled_data_id = ""
+        # initialize for etk
         kg_schema = KGSchema()
         kg_schema.add_schema('@prefix : <http://isi.edu/> .', 'ttl')
         etk = ETK(kg_schema=kg_schema, modules=ETKModule)
@@ -132,13 +127,15 @@ class Datamart_isi_upload:
 
         p = WDProperty('C2011', Datatype.TimeValue)
         p.add_label('start date', lang='en')
-        p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset', lang='en')
+        p.add_description('The earlist time exist in this dataset, only valid when there exists time format data in this dataset',
+                          lang='en')
         p.add_statement('P31', Item('Q18616576'))
         self.doc.kg.add_subject(p)
 
         p = WDProperty('C2012', Datatype.TimeValue)
         p.add_label('end date', lang='en')
-        p.add_description('The latest time exist in this dataset, only valid when there exists time format data in this dataset', lang='en')
+        p.add_description('The latest time exist in this dataset, only valid when there exists time format data in this dataset',
+                          lang='en')
         p.add_statement('P31', Item('Q18616576'))
         self.doc.kg.add_subject(p)
 
@@ -153,21 +150,9 @@ class Datamart_isi_upload:
         p.add_description('information about who uploaded and when uploaded', lang='en')
         self.doc.kg.add_subject(p)
 
-        # get the starting source id
+        # test server is working or not
         sparql_query = """
-            prefix wdt: <http://www.wikidata.org/prop/direct/>
-            prefix wd: <http://www.wikidata.org/entity/>
-            prefix wikibase: <http://wikiba.se/ontology#>
-            PREFIX p: <http://www.wikidata.org/prop/>
-            PREFIX pqv: <http://www.wikidata.org/prop/qualifier/value/>
-            PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
-            PREFIX ps: <http://www.wikidata.org/prop/statement/>
-            prefix bd: <http://www.bigdata.com/rdf#>
-            prefix bds: <http://www.bigdata.com/rdf/search#>
-
-            select ?x where {
-              wd:Z00000 wdt:P1114 ?x .
-            }
+            select ?s ?p ?o where {?s ?p ?o} LIMIT 1
             """
         try:
             sparql = SPARQLWrapper(self.query_server)
@@ -175,18 +160,10 @@ class Datamart_isi_upload:
             sparql.setReturnFormat(JSON)
             sparql.setMethod(POST)
             sparql.setRequestMethod(URLENCODED)
-            results = sparql.query().convert()['results']['bindings']
-        except:
-            self._logger.error("Getting query of wiki data failed!")
+            _ = sparql.query().convert()['results']['bindings']
+        except urllib.error.URLError:
+            self._logger.error("Can't connect to blazegraph satellite!")
             raise ValueError("Unable to initialize the datamart query service on address " + query_server)
-        # if not results:
-        #     self._logger.warning("No starting source id found! Will initialize the starting source with D1000001")
-        #     self.resource_id = 1000001
-        # else:
-        #     if len(results) != 1:
-        #         self._logger.warning(str(results))
-        #         self._logger.warning("Something wrong with the dataset counter! Totally " + str(len(results)) + " counter found instead of 1!")
-        #     self.resource_id = int(results[0]['x']['value'])
 
     def load_and_preprocess(self, input_dir, file_type="csv", job=None, wikifier_choice="auto"):
         start = time.time()
@@ -195,18 +172,18 @@ class Datamart_isi_upload:
             job.meta['step'] = "materializing the dataset..."
             job.save_meta()
         from_online_file = False
-        if file_type=="csv":
+        if file_type == "csv":
             try:
-                loaded_data = [pd.read_csv(input_dir,dtype=str)]
-            except:
+                loaded_data = [pd.read_csv(input_dir, dtype=str)]
+            except Exception as e:
                 raise ValueError("Reading csv from" + input_dir + "failed.")
 
             # TODO: how to upload to the online server afterwards?
-        elif len(file_type) > 7 and file_type[:7]=="online_":
+        elif len(file_type) > 7 and file_type[:7] == "online_":
             from_online_file = True
             general_materializer = GeneralMaterializer()
             file_type = file_type[7:]
-                # example: "csv"
+            # example: "csv"
             file_metadata = {
                 "materialization": {
                     "arguments": {
@@ -218,15 +195,16 @@ class Datamart_isi_upload:
             }
             try:
                 result = general_materializer.get(metadata=file_metadata).to_csv(index=False)
-            except:
-                raise ValueError("Loading online data from " + input_dir + "failed!")
+            except Exception as e:
+                self._logger.debug(e, exc_info=True)
+                raise ValueError("Loading online data from " + input_dir + " failed!")
                 # remove last \n so that we will not get an extra useless row
             if result[-1] == "\n":
                 result = result[:-1]
             loaded_data = StringIO(result)
-            loaded_data = [pd.read_csv(loaded_data,dtype=str)]
+            loaded_data = [pd.read_csv(loaded_data, dtype=str)]
 
-        elif file_type=="wikitable":
+        elif file_type == "wikitable":
             from_online_file = True
             materializer = WikitablesMaterializer()
             loaded_data, xpaths = materializer.get(input_dir)
@@ -236,7 +214,7 @@ class Datamart_isi_upload:
         self._logger.info("Loading finished. Totally take " + str(end1 - start) + " seconds.")
         if job is not None:
             job.meta['step'] = "materialization finished, start running wikifier..."
-            job.meta['loading dataset used'] = str(datetime.timedelta(seconds=end1 - start))
+            job.meta['loading dataset used'] = str(timedelta(seconds=end1 - start))
             job.save_meta()
 
         all_wikifier_res = []
@@ -249,32 +227,33 @@ class Datamart_isi_upload:
             else:
                 do_wikifier = None
 
+            # this function will also determine whether to do wikifier or not if do_wikifier = None
             do_wikifier = save_wikifier_choice(input_dataframe=each_df, choice=do_wikifier)
-            
+
             if do_wikifier:
                 self._logger.info("Will run wikifier!")
-                wikifier_res = wikifier.produce(each_df)
+                # not use cache during upload
+                wikifier_res = wikifier.produce(each_df, use_cache=False)
 
             else:
                 self._logger.info("Not run wikifier!")
                 wikifier_res = each_df
                 # we also need to let the cache system know not to do wikifier
                 produce_config = {"target_columns": None, "target_p_nodes": None,
-                                  "input_type": "pandas", "wikifier_choice": None, 
+                                  "input_type": "pandas", "wikifier_choice": None,
                                   "threshold": 0.7
                                   }
-                
-                CACHE_MANAGER = GeneralSearchCache()
-                
-                cache_key = CACHE_MANAGER.get_hash_key(each_df, json.dumps(produce_config))
+
+                cache_key = self.cache_manager.get_hash_key(each_df, json.dumps(produce_config))
 
                 # add extra information after we calculate the correct hash tag
                 produce_config["use_wikifier"] = False
-                response = CACHE_MANAGER.add_to_memcache(supplied_dataframe=each_df,
-                                                     search_result_serialized=json.dumps(produce_config),
-                                                     augment_results=each_df,
-                                                     hash_key=cache_key
-                                                     )
+                response = self.cache_manager. \
+                    add_to_memcache(supplied_dataframe=each_df,
+                                    search_result_serialized=json.dumps(produce_config),
+                                    augment_results=each_df,
+                                    hash_key=cache_key
+                                    )
                 if not response:
                     self._logger.warning("Push wikifier results to results failed!")
                 else:
@@ -284,7 +263,7 @@ class Datamart_isi_upload:
             self._logger.info("Wikifier finished. Totally take " + str(end2 - end1) + " seconds.")
             if job is not None:
                 job.meta['step'] = "wikifier running finished, start generating metadata..."
-                job.meta['wikifier used'] = str(datetime.timedelta(seconds=end2 - end1))
+                job.meta['wikifier used'] = str(timedelta(seconds=end2 - end1))
                 job.save_meta()
 
             # process datetime column to standard datetime
@@ -292,8 +271,9 @@ class Datamart_isi_upload:
                 if 'date' in col_name.lower() or 'time' in col_name.lower():
                     try:
                         temp = pd.to_datetime(wikifier_res[col_name])
-                        has_time_format_or_not = (pd.isnull(temp)==True).value_counts()
-                        if False in has_time_format_or_not.keys() and has_time_format_or_not[False] >= wikifier_res.shape[0] * 0.7:
+                        has_time_format_or_not = (pd.isnull(temp) == True).value_counts()
+                        if False in has_time_format_or_not.keys() and has_time_format_or_not[False] >= wikifier_res.shape[
+                            0] * 0.7:
                             wikifier_res[col_name] = temp
                     except:
                         pass
@@ -305,15 +285,15 @@ class Datamart_isi_upload:
                 self._logger.debug("Metadata for column No.{} is:".format(str(i)))
                 self._logger.debug(str(each_column_meta))
                 # if 'http://schema.org/Text' in each_column_meta['semantic_type']:
-                    # self.columns_are_string[df_count].append(i)
-                
+                # self.columns_are_string[df_count].append(i)
+
             if from_online_file:
                 metadata['url'] = input_dir
                 title_cleaned = input_dir.split("/")[-1]
                 words_processed = remove_punctuation(title_cleaned)
                 metadata['title'] = " ".join(words_processed)
                 metadata['file_type'] = file_type
-            if file_type=="wikitable":
+            if file_type == "wikitable":
                 metadata['xpath'] = xpaths[df_count]
 
             all_wikifier_res.append(wikifier_res)
@@ -323,15 +303,38 @@ class Datamart_isi_upload:
         self._logger.info("Preprocess finished. Totally take " + str(end2 - end1) + " seconds.")
         if job is not None:
             job.meta['step'] = "metadata generating finished..."
-            job.meta['metadata generating used'] = str(datetime.timedelta(seconds=end2 - end1))
+            job.meta['metadata generating used'] = str(timedelta(seconds=end2 - end1))
             job.save_meta()
         return all_wikifier_res, all_metadata
 
-
-    def model_data(self, input_dfs:typing.List[pd.DataFrame], metadata:typing.List[dict], number:int, uploader_information, job=None):
+    def model_data(self, input_dfs: typing.List[pd.DataFrame], metadata: typing.List[dict], number: int, uploader_information,
+                   **kwargs):
         self._logger.debug("Start modeling data into blazegraph format...")
         start = time.time()
-        self.modeled_data_id = str(uuid.uuid4())
+        job = kwargs.get("job", None)
+        need_process_columns = kwargs.get("need_process_columns", None)
+        if need_process_columns is None:
+            need_process_columns = list(range(input_dfs[number].shape[1]))
+        else:
+            for each_column_number in need_process_columns:
+                if each_column_number >= input_dfs[number].shape[1]:
+                    raise ValueError(
+                        "The given column number {} exceed the dataset's column length as {}.".format(each_column_number, str(
+                            input_dfs[number].shape[1])))
+
+            for each_col in range(input_dfs[number].shape[1]):
+                if each_col not in need_process_columns and check_is_q_node_column(input_dfs[number], each_col):
+                    self._logger.info("Automatically add Q node column at No.{} {} as index list!".format(str(each_col), str(
+                        input_dfs[number].columns[each_col])))
+                    need_process_columns.append(each_col)
+
+        # updated v2019.12.5: now use the md5 value of dataframe hash as the dataset id
+        pandas_id = str(hash_pandas_object(input_dfs[number]).sum())
+        hash_generator = hashlib.md5()
+        hash_generator.update(pandas_id.encode('utf-8'))
+        hash_url_key = hash_generator.hexdigest()
+        self.modeled_data_id = hash_url_key
+
         if metadata is None or metadata[number] is None:
             metadata = {}
         extra_information = {}
@@ -340,27 +343,43 @@ class Datamart_isi_upload:
         file_type = metadata[number].get("file_type") or ""
         # TODO: if no url given?
         url = metadata[number].get("url") or "http://"
-        if type(keywords) is list:
-            words_processed = []
-            for each in keywords:
-                words_processed.extend(remove_punctuation(each))
-            keywords = " ".join(words_processed)
+
+        # update v2019.12.6, now adapt special requirement from keywords
+        if type(keywords) is str:
+            keywords_list = []
+            if keywords.find(config_datamart.upload_special_requirement_mark, 0) != -1 and keywords.find(
+                    config_datamart.upload_special_requirement_mark, 0) != keywords.find(
+                config_datamart.upload_special_requirement_mark, 1):
+                keywords_list.append(keywords[keywords.find(config_datamart.upload_special_requirement_mark, 0):
+                                              keywords.find(config_datamart.upload_special_requirement_mark, 1) +
+                                              len(config_datamart.upload_special_requirement_mark)])
+                keywords = keywords[keywords.find(config_datamart.upload_special_requirement_mark, 1) +
+                                    len(config_datamart.upload_special_requirement_mark) + 1:]
+            keywords_list.extend(keywords.split(","))
         else:
-            words_processed = remove_punctuation(keywords)
-            keywords = " ".join(set(words_processed))
+            keywords_list = keywords
+        words_processed = []
+        for each in keywords_list:
+            if each.startswith("*&#") and each.endswith("*&#"):
+                self._logger.info("Special requirement from keyword area detected as {}".format(each))
+                special_requirement = json.loads(each[3: -3])
+                extra_information['special_requirement'] = special_requirement
+            else:
+                words_processed.extend(remove_punctuation(each))
+        # updated v2020.1.3: now also do keywords augmentation during uploading process
+        words_processed = datamart_utils.keywords_augmentation(words_processed)
+        # also augment title and save as keywords
+        words_processed.extend(datamart_utils.keywords_augmentation(remove_punctuation(title, "list")))
+        keywords = " ".join(set(words_processed))
 
         node_id = 'D' + str(self.modeled_data_id)
         q = WDItem(node_id)
         if 'xpath' in metadata[number]:
             extra_information['xpath'] = metadata[number]['xpath']
 
-        data_metadata = {}
-        data_metadata['shape_0'] = input_dfs[number].shape[0]
-        data_metadata['shape_1'] = input_dfs[number].shape[1]
+        data_metadata = {'shape_0': input_dfs[number].shape[0], 'shape_1': input_dfs[number].shape[1]}
         for i, each in enumerate(metadata[number]['variables']):
-            each_column_meta = {}
-            each_column_meta['semantic_type'] = each['semantic_type']
-            each_column_meta['name'] = input_dfs[number].columns[i]
+            each_column_meta = {'semantic_type': each['semantic_type'], 'name': input_dfs[number].columns[i]}
             extra_information['column_meta_' + str(i)] = each_column_meta
         extra_information['data_metadata'] = data_metadata
 
@@ -386,7 +405,7 @@ class Datamart_isi_upload:
         q.add_label(node_id, lang='en')
         q.add_statement('P31', Item('Q1172284'))  # indicate it is subclass of a dataset
         q.add_statement('P2699', URLValue(url))  # url
-        q.add_statement('P2701', StringValue(file_type)) # file type
+        q.add_statement('P2701', StringValue(file_type))  # file type
         q.add_statement('P1476', MonolingualText(title, lang='en'))  # title
         q.add_statement('C2001', StringValue(node_id))  # datamart identifier
         q.add_statement('C2004', StringValue(keywords))  # keywords
@@ -396,34 +415,41 @@ class Datamart_isi_upload:
         end1 = time.time()
         if job is not None:
             job.meta['step'] = "Modeling abstarct data finished."
-            job.meta['modeling abstarct'] = str(datetime.timedelta(seconds=end1 - start))
+            job.meta['modeling abstarct'] = str(timedelta(seconds=end1 - start))
             job.save_meta()
 
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
         # each columns
-        for i in range(input_dfs[number].shape[1]):
+        for i in need_process_columns:
             if job is not None:
                 job.meta['step'] = "Modeling ({}/{}) column ...".format(str(i), str(input_dfs[number].shape[1]))
                 job.save_meta()
-            try: 
+            try:
                 semantic_type = metadata[number]['variables'][i]['semantic_type']
             except IndexError:
                 semantic_type = 'http://schema.org/Text'
             model_column_time_limit = 600
-            self._logger.info("Currently settting modeling each column maximum time as " + str(model_column_time_limit) + " seconds.")
-            res = timeout_call(model_column_time_limit, self.process_one_column, [input_dfs[number].iloc[:,i], q, i, semantic_type])
-            # res = self.process_one_column(column_data=input_dfs[number].iloc[:,i], item=q, column_number=i, semantic_type=semantic_type)
-            if not res:
+            self._logger.info(
+                "Currently settting modeling each column maximum time as " + str(model_column_time_limit) + " seconds.")
+            # use timeout to prevent stuck on some columns
+            res = timeout_call(model_column_time_limit, self.process_one_column,
+                               [input_dfs[number].iloc[:, i], q, i, semantic_type])
+            # res = self.process_one_column(column_data=input_dfs[number].iloc[:, i], item=q, column_number=i,
+            #                               semantic_type=semantic_type)
+            if res is None:
                 self._logger.error("Error when modeling column " + str(i) + ". Maybe timeout? Will skip.")
+            else:
+                q = res
         self.doc.kg.add_subject(q)
         end2 = time.time()
         self._logger.info("Modeling detail data finished. Totally take " + str(end2 - end1) + " seconds.")
         if job is not None:
             job.meta['step'] = "Modeling finished. Start uploading..."
-            job.meta['modeling'] = str(datetime.timedelta(seconds=end2 - end1))
+            job.meta['modeling'] = str(timedelta(seconds=end2 - end1))
             job.save_meta()
 
-    def process_one_column(self, column_data: pd.Series, item: WDItem, column_number: int, semantic_type: typing.List[str]) -> bool:
+    def process_one_column(self, column_data: pd.Series, item: WDItem, column_number: int,
+                           semantic_type: typing.List[str]) -> typing.Union[WDItem, None]:
         """
         :param column_data: a pandas series data
         :param item: the target q node aimed to add on
@@ -432,34 +458,25 @@ class Datamart_isi_upload:
         :return: a bool indicate succeeded or not
         """
         start = time.time()
-        self._logger.debug("Start processing No." +str(column_number) + " column.")
-        translator = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+        self._logger.debug("Start processing No." + str(column_number) + " column.")
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
+
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
                 semantic_type_url = "http://schema.org/DateTime"
                 start_date = min(column_data)
                 end_date = max(column_data)
 
-                TemporalGranularity = {'second': 14, 'minute': 13, 'hour': 12, 'day': 11, 'month': 10, 'year': 9}
-                if any(column_data.dt.second != 0):
-                    time_granularity = TemporalGranularity['second']
-                elif any(column_data.dt.minute != 0):
-                    time_granularity = TemporalGranularity['minute']
-                elif any(column_data.dt.hour != 0):
-                    time_granularity = TemporalGranularity['hour']
-                elif any(column_data.dt.day != 0):
-                    time_granularity = TemporalGranularity['day']
-                elif any(column_data.dt.month != 0):
-                    time_granularity = TemporalGranularity['month']
-                elif any(column_data.dt.year != 0):
-                    time_granularity = TemporalGranularity['year']
-                else:
-                    raise Exception('Dates do not in a right format.')
+                # updated v2019.12.12: check details, only treat as the granularity if we found more than 1 values for this granularity
+                time_granularity = datamart_utils.map_granularity_to_value(datamart_utils.get_time_granularity(column_data))
+                start_time_str = datetime.fromtimestamp(start_date.timestamp(),tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+                end_time_str = datetime.fromtimestamp(end_date.timestamp(),tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
 
-                start_time = TimeValue(Literal(start_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'), time_granularity, 0)
-                end_time = TimeValue(Literal(end_date.isoformat(), type_=LiteralType.dateTime), Item('Q1985727'), time_granularity, 0)
+                start_time = TimeValue(Literal(start_time_str, type_=LiteralType.dateTime), Item('Q1985727'),
+                                       time_granularity, 0)
+                end_time = TimeValue(Literal(end_time_str, type_=LiteralType.dateTime), Item('Q1985727'),
+                                     time_granularity, 0)
 
                 statement.add_qualifier('C2011', start_time)
                 statement.add_qualifier('C2012', end_time)
@@ -469,7 +486,7 @@ class Datamart_isi_upload:
                 all_value_str_set = set()
                 for each in all_data:
                     # set to lower characters, remove punctuation and split by the space
-                    words_processed = str(each).lower().translate(translator).split()
+                    words_processed = remove_punctuation(each)
                     for word in words_processed:
                         all_value_str_set.add(word)
                 all_value_str = " ".join(all_value_str_set)
@@ -481,7 +498,7 @@ class Datamart_isi_upload:
                 elif 'http://schema.org/Integer' in semantic_type:
                     data_type = "int"
                     semantic_type_url = 'http://schema.org/Integer'
-                else: # 'http://schema.org/Text' in semantic_type:
+                else:  # 'http://schema.org/Text' in semantic_type:
                     data_type = "string"
                     semantic_type_url = 'http://schema.org/Text'
 
@@ -490,13 +507,13 @@ class Datamart_isi_upload:
             statement.add_qualifier('P1545', QuantityValue(column_number))  # column index
             end1 = time.time()
             self._logger.info("Processing finished, totally take " + str(end1 - start) + " seconds.")
-            return True
+            return item
         except Exception as e:
             self._logger.error("[ERROR] processing column No." + str(column_number) + " failed!")
             self._logger.debug(e, exc_info=True)
-            return False
-        
-    def output_to_ttl(self, file_path: str, file_format="ttl"):                        
+            return None
+
+    def output_to_ttl(self, file_path: str, file_format="ttl"):
         """
             output the file only but not upload
         """
@@ -514,60 +531,14 @@ class Datamart_isi_upload:
         # # This special Q node is used to store the next count to store the new Q node
         start = time.time()
         self._logger.info("Start uploading...")
-        # sparql_query = """
-        #     prefix wdt: <http://www.wikidata.org/prop/direct/>
-        #     prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/>
-        #     prefix wdno: <http://www.wikidata.org/prop/novalue/>
-        #     prefix wds: <http://www.wikidata.org/entity/statement/>
-        #     prefix wdv: <http://www.wikidata.org/value/>
-        #     prefix wdref: <http://www.wikidata.org/reference/>
-        #     prefix wd: <http://www.wikidata.org/entity/>
-        #     prefix wikibase: <http://wikiba.se/ontology#>
-        #     prefix p: <http://www.wikidata.org/prop/>
-        #     prefix pqv: <http://www.wikidata.org/prop/qualifier/value/>
-        #     prefix pq: <http://www.wikidata.org/prop/qualifier/>
-        #     prefix ps: <http://www.wikidata.org/prop/statement/>
-        #     prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/>
-        #     prefix prv: <http://www.wikidata.org/prop/reference/value/>
-        #     prefix psv: <http://www.wikidata.org/prop/statement/value/>
-        #     prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/>
-        #     prefix pr: <http://www.wikidata.org/prop/reference/>
-        #     prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/>
-        #     prefix skos: <http://www.w3.org/2004/02/skos/core#>
-        #     prefix prov: <http://www.w3.org/ns/prov#>
-        #     prefix schema: <http://schema.org/'>
-        #     prefix bd: <http://www.bigdata.com/rdf#>
-        #     prefix bds: <http://www.bigdata.com/rdf/search#>
-
-        #     delete {
-        #           wd:Z00000 wdt:P1114 ?x .
-        #         }
-        #         where {
-        #             wd:Z00000 wdt:P1114 ?x .
-        #         }
-        #     """
-        # try:
-        #     sparql = SPARQLWrapper(self.update_server)
-        #     sparql.setQuery(sparql_query)
-        #     sparql.setReturnFormat(JSON)
-        #     sparql.setMethod(POST)
-        #     sparql.setRequestMethod(URLENCODED)
-        #     results = sparql.query()  #.convert()['results']['bindings']
-        # except:
-        #     self._logger.error("Updating the count for datamart failed!")
-        #     raise ValueError("Unable to connect to datamart server!")
-        # # add datamart count to ttl
-        # q = WDItem('Z00000')
-        # q.add_label('Datamart datasets count', lang='en')
-        # q.add_statement('P1114', QuantityValue(self.resource_id))  # title
-        # self.doc.kg.add_subject(q)
         # upload
         extracted_data = self.doc.kg.serialize("ttl")
-        headers = {'Content-Type': 'application/x-turtle',}
+
+        headers = {'Content-Type': 'application/x-turtle', }
         response = requests.post(self.update_server, data=extracted_data.encode('utf-8'), headers=headers)
         self._logger.info('Upload file finished with status code: {}!'.format(response.status_code))
 
-        if response.status_code//100 !=2:
+        if response.status_code // 100 != 2:
             raise ValueError("Uploading file failed with code ", str(response.status_code))
 
         # upload truthy
@@ -577,7 +548,8 @@ class Datamart_isi_upload:
         tu = TruthyUpdater(self.update_server, False)
         np_list = []
         for l in temp_output.readlines():
-            if not l: continue
+            if not l:
+                continue
             node, prop = l.strip().split('\t')
             np_list.append((node, prop))
         tu.build_truthy(np_list)

@@ -23,31 +23,37 @@ import frozendict
 import rq
 import bcrypt
 
-from wikifier.wikifier import produce
 from flask_cors import CORS, cross_origin
+from flask import Flask, request, send_file, Response, redirect
+from flasgger import Swagger
+from rq import Queue
+from werkzeug.contrib.fixers import ProxyFix
+from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
+
 # sys.path.append(sys.path.append(os.path.join(os.path.dirname(__file__), '..')))
 from d3m.base import utils as d3m_utils
 from d3m.container import DataFrame as d3m_DataFrame
 from d3m.container.dataset import Dataset as d3m_Dataset, D3MDatasetLoader
 from d3m.metadata.base import ALL_ELEMENTS
-from flask import Flask, request, send_file, Response, redirect
+
+from wikifier.wikifier import produce
+from wikifier.utils import wikifier_for_ethiopia_dataset
 from datamart_isi import config as config_datamart
-from datamart_isi.utilities import connection
-from SPARQLWrapper import SPARQLWrapper, JSON, POST, URLENCODED
 from datamart_isi import config_services
+from datamart_isi.utilities import connection
 from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
 from datamart_isi.upload.store import Datamart_isi_upload
 from datamart_isi.utilities.download_manager import DownloadManager
 from datamart_isi.utilities.utils import Utils
+from datamart_isi.cache.materializer_cache import MaterializerCache
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
-from flasgger import Swagger
-from rq import Queue
 
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+
+_logger = logging.getLogger()
+_logger.setLevel(logging.DEBUG)
 # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
 # set up logging to file - see previous section for more details
 logging.basicConfig(level=logging.DEBUG,
@@ -62,7 +68,7 @@ console.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
 # tell the handler to use this format
 console.setFormatter(formatter)
-# add the handler to the root logger
+# add the handler to the root _logger
 logging.getLogger('').addHandler(console)
 
 em_es_url = connection.get_es_fb_embedding_server_url()
@@ -79,6 +85,25 @@ dataset_paths = ["/data",  # for docker
                  "/data00/dsbox/dataset/datasets/seed_datasets_current",  # for dsbox02 server
                  "/Users/minazuki/Desktop/studies/master/2018Summer/data/datasets/seed_datasets_data_augmentation"
                  ]
+
+def load_keywords_augment_resources():
+    sys.path.append(os.path.join(os.getcwd(), '..', "datamart_keywords_augment"))
+    if os.path.exists("fuzzy_search_core.pkl"):
+        try:
+            with open("fuzzy_search_core.pkl","rb") as f:
+                FUZZY_SEARCH_CORE = pickle.load(f)
+        except ModuleNotFoundError:
+            _logger.error("Can't load keywords augment core model! Please check the path!")
+            FUZZY_SEARCH_CORE = None
+    else:
+        FUZZY_SEARCH_CORE = None
+    return FUZZY_SEARCH_CORE
+
+hostname = socket.gethostname()
+_logger.info("Current hostname is: {}".format(hostname))
+_logger.info("Loading for keywords augmentation!!")
+FUZZY_SEARCH_CORE = load_keywords_augment_resources()
+_logger.info("Loading finished!!")
 DATAMART_SERVER = connection.get_general_search_server_url()
 DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
 datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
@@ -87,6 +112,7 @@ Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
 REDIS_MANAGER = RedisManager()
 
 app = Flask(__name__)
+
 CORS(app, resources={r"/api": {"origins": "*"}})
 app.config['SWAGGER'] = {
     'title': 'Datamart Link Panel',
@@ -112,6 +138,23 @@ class StringConverter(dict):
         return str
 
 
+def is_redis_available(redis_conn):
+    # for debugging condition, should not run on redis
+    if "dsbox" not in hostname:
+        return False
+
+    try:
+        redis_conn.get(None)  # getting None returns None or throws an exception
+    except (redis.exceptions.ConnectionError, redis.exceptions.BusyLoadingError):
+        _logger.debug("Redis is still loading or not ready yet.")
+        return False
+    except redis.exceptions.DataError:
+        _logger.warn("Redis is ready for connection.")
+        return True
+    _logger.warn("Redis is ready for connection (2).")
+    return True
+
+
 def retrieve_file_paths(dirName):
     # setup file paths variable
     filePaths = []
@@ -131,7 +174,7 @@ def wrap_response(code, msg='', data=None, **kwargs):
         'message': msg or ('Success' if code == '200' else 'Failed'),
         'data': data,
         **kwargs
-    }, indent=2, default=lambda x: str(x))
+    }, indent=2, default=lambda x: str(x)), code
 
 
 def read_file(files, key, _type):
@@ -178,7 +221,7 @@ def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
     Function used to load exist d3m datasets
     """
     # creat a dict which have reference for all dataset ids
-    logger.debug("Trying to load dataset " + str(path))
+    _logger.debug("Trying to load dataset " + str(path))
     datasets_list = dict()
     for each_path in dataset_paths:
         try:
@@ -194,7 +237,7 @@ def load_d3m_dataset(path) -> typing.Optional[d3m_Dataset]:
     json_file = os.path.abspath(dataset_path)
     all_dataset_uri = 'file://{}'.format(json_file)
     all_dataset = loader.load(dataset_uri=all_dataset_uri)
-    logger.debug("Load " + str(path) + " success!")
+    _logger.debug("Load " + str(path) + " success!")
     return all_dataset
 
 
@@ -204,8 +247,8 @@ def load_csv_data(data) -> d3m_Dataset:
     :param data: a str or a pd.DataFrame
     :return: a d3m style Dataset
     """
-    logger.debug("Trying to load csv data with first 100 characters as:")
-    logger.debug(str(data[:10]))
+    _logger.debug("Trying to load csv data with first 100 characters as:")
+    _logger.debug(str(data[:10]))
     if type(data) is str:
         data = pd.read_csv(data, converters=StringConverter())
     elif type(data) is pd.DataFrame:
@@ -237,7 +280,7 @@ def load_csv_data(data) -> d3m_Dataset:
         "source": {'license': 'Other'},
     }
     return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
-    logger.debug("Loading csv and transform to d3m dataset format success!")
+    _logger.debug("Loading csv and transform to d3m dataset format success!")
     return return_ds
 
 def _load_file_with(read_format: str, tmpfile):
@@ -253,6 +296,8 @@ def _load_file_with(read_format: str, tmpfile):
             zip.extractall(destination)
             loaded_dataset = d3m_Dataset.load('file://' + destination + '/datasetDoc.json')
             status = True
+            # remove unzipped files
+            shutil.rmtree(destination)
 
         elif read_format == "pkl":
             # pkl format
@@ -269,13 +314,13 @@ def _load_file_with(read_format: str, tmpfile):
         else:
             raise ValueError("Unknown read format!")
 
-        logger.info("Loading {} as {} file success!".format(tmpfile, read_format))
+        _logger.info("Loading {} as {} file success!".format(tmpfile, read_format))
 
     except Exception as e:
         loaded_dataset = None
         data = None
-        logger.debug("Get error information " + str(e))
-        logger.info("{} is not a valid {} file".format(tmpfile, read_format))
+        _logger.debug("Get error information " + str(e))
+        _logger.info("{} is not a valid {} file".format(tmpfile, read_format))
         status = False
     return status, data, loaded_dataset
 
@@ -285,7 +330,7 @@ def load_input_supplied_data(data_from_value, data_from_file):
     function used to load the input data from different methods
     """
     if data_from_file:
-        logger.debug("Detected a file from post body!")
+        _logger.debug("Detected a file from post body!")
 
         fd, tmpfile = tempfile.mkstemp(prefix='datamart_download_', suffix='.d3m.tmp')
         destination = None
@@ -297,7 +342,7 @@ def load_input_supplied_data(data_from_value, data_from_file):
         if not status:
             status, data, loaded_dataset = _load_file_with("csv", tmpfile)
         if not status:
-            logger.error("Loading dataset failed with all attempts!")
+            _logger.error("Loading dataset failed with all attempts!")
 
         # remove temp files
         os.close(fd)
@@ -308,10 +353,10 @@ def load_input_supplied_data(data_from_value, data_from_file):
     elif data_from_value:
         data = None
         if data_from_value.lower().endswith(".csv"):
-            logger.debug("csv file path detected!")
+            _logger.debug("csv file path detected!")
             loaded_dataset = load_csv_data(data_from_value)
         else:
-            logger.debug("d3m path maybe?")
+            _logger.debug("d3m path maybe?")
             loaded_dataset = load_d3m_dataset(data_from_value)
     else:
         data = None
@@ -342,10 +387,10 @@ def record_error_to_file(e, function_from):
         f.write(str(traceback.format_exc()))
         info = sys.exc_info()
         f.write(str(cgitb.text(info)))
-    # also show on logger
-    logger.error(error_message)
-    logger.error(str(e))
-    logger.error(str(traceback.format_exc()))
+    # also show on _logger
+    _logger.error(error_message)
+    _logger.error(str(e))
+    _logger.error(str(traceback.format_exc()))
 
 
 @app.before_request
@@ -366,7 +411,7 @@ def hello():
 @cross_origin()
 def wikifier():
     try:
-        logger.debug("Start running wikifier...")
+        _logger.debug("Start running wikifier...")
         # check that each parameter meets the requirements
         try:
             data_file = request.files.get('data')
@@ -390,7 +435,7 @@ def wikifier():
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        logger.info("The requested download format is " + return_format)
+        _logger.info("The requested download format is " + return_format)
 
         columns_formated, choice = [], []
 
@@ -417,8 +462,8 @@ def wikifier():
             return wrap_response(code='400',
                                  msg='FAIL SEARCH - Unknown json format, please follow the examples!!! ' + str(request.data),
                                  data=None)
-        logger.info("Required columns found as: " + str(columns_formated))
-        logger.info("Wikifier choice is: " + str(choice))
+        _logger.info("Required columns found as: " + str(columns_formated))
+        _logger.info("Wikifier choice is: " + str(choice))
 
         threshold = request.values.get("threshold")
         if not threshold:
@@ -428,9 +473,9 @@ def wikifier():
                 threshold = float(threshold)
             except:
                 threshold = 0.7
-        logger.info("Threshold for coverage is: " + str(threshold))
+        _logger.info("Threshold for coverage is: " + str(threshold))
 
-        logger.debug("Start changing dataset to dataframe...")
+        _logger.debug("Start changing dataset to dataframe...")
         # DA = load_d3m_dataset("DA_poverty_estimation")
         # MetadataCache.save_metadata_from_dataset(DA)
         # try to update with more correct metadata if possible
@@ -440,10 +485,10 @@ def wikifier():
         res_id, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset,
                                                                     resource_id=None, has_hyperparameter=False)
         output_ds = copy.copy(loaded_dataset)
-        logger.debug("Start running wikifier...")
+        _logger.debug("Start running wikifier...")
         wikifier_res = produce(inputs=supplied_dataframe, target_columns=columns_formated, target_p_nodes=None,
                                wikifier_choice=choice, threshold=threshold)
-        logger.debug("Wikifier finished, Start to update metadata...")
+        _logger.debug("Wikifier finished, Start to update metadata...")
         output_ds[res_id] = d3m_DataFrame(wikifier_res, generate_metadata=False)
 
         # update metadata on column length
@@ -468,7 +513,7 @@ def wikifier():
                         )}
             output_ds.metadata = output_ds.metadata.update(selector, metadata)
 
-        logger.info("Return the wikifier result.")
+        _logger.info("Return the wikifier result.")
         result_id = str(hash(wikifier_res.values.tobytes()))
         if return_format == "d3m":
             with tempfile.TemporaryDirectory() as tmpdir:
@@ -500,7 +545,7 @@ def wikifier():
 
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])
-        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response(code='400', msg="FAIL WIKIFIER - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 @app.route('/search', methods=['POST'])
@@ -524,13 +569,13 @@ def search():
 
         if loaded_dataset is None:
             if data is None:
-                logger.error("Search failed! No path given or can't load dataset")
+                _logger.error("Search failed! No path given or can't load dataset")
                 return wrap_response(code='400',
                                      msg="""FAIL SEARCH - data is not given or can't load dataset, please run "/search_without_data" instead""",
                                      data=None)
             else:
-                logger.error("Unable to load the input file with")
-                logger.error(str(data))
+                _logger.error("Unable to load the input file with")
+                _logger.error(str(data))
                 return wrap_response(code='400',
                                      msg='FAIL SEARCH - Unable to load input supplied data',
                                      data=None)
@@ -541,38 +586,74 @@ def search():
             elif need_wikifier.lower() == "true":
                 need_wikifier = True
             else:
-                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
-                logger.error("Will set need_wikifier with default value as True.")
+                _logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                _logger.error("Will set need_wikifier with default value as True.")
                 need_wikifier = True
         else:
             need_wikifier = True
+        
+        if request.values.get('consider_wikifier_columns_only'):
+            consider_wikifier_columns_only = request.values.get('consider_wikifier_columns_only')
+            if consider_wikifier_columns_only.lower() == "false":
+                consider_wikifier_columns_only = False
+            elif consider_wikifier_columns_only.lower() == "true":
+                consider_wikifier_columns_only = True
+        else:
+            consider_wikifier_columns_only = False
+        if consider_wikifier_columns_only:
+            _logger.warning("Will only consider wikifier columns only for augmenting!")
+
+        if request.values.get('augment_with_time'):
+            augment_with_time = request.values.get('augment_with_time')
+            if augment_with_time.lower() == "false":
+                augment_with_time = False
+            elif augment_with_time.lower() == "true":
+                augment_with_time = True
+        else:
+            augment_with_time = False
+        if augment_with_time:
+            _logger.warning("Will consider augment with time columns!")
+
+        if request.values.get('consider_time'):
+            consider_time = request.values.get('consider_time')
+            if consider_time.lower() == "false":
+                consider_time = False
+            elif consider_time.lower() == "true":
+                consider_time = True
+        else:
+            consider_time = True
+
+        if not consider_time:
+            if augment_with_time is True:
+                _logger.warning("Augment with time is set to be true! consider_time parameter will be useless.")
+            else:
+                _logger.warning("Will not consider time columns augmentation from datamart!")
 
         # start to search
-        logger.debug("Starting datamart search service...")
+        _logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
 
         if need_wikifier:
             meta_for_wikifier = None
-            logger.debug("Start running wikifier...")
-            # if a specific list of wikifier targets was sent (usually generated from ta2 system)
             if query and "keywords" in query.keys():
                 for i, kw in enumerate(query["keywords"]):
-                    if config_datamart.wikifier_column_mark in kw:
+                    if kw and config_datamart.wikifier_column_mark in kw:
                         meta_for_wikifier = json.loads(query["keywords"].pop(i))[config_datamart.wikifier_column_mark]
                         break
                 if meta_for_wikifier:
-                    logger.info(
+                    _logger.info(
                         "Get specific column<->p_nodes relationship from user. Will only wikifier those columns!")
-                    logger.info("The detail relationship is: {}".format(str(meta_for_wikifier)))
+                    _logger.info("The detail relationship is: {}".format(str(meta_for_wikifier)))
                     _, supplied_dataframe = d3m_utils.get_tabular_resource(dataset=loaded_dataset, resource_id=None)
                     MetadataCache.save_specific_wikifier_targets(supplied_dataframe, meta_for_wikifier)
 
             search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
                                                           search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
-            logger.debug("Wikifier finished, start running download...")
+            _logger.debug("Wikifier finished, start running search...")
+
         else:
-            logger.debug("Wikifier skipped, start running download...")
+            _logger.debug("Wikifier skipped, start running search...")
 
         if query:
             keywords = query.get("keywords", [])
@@ -581,13 +662,19 @@ def search():
             keywords: typing.List[str] = []
             variables: typing.List['VariableConstraint'] = []
 
-        logger.debug("The search's keywords are: {}".format(str(keywords)))
-        logger.debug("The search's variables are: {}".format(str(variables)))
+        _logger.debug("The search's keywords are: {}".format(str(keywords)))
+        _logger.debug("The search's variables are: {}".format(str(variables)))
 
         query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
-        res = datamart_instance.search_with_data(query=query_wrapped, supplied_data=loaded_dataset).get_next_page(
-            limit=max_return_docs) or []
-        logger.debug("Search finished, totally find " + str(len(res)) + " results.")
+        res = datamart_instance.search_with_data(
+                query=query_wrapped, 
+                supplied_data=loaded_dataset,
+                consider_wikifier_columns_only=consider_wikifier_columns_only,
+                augment_with_time=augment_with_time,
+                consider_time=consider_time
+                ).get_next_page(limit=max_return_docs) or []
+        
+        _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for i, each_res in enumerate(res):
             try:
@@ -608,8 +695,8 @@ def search():
                     elif search_type == "wikidata":
                         p_nodes = each_res.id().split("___")
                         p_nodes = p_nodes[1: -1]
-                        materialize_info_wikidata = {"p_nodes_needed": p_nodes}
-                        temp_df = Utils.materialize(materialize_info_wikidata)
+                        materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
+                        temp_df = MaterializerCache.materialize(materialize_info_wikidata)
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                     elif search_type == "general":
@@ -620,12 +707,12 @@ def search():
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                 except Exception as e:
-                    logger.error("Feteching the first 10 rows failed!")
-                    logger.debug(e, exc_info=True)
+                    _logger.error("Feteching the first 10 rows failed!")
+                    _logger.debug(e, exc_info=True)
                     first_10_rows_info = ""
 
                 cur = {
-                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': [augmentation_part['left_columns']], 'right_columns': [augmentation_part['right_columns']]},
+                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': augmentation_part['left_columns'], 'right_columns': augmentation_part['right_columns']},
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
                     'metadata': each_res.get_metadata().to_json_structure(),
@@ -636,8 +723,8 @@ def search():
                 results.append(cur)
 
             except Exception as e:
-                logger.error("Feteching No.{} result failed!".format(str(i)))
-                logger.debug(e, exc_info=True)
+                _logger.error("Feteching No.{} result failed!".format(str(i)))
+                _logger.debug(e, exc_info=True)
             
         json_return = dict()
         json_return["results"] = results
@@ -656,28 +743,66 @@ def search():
 @cross_origin()
 def search_without_data():
     try:
-        logger.debug("Start running search_without_data...")
-        keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
-        keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
-        if request.data:
-            variables = json.loads(str(request.data, "utf-8"))
-            variables_search: dict() = variables['variables'] if variables != None else {}
-            query_wrapped = DatamartQuery(keywords_search=keywords_search, variables_search=variables_search)
-        else:
-            query_wrapped = DatamartQuery(keywords_search=keywords_search)
+        _logger.debug("Start running search_without_data...")
+        # check that each parameter meets the requirements
+        query = read_file(request.values, 'query', 'json')
+        # if not send the json via file
+        if not query and request.form.get('query_json'):
+            query = json.loads(request.form.get('query_json'))
+        if not query and request.files.get("query"):
+            query = json.load(request.files.get('query'))
+        if not query and request.json:
+            query = request.json
+        max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
 
-        logger.debug("Starting datamart search service...")
+        if query:
+            keywords = query.get("keywords", [])
+            variables = query.get("variables", {})
+            if variables is None:
+                variables = {}
+        else:
+            return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
+
+        _logger.debug("The search's keywords are: {}".format(str(keywords)))
+        _logger.debug("The search's variables are: {}".format(str(variables)))
+
+        # query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
+
+        # keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
+        # keywords_search: typing.List[str] = keywords.split(',') if keywords != None else []
+        # if request.data:
+        #     variables = json.loads(str(request.data, "utf-8"))
+        #     variables_search: dict() = variables['variables'] if variables != None else {}
+        # else:
+        #     query_wrapped = DatamartQuery(keywords_search=keywords_search)
+
+        query_wrapped = DatamartQuery(keywords_search=keywords, variables_search=variables)
+
+        _logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
         res = datamart_instance.search(query=query_wrapped).get_next_page() or []
-        logger.debug("Search finished, totally find " + str(len(res)) + " results.")
+        _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
-        for r in res:
+        for each_res in res:
+            materialize_info = each_res.serialize()
+            materialize_info_decoded = json.loads(materialize_info)
+            search_type = materialize_info_decoded["metadata"]['search_type']
+            if search_type == "general":
+                extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
+                temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
+                if 'Unnamed: 0' in temp_df.columns:
+                    temp_df = temp_df.drop(columns=['Unnamed: 0'])
+                first_10_rows_info = temp_df.to_csv(index=False)
+            else:
+                first_10_rows_info = ""
             cur = {
-                "summary": parse_search_result(r),
-                'score': r.score(),
-                'metadata': r.get_metadata().to_json_structure(),
-                'datamart_id': r.id(),
-                'materialize_info': r.serialize()
+                'augmentation': {'type': "", 'left_columns': [], 'right_columns':[]},
+                'summary': parse_search_result(each_res),
+                'score': each_res.score(),
+                'metadata': each_res.get_metadata().to_json_structure(),
+                'id': each_res.id(),
+                'sample': first_10_rows_info,
+                'materialize_info': materialize_info
             }
             results.append(cur)
         if not results:
@@ -696,7 +821,7 @@ def search_without_data():
 @cross_origin()
 def download():
     try:
-        logger.debug("Start datamart downloading...")
+        _logger.debug("Start datamart downloading...")
         # check that each parameter meets the requirements
         search_result = read_file(request.files, 'task', 'json')
         # if not send the json via file
@@ -735,8 +860,8 @@ def download():
             elif need_wikifier.lower() == "true":
                 need_wikifier = True
             else:
-                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
-                logger.error("Will set need_wikifier with default value as True.")
+                _logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                _logger.error("Will set need_wikifier with default value as True.")
                 need_wikifier = True
         else:
             need_wikifier = True
@@ -744,17 +869,17 @@ def download():
         # search with supplied data
         # preprocess on loaded_dataset
         if need_wikifier:
-            logger.debug("Start running wikifier...")
+            _logger.debug("Start running wikifier...")
             search_result_wikifier = DatamartSearchResult(search_result={}, supplied_data=None, query_json={},
                                                           search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset)
-            logger.debug("Wikifier finished, start running download...")
+            _logger.debug("Wikifier finished, start running download...")
         else:
-            logger.debug("Wikifier skipped, start running download...")
+            _logger.debug("Wikifier skipped, start running download...")
 
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         download_result = search_result.download(supplied_data=loaded_dataset, run_wikifier=need_wikifier)
-        logger.debug("Download finished.")
+        _logger.debug("Download finished.")
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=download_result, resource_id=None)
 
         non_empty_rows = []
@@ -766,7 +891,7 @@ def download():
             return wrap_response(code='400',
                                  msg='FAIL DOWNLOAD - No joinable rows found!',
                                  data=None)
-        logger.debug("Start saving the download results...")
+        _logger.debug("Start saving the download results...")
         result_df = result_df.iloc[non_empty_rows, :]
         result_df.reset_index(drop=True)
         # set all cells to be str so that we can save correctly
@@ -827,7 +952,7 @@ def download():
 @cross_origin()
 def download_by_id(id):
     datamart_id = id
-    logger.debug("Start downloading with id " + str(datamart_id))
+    _logger.debug("Start downloading with id " + str(datamart_id))
     return_format = check_return_format(request.values.get('format'))
     if return_format is None:
         return wrap_response(code='400',
@@ -841,7 +966,7 @@ def download_by_id(id):
             p_nodes = datamart_id.split("___")
             p_nodes = p_nodes[1: -1]
             materialize_info = {"p_nodes_needed": p_nodes}
-            result_df = Utils.materialize(materialize_info)
+            result_df = MaterializerCache.materialize(materialize_info, run_wikifier=False)
 
         else:  # len(datamart_id) == 8 and datamart_id[0] == "D":
             sparql_query = '''
@@ -864,16 +989,16 @@ def download_by_id(id):
             sparql.setMethod(POST)
             sparql.setRequestMethod(URLENCODED)
             results = sparql.query().convert()['results']['bindings']
-            logger.debug("Totally " + str(len(results)) + " results found with given id.")
+            _logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
                 return wrap_response('400', msg="Can't find corresponding dataset with given id.")
-            logger.debug("Start materialize the dataset...")
-            result_df = Utils.materialize(metadata=results[0])
+            _logger.debug("Start materialize the dataset...")
+            result_df = MaterializerCache.materialize(metadata=results[0], run_wikifier=False)
 
         # else:
         # return wrap_response('400', msg="FAIL MATERIALIZE - Unknown input id format.")
 
-        logger.debug("Materialize finished, start sending...")
+        _logger.debug("Materialize finished, start sending...")
         result_id = str(hash(result_df.values.tobytes()))
         save_dir = "/tmp/download_result" + result_id
         if os.path.isdir(save_dir) or os.path.exists(save_dir):
@@ -941,7 +1066,7 @@ def download_by_id(id):
 @cross_origin()
 def download_metadata_by_id(id):
     datamart_id = id
-    logger.debug("Start downloading metadata with id " + str(datamart_id))
+    _logger.debug("Start downloading metadata with id " + str(datamart_id))
     try:
         # general format datamart id
         if datamart_id.startswith("wikidata_search_on"):
@@ -951,7 +1076,7 @@ def download_metadata_by_id(id):
             target_q_node = "_".join(p_nodes[-1].split('_')[2:])
             p_nodes = p_nodes[1: -1]
             search_result = {"p_nodes_needed": p_nodes, "target_q_node_column_name": target_q_node}
-            logger.debug("Start searching the metadata for wikidata...")
+            _logger.debug("Start searching the metadata for wikidata...")
             metadata = DatamartSearchResult(search_result=search_result, supplied_data=None, query_json={},
                                                           search_type="wikidata").get_metadata()
 
@@ -978,15 +1103,15 @@ def download_metadata_by_id(id):
             sparql.setMethod(POST)
             sparql.setRequestMethod(URLENCODED)
             results = sparql.query().convert()['results']['bindings']
-            logger.debug("Totally " + str(len(results)) + " results found with given id.")
+            _logger.debug("Totally " + str(len(results)) + " results found with given id.")
             if len(results) == 0:
                 return wrap_response('400', msg="Can't find corresponding dataset with given id.")
-            logger.debug("Start searching the metadata for general..")
+            _logger.debug("Start searching the metadata for general..")
             results[0]['score'] = {"value": 0}
             metadata = DatamartSearchResult(search_result=results[0], supplied_data=None, query_json={},
                                             search_type="general").get_metadata()
 
-        logger.debug("Searching metadata finished...")
+        _logger.debug("Searching metadata finished...")
         # update metadata
         metadata_all_level = {
             "id": datamart_id,
@@ -1007,7 +1132,7 @@ def download_metadata_by_id(id):
 @cross_origin()
 def augment():
     try:
-        logger.debug("Start running augment...")
+        _logger.debug("Start running augment...")
         # check that each parameter meets the requirements
         try:
             search_result = json.loads(request.files['task'].read().decode('UTF-8'))
@@ -1027,10 +1152,10 @@ def augment():
                 use_cache = True
             else:
                 use_cache = None
-                logger.warning("Unknown value for use_cache as " + str(use_cache))
+                _logger.warning("Unknown value for use_cache as " + str(use_cache))
         else:
             use_cache = None
-            logger.info("use_cache value not detected")
+            _logger.info("use_cache value not detected")
 
         return_format = request.values.get('format')
         # if not get return format, set defauld as csv
@@ -1043,7 +1168,7 @@ def augment():
                                  msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
                                  data=None)
 
-        logger.info("The requested download format is " + return_format)
+        _logger.info("The requested download format is " + return_format)
 
         try:
             data_file = request.files.get('data')
@@ -1064,7 +1189,7 @@ def augment():
             columns = request.values.get('columns')
         if columns and type(columns) is not list:
             columns = columns.split(",")
-            logger.info("Required columns found as: " + str(columns))
+            _logger.info("Required columns found as: " + str(columns))
         columns_formated = []
         if columns:
             for each in columns:
@@ -1079,28 +1204,33 @@ def augment():
             elif need_wikifier.lower() == "true":
                 need_wikifier = True
             else:
-                logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
-                logger.error("Will set need_wikifier with default value as True.")
+                _logger.error("Unknown value for need_wikifier as " + str(need_wikifier))
+                _logger.error("Will set need_wikifier with default value as True.")
                 need_wikifier = True
         else:
             need_wikifier = True
 
         if need_wikifier:
-            logger.debug("Start running wikifier...")
+            _logger.debug("Start running wikifier...")
             search_result_wikifier = DatamartSearchResult(search_result={}, 
                                                           supplied_data=None, 
                                                           query_json={},
                                                           search_type="wikifier")
             loaded_dataset = search_result_wikifier.augment(supplied_data=loaded_dataset, 
                                                             use_cache=use_cache)
-            logger.debug("Wikifier finished, start running download...")
+            _logger.debug("Wikifier finished, start running download...")
         else:
-            logger.debug("Wikifier skipped, start running download...")
+            _logger.debug("Wikifier skipped, start running download...")
 
         search_result = DatamartSearchResult.deserialize(search_result['materialize_info'])
         augment_result = search_result.augment(supplied_data=loaded_dataset, 
                                                augment_columns=columns_formated, 
                                                use_cache=use_cache)
+
+        # if get string here, it means augment failed
+        if isinstance(augment_result, str):
+            return wrap_response(code='400',
+                                 msg=augment_result)
 
         res_id, result_df = d3m_utils.get_tabular_resource(dataset=augment_result, resource_id=None)
         augment_result[res_id] = result_df.astype(str)
@@ -1114,7 +1244,7 @@ def augment():
         result_id = str(hash(result_df.values.tobytes()))
         # if required to store in disk and return the path
         if destination:
-            logger.info("Saving to a given destination required.")
+            _logger.info("Saving to a given destination required.")
             save_dir = os.path.join(destination, "augment_result" + result_id)
             if os.path.isdir(save_dir) or os.path.exists(save_dir):
                 shutil.rmtree(save_dir)
@@ -1139,7 +1269,7 @@ def augment():
                                  data=save_dir)
         else:
             # save dataset in temp directory
-            logger.info("Return the augment result directly required.")
+            _logger.info("Return the augment result directly required.")
             if return_format == "d3m":
                 with tempfile.TemporaryDirectory() as tmpdir:
                     save_dir = os.path.join(str(tmpdir), result_id)
@@ -1179,16 +1309,16 @@ def augment():
 @app.route('/get_identifiers', methods=['POST'])
 @cross_origin()
 def get_identifiers():
-    logger.debug("Start running wikifier identifier...")
+    _logger.debug("Start running wikifier identifier...")
     request_data = json.loads(request.data)
     ids = request_data['ids'] if 'ids' in request_data.keys() else {}
-    logger.info("Totally " + str(len(ids)) + " ids received.")
+    _logger.info("Totally " + str(len(ids)) + " ids received.")
     # Check empty
     if not ids:
         return {}
     start_time = time.time()
     data = REDIS_MANAGER.getKeys(keys=ids, prefix="identifiers:")
-    logger.debug("Identifier totally running used " + str(time.time() - start_time) + " seconds.")
+    _logger.debug("Identifier totally running used " + str(time.time() - start_time) + " seconds.")
     return_data = dict()
     for key in data:
         return_data[key] = list(data[key])
@@ -1204,7 +1334,7 @@ def get_identifiers():
 @app.route('/upload/add_upload_user', methods=['POST'])
 @cross_origin()
 def add_upload_user():
-    logger.debug("Start adding upload user")
+    _logger.debug("Start adding upload user")
     try:
         token = request.values.get('token')
         username = request.values.get('username')
@@ -1215,7 +1345,7 @@ def add_upload_user():
                                  data=None)
 
         if not os.path.exists(password_token_file):
-            logger.error("No password config file found!")
+            _logger.error("No password config file found!")
             return wrap_response(code='400',
                                  msg="FAIL ADD USER - can't load token file!, please contact the adiministrator!",
                                  data=None)
@@ -1228,7 +1358,7 @@ def add_upload_user():
                                  data=None)
 
         if not os.path.exists(password_record_file):
-            logger.error("No password config file found!")
+            _logger.error("No password config file found!")
             return wrap_response(code='400',
                                  msg="FAIL ADD USER - can't load the password config file, please contact the adiministrator!",
                                  data=None)
@@ -1260,21 +1390,21 @@ def add_upload_user():
 @app.route('/upload', methods=['POST'])
 @cross_origin()
 def upload():
-    upload_function(request, test_mode=False)
+    return upload_function(request, test_mode=False)
 
 
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
-    # save as upload function, only difference is it will upload the dataset to a testing blazegraph namespace
-    upload_function(request, test_mode=True)
+    # same as upload function, only difference is it will upload the dataset to a testing blazegraph namespace
+    return upload_function(request, test_mode=True)
 
 
 def upload_function(request, test_mode=False):
     """
     detail upload function,
     """
-    logger.debug("Start uploading in one step...")
+    _logger.debug("Start uploading in one step...")
     # start_time = time.time()
     try:
         url = request.values.get('url')
@@ -1306,7 +1436,7 @@ def upload_function(request, test_mode=False):
         # check username and password
         password_record_file = "../datamart_isi/upload/upload_password_config.json"
         if not os.path.exists(password_record_file):
-            logger.error("No password config file found!")
+            _logger.error("No password config file found!")
             return wrap_response(code='400',
                                  msg="FAIL UPLOAD - can't load the password config file, please contact the adiministrator!",
                                  data=None)
@@ -1325,16 +1455,29 @@ def upload_function(request, test_mode=False):
                                      msg='FAIL UPLOAD - wrong password',
                                      data=None)
 
+        need_process_columns_parsed = []
+        need_process_columns = request.values.get('need_process_columns')
+        if need_process_columns is not None:
+            need_process_columns_all = need_process_columns.split("||")
+            for each in need_process_columns_all:
+                each_need_process_columns = each.split(",")
+                if len(each_need_process_columns) == 1 and each_need_process_columns[0].lower() == "none":
+                    each_need_process_columns = None
+                else:
+                    for i in range(len(each_need_process_columns)):
+                        each_need_process_columns[i] = int(each_need_process_columns[i].lstrip())
+                need_process_columns_parsed.append(each_need_process_columns)
+
         if upload_body is not None:
             datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
             if not os.path.exists(datasets_store_loc):
                 os.mkdir(datasets_store_loc)
-            logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
+            _logger.debug("Start saving the dataset {} from post body to {}...".format(upload_body.filename, datasets_store_loc))
             file_loc = os.path.join(datasets_store_loc, upload_body.filename)
             upload_body.save(file_loc)
             service_path = config_services.get_host_port_path("isi_datamart")
-            url = os.path.join("http://" + service_path[0] + ":" + str(service_path[1]), "upload/local_datasets", upload_body.filename)
-            logger.debug("Save the dataset finished at {}".format(url))
+            url = os.path.join(service_path[0] + "://" + service_path[1] + ":" + str(service_path[2]), "upload/local_datasets", upload_body.filename)
+            _logger.debug("Save the dataset finished at {} with url {}".format(datasets_store_loc, url))
 
         wikifier_choice = request.values.get('run_wikifier')
         if wikifier_choice is None:
@@ -1346,36 +1489,54 @@ def upload_function(request, test_mode=False):
         description = request.values.get('description').split("||") if request.values.get('description') else None
         keywords = request.values.get('keywords').split("||") if request.values.get('keywords') else None
 
-        redis_host, redis_server_port = connection.get_redis_host_port()
-        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
-        redis_conn = redis.Redis(connection_pool=pool)
-        rq_queue = Queue(connection=redis_conn)
-        dataset_information = {"url": url, "file_type": file_type, "title": title,
-                               "description": description, "keywords": keywords,
-                               "user_information": user_passwd_pairs[upload_username],
-                               "wikifier_choice": wikifier_choice
-                               }
-
+        # start uploading processes
         if not test_mode:
             server_address = DATAMART_SERVER
         else:
             server_address = DATAMART_TEST_SERVER
+            
+        dataset_information = {"url": url, 
+                               "file_type": file_type, 
+                               "title": title,
+                               "description": description, 
+                               "keywords": keywords,
+                               "user_information": user_passwd_pairs[upload_username],
+                               "wikifier_choice": wikifier_choice, 
+                               "need_process_columns": need_process_columns_parsed,
+                               }
 
-        job = rq_queue.enqueue(upload_to_datamart,
-                               args=(server_address, dataset_information,),
-                               # no timeout for job, result expire after 1 day
-                               job_timeout=-1, result_ttl=86400
-                               )
-        job_id = job.get_id()
-        # waif for 1 seconds to ensure the initialization finished
-        time.sleep(1)
-        job.refresh()
-        job_status = job.get_status()
+        redis_host, redis_server_port = connection.get_redis_host_port()
+        pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
+        redis_conn = redis.Redis(connection_pool=pool)
 
-        return wrap_response('200', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
+        # if not get redis server, try to run locally
+        if not is_redis_available(redis_conn):
+            _logger.warning("Redis server not respond! Can't run in asyn mode!!")
+            response_msg = upload_to_datamart(server_address, dataset_information)
+            if response_msg.startswith("FAIL"):
+                return wrap_response('400', msg=response_msg)
+            else:
+                return wrap_response('200', msg=response_msg)
+
+        else:
+            # use rq to schedule a job running asynchronously
+            rq_queue = Queue(connection=redis_conn)
+            job = rq_queue.enqueue(upload_to_datamart,
+                                   args=(server_address, dataset_information,),
+                                   # no timeout for job, result expire after 1 day
+                                   job_timeout=-1, result_ttl=86400
+                                   )
+            job_id = job.get_id()
+            # waif for 1 seconds to ensure the initialization finished
+            time.sleep(1)
+            job.refresh()
+            job_status = job.get_status()
+            return wrap_response('200', msg="UPLOAD job schedule succeed! The job id is: " + str(job_id) + " Current status is: " + str(job_status))
+        # END uploading codes
+
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])
-        return wrap_response('400', msg="FAIL UPLOAD job schedule - %s \n %s" % (str(e), str(traceback.format_exc())))
+        return wrap_response('400', msg="FAIL UPLOAD job - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
 
@@ -1390,11 +1551,11 @@ def get_local_datasets(dataset_name):
         datasets_store_loc = os.path.join(config_datamart.cache_file_storage_base_loc, "datasets_uploads")
         if not os.path.exists(datasets_store_loc):
             os.mkdir(datasets_store_loc)
-        logger.debug("Start getting the dataset from local storage {}...".format(datasets_store_loc))
+        _logger.debug("Start getting the dataset from local storage {}...".format(datasets_store_loc))
 
         datasets_loc = os.path.join(datasets_store_loc, dataset_name)
         if not os.path.exists(datasets_loc):
-            logger.error("File {} not exists!".format(dataset_name))
+            _logger.error("File {} not exists!".format(dataset_name))
             return wrap_response('400', msg="File {} not exists!".format(dataset_name))
 
         with open(datasets_loc, 'rb') as f:
@@ -1409,7 +1570,7 @@ def get_local_datasets(dataset_name):
 @app.route('/upload/generateWD+Metadata', methods=['POST'])
 @cross_origin()
 def load_and_process():
-    logger.debug("Start loading and process the upload data")
+    _logger.debug("Start loading and process the upload data")
     try:
         url = request.values.get('url')
         if url is None:
@@ -1439,7 +1600,7 @@ def load_and_process():
 @app.route('/upload/uploadWD+Metadata', methods=['POST'])
 @cross_origin()
 def upload_metadata():
-    logger.debug("Start uploading...")
+    _logger.debug("Start uploading...")
     try:
         if request.values.get('metadata'):
             metadata = request.values.get('metadata')
@@ -1478,7 +1639,7 @@ def upload_metadata():
 @cross_origin()
 def check_upload_status():
     try:
-        logger.debug("Start checking upload status...")
+        _logger.debug("Start checking upload status...")
         redis_host, redis_server_port = connection.get_redis_host_port()
         pool = redis.ConnectionPool(db=0, host=redis_host, port=redis_server_port)
         redis_conn = redis.Redis(connection_pool=pool)
@@ -1522,6 +1683,7 @@ def check_upload_status():
 
 
 @app.route('/embeddings/fb/<qnode>', methods=['GET'])
+@cross_origin()
 def fetch_fb_embeddings(qnode):
     qnodes = qnode.split(',')
     qnode_uris = [wikidata_uri_template.format(qnode.upper().strip()) for qnode in qnodes]
@@ -1560,6 +1722,37 @@ def fetch_fb_embeddings(qnode):
     return None
 
 
+@app.route('/keywords_augmentation/<string:keywords>', methods=['GET'])
+@cross_origin()
+def keywords_augmentation(keywords):
+    """
+        (original project link: https://github.com/usc-isi-i2/data-label-augmentation/tree/mint-fuzzy)
+        use fuzzy search to augment input keywords to increase the possiblity to hit
+        inputs: a list of keywords, separate by comma ","
+        returns: a list of augmented keywords, separate by comma ","
+    """
+    try:
+        keywords = list(map(lambda x: x.strip(), keywords.split(',')))
+        _logger.info("Original keywords are: {}".format(str(keywords)))
+        if FUZZY_SEARCH_CORE is not None:
+            augmented_res = FUZZY_SEARCH_CORE.get_word_map(keywords)
+            new_keywords = []
+            for original_keywords, v in augmented_res.items():
+                new_keywords.append(original_keywords)
+                for extra_keywords in v.keys():
+                    new_keywords.append(extra_keywords)
+            _logger.info("Augmented keywords are: {}".format(str(new_keywords)))
+
+        else:
+            _logger.warning("Keywords augmentation core not loaded! Can't augment.")
+            new_keywords = keywords
+        return wrap_response(code='200', msg=",".join(new_keywords))
+
+    except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
 def generate_dataset_metadata():
     '''
     Add D3M dataset metadata to cache
@@ -1581,8 +1774,7 @@ def generate_dataset_metadata():
 
 
 if __name__ == '__main__':
-    generate_dataset_metadata()
-    hostname = socket.gethostname()
+    # generate_dataset_metadata()
     if hostname == "dsbox02":
         context = ('./certs/wildcard_isi.crt', './certs/wildcard_isi.key')
         app.run(host="0.0.0.0", port=9000, debug=False, ssl_context=context) 
