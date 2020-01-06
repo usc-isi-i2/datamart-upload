@@ -1143,7 +1143,6 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        
         if request.values.get('use_cache'):
             use_cache = request.values.get('use_cache')
             if use_cache.lower() == "false":
@@ -1455,6 +1454,19 @@ def upload_function(request, test_mode=False):
                                      msg='FAIL UPLOAD - wrong password',
                                      data=None)
 
+        if request.values.get('upload_async'):
+            upload_async = request.values.get('upload_async')
+            if upload_async.lower() == "false":
+                upload_async = False
+            elif upload_async.lower() == "true":
+                upload_async = True
+            else:
+                upload_async = True
+                _logger.warning("Unknown value for upload_async as {}, use default as True" + str(upload_async))
+        else:
+            upload_async = True
+            _logger.info("upload_async value not detected, use default as True")
+
         need_process_columns_parsed = []
         need_process_columns = request.values.get('need_process_columns')
         if need_process_columns is not None:
@@ -1510,7 +1522,7 @@ def upload_function(request, test_mode=False):
         redis_conn = redis.Redis(connection_pool=pool)
 
         # if not get redis server, try to run locally
-        if not is_redis_available(redis_conn):
+        if not upload_async or not is_redis_available(redis_conn):
             _logger.warning("Redis server not respond! Can't run in asyn mode!!")
             response_msg = upload_to_datamart(server_address, dataset_information)
             if response_msg.startswith("FAIL"):

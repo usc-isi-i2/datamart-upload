@@ -220,6 +220,8 @@ class Datamart_isi_upload:
         all_wikifier_res = []
         all_metadata = []
         for df_count, each_df in enumerate(loaded_data):
+            if each_df.shape[0] == 0:
+                raise ValueError("Detect empty when loading No.{} table, please check!".format(str(df_count)))
             if wikifier_choice == "false":
                 do_wikifier = False
             elif wikifier_choice == "true":
