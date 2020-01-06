@@ -578,11 +578,11 @@ paths:
         #   description: The file of the dataset to upload to datamart
         - in: query
           name: upload_async
-          description: 'The upload method, if set to be true, the upload process will be assigned to background process and no need to waiting on this page. This service also request server's Redis working. Currently it will only work on dsbox02 side.'
+          description: The upload method, if set to be true, the upload process will be assigned to background process and no need to waiting on this page. This service also request server's Redis working. Currently it will only work on dsbox02 side.
           schema:
             type: string
-            example: true
             enum: [true, false]
+          example: true
         - in: query
           name: run_wikifier
           description: 'Whether to run wikifier on the uploaded dataset or not. <br> Default value is auto. Wikifier step will skip if the size(row number * column number) of the dataset is larger than **100000**'
