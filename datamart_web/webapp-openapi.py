@@ -690,6 +690,9 @@ def search():
                         target_column_name = materialize_info_decoded["metadata"]['search_result']['target_q_node_column_name']
                         first_10_rows_df = DownloadManager.fetch_fb_embeddings(q_nodes_list=q_nodes_list, 
                                                                                  target_q_node_column_name=target_column_name)
+                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
+                        if first_10_rows_df.shape[0] == 0:
+                            continue
                         first_10_rows_info = first_10_rows_df.to_csv(index=False)
 
                     elif search_type == "wikidata":
@@ -697,6 +700,9 @@ def search():
                         p_nodes = p_nodes[1: -1]
                         materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
                         temp_df = MaterializerCache.materialize(materialize_info_wikidata)
+                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
+                        if temp_df.shape[0] == 0 or temp_df.shape[1] == 0:
+                            continue
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                     elif search_type == "general":
@@ -762,6 +768,13 @@ def search_without_data():
                 variables = {}
         else:
             return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
+
+        keywords_set = set(keywords)
+        if "" in keywords_set:
+            keywords_set.remove("")
+        if " " in keywords_set:
+            keywords_set.remove(" ")
+        keywords = list(keywords_set)
 
         _logger.debug("The search's keywords are: {}".format(str(keywords)))
         _logger.debug("The search's variables are: {}".format(str(variables)))
