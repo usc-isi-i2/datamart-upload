@@ -421,6 +421,7 @@ class Datamart_isi_upload:
             job.save_meta()
 
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
+
         # each columns
         for i in need_process_columns:
             if job is not None:
@@ -463,6 +464,15 @@ class Datamart_isi_upload:
         self._logger.debug("Start processing No." + str(column_number) + " column.")
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
+            # updated v2020.1.9, it seems dsbox profiler do not convert "year" only data, we need to check here
+            if 'http://schema.org/Integer' in semantic_type and "year" in column_data.name:
+                try:
+                    column_data = column_data.astype("int")
+                    if max(column_data) < 2100 and min(column_data) > 1000:
+                        column_data = pd.to_datetime(column_data, format='%Y', errors="raise")
+                        self._logger.info("Detect year data on column No.{}!".format(str(column_number)))
+                except:
+                    pass
 
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"

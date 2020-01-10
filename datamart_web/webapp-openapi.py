@@ -248,7 +248,10 @@ def load_csv_data(data) -> d3m_Dataset:
     :return: a d3m style Dataset
     """
     _logger.debug("Trying to load csv data with first 100 characters as:")
-    _logger.debug(str(data[:10]))
+    if isinstance(data, str):
+        _logger.debug(str(data))
+    else:
+        _logger.debug(str(data[:10]))
     if type(data) is str:
         data = pd.read_csv(data, converters=StringConverter())
     elif type(data) is pd.DataFrame:

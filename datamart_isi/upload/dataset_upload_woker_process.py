@@ -11,7 +11,21 @@ from datamart_isi.upload import store
 
 def upload_to_datamart(datamart_upload_address, dataset_information):
     logger = logging.getLogger()
-    
+    has_logger_in_stdeer = False
+    for each_handler in logger.handlers:
+        if "stderr" in str(each_handler.stream):
+            has_logger_in_stdeer = True
+
+    if not has_logger_in_stdeer:
+        # define a Handler which writes INFO messages or higher to the sys.stderr
+        console = logging.StreamHandler()
+        console.setLevel(logging.DEBUG)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
     logger.setLevel(logging.DEBUG)
     # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
     # set up logging to file - see previous section for more details
@@ -21,15 +35,7 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
                         filename='datamart_upload_worker_{}.log'.format(os.getpid()),
                         filemode='w'
                         )
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+
     start_time = time.time()
     job = get_current_job()
     if job is not None:
