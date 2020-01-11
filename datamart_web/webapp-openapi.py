@@ -568,6 +568,7 @@ def search():
             data_file = request.files.get('data')
         except:
             data_file = None
+
         data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
@@ -783,7 +784,7 @@ def search_without_data():
 
         _logger.debug("The search's keywords are: {}".format(str(keywords)))
         _logger.debug("The search's variables are: {}".format(str(variables)))
-
+        _logger.debug("The search's return docs amount is: {}".format(str(max_return_docs)))
         # query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
 
         # keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
@@ -798,7 +799,7 @@ def search_without_data():
 
         _logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
-        res = datamart_instance.search(query=query_wrapped).get_next_page() or []
+        res = datamart_instance.search(query=query_wrapped).get_next_page(limit=max_return_docs) or []
         _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for each_res in res:
