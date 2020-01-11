@@ -772,12 +772,14 @@ def search_without_data():
         else:
             return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
 
+        # remove empty and duplicate keywords
         keywords_set = set(keywords)
         if "" in keywords_set:
             keywords_set.remove("")
         if " " in keywords_set:
             keywords_set.remove(" ")
         keywords = list(keywords_set)
+        keywords.sort()
 
         _logger.debug("The search's keywords are: {}".format(str(keywords)))
         _logger.debug("The search's variables are: {}".format(str(variables)))
@@ -821,12 +823,10 @@ def search_without_data():
                 'materialize_info': materialize_info
             }
             results.append(cur)
-        if not results:
-            return wrap_response(code='200', msg="FAIL SEARCH - did not find the results")
-        else:
-            json_return = dict()
-            json_return["results"] = results
-            return json.dumps(json_return, indent=2)
+
+        json_return = dict()
+        json_return["results"] = results
+        return json.dumps(json_return, indent=2)
 
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])

@@ -128,7 +128,8 @@ paths:
           * **run_wikifier** Boolean value, if true perform object resolution using ISI wikifier to find additional datasets.
 
         Request body:
-          * A JSON query to specify additional search constraints (currently only *keywords* constraint is supported).
+          * **query_json**: A JSON query to specify additional search constraints You can follow the example <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/d3m/examples/sample_time_search_variables.json">here</a>. You can also check the examples on */search_without_data* api section.
+          * **data**: A supplied data for searching, it could be in pkl/zip/csv format.
       parameters:
         - in: query
           name: max_return_docs
@@ -228,13 +229,8 @@ paths:
         **Attention:** The search results found here cannot be used for augmentation. If you want to use the search
           result for augmentation, please use **/search** endpoint instead!
 
-        Required parameter:
-          * **keywords**: Keywords that match a dataset.
-
-        Request body:
-          * Specifies variables, i.e. each variable is one or more dataset columns. Variables could be one of
-            temporal_variable, geospatial_variable, tabular_variable and named_entity_variable. Currently, only
-            temporal_variable is supported.
+        Required request body:
+          * **query_json**: A JSON query to specify additional search constraints You can follow the example <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/d3m/examples/sample_time_search_variables.json">here</a>. <br> Please see detail explainations on example part.
       requestBody:
         content:
           application/json:
@@ -243,7 +239,7 @@ paths:
               $ref: '#/components/schemas/Query'
             examples:
               temporal_variable:
-                description: "Describes columns containing temporal information. DateTime format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value should be 'month', 'day', or 'second'"
+                description: "Search datasets contain temporal information between `2018-01-01` and `2018-07-01`.<br> DateTime for `start` and `end` format could be: '2019-01' or '2019-01-01' or '2019-01-01T10:10:10'. Granularity value could be **year**, **month**, **day**, **hour**, **minute** ,or **second**. <br> Datamart will only return the searched results with time column and granularity larger than given value. <br> For example, if a dataset has a time coulmn in `year` level but given constrains with `month`, this result would not be displayed. "
                 value:
                   keywords:
                     - "new york"
@@ -254,7 +250,7 @@ paths:
                       end: 2018-07-01T01
                       granularity: hour
               keywords_searching:
-                description: "Search using the keywords 'poverty rate' and 'education'"
+                description: "Search using the keywords `poverty rate` and `education`, no variable constrains."
                 value:
                   keywords:
                     - "poverty rate"
