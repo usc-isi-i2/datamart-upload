@@ -318,6 +318,7 @@ class Datamart_isi_upload:
         if need_process_columns is None:
             need_process_columns = list(range(input_dfs[number].shape[1]))
         else:
+            self._logger.info("Received specified target process columns as {}".format(str(need_process_columns)))
             for each_column_number in need_process_columns:
                 if each_column_number >= input_dfs[number].shape[1]:
                     raise ValueError(
