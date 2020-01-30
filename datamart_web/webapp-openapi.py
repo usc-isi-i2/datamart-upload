@@ -701,8 +701,20 @@ def search():
 
                     elif search_type == "wikidata":
                         p_nodes = each_res.id().split("___")
+                        if p_nodes[-1].startswith("with_column"):
+                            suffix_col_name = "_for_" + p_nodes[-1][12:]
+                        else:
+                            suffix_col_name = ""
                         p_nodes = p_nodes[1: -1]
-                        materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
+                        if len(p_nodes) == 0:
+                            _logger.error("No Q nodes given for this search result! Will skip")
+                            continue
+                        materialize_info_wikidata = {
+                            "p_nodes_needed": p_nodes, 
+                            "length": 10, 
+                            "suffix_col_name": suffix_col_name,
+                            "show_item_label": True
+                            }
                         temp_df = MaterializerCache.materialize(materialize_info_wikidata)
                         # updated v2020.1.6: do not return this results if get nothing on first 10 rows
                         if temp_df.shape[0] == 0 or temp_df.shape[1] == 0:
@@ -722,7 +734,13 @@ def search():
                     first_10_rows_info = ""
 
                 cur = {
-                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': augmentation_part['left_columns'], 'right_columns': augmentation_part['right_columns']},
+                    'augmentation': {
+                        'type': augmentation_part['properties'], 
+                        'left_columns': augmentation_part['left_columns'], 
+                        'right_columns': augmentation_part['right_columns'],
+                        'left_columns_names':augmentation_part['left_columns_names'],
+                        'right_columns_names': augmentation_part['right_columns_names']
+                        },
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
                     'metadata': each_res.get_metadata().to_json_structure(),
