@@ -738,9 +738,8 @@ def search():
                         'type': augmentation_part['properties'], 
                         'left_columns': augmentation_part['left_columns'], 
                         'right_columns': augmentation_part['right_columns'],
-                        'left_columns_names':augmentation_part['left_columns_names'],
-                        'right_columns_names': augmentation_part['right_columns_names']
                         },
+                    'all_column_names': materialize_info_decoded['dataframe_column_names'],
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
                     'metadata': each_res.get_metadata().to_json_structure(),
