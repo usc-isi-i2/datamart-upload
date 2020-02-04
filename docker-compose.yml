@@ -14,6 +14,7 @@ services:
       - .:/app/datamart-upload
       - ../datamart-userend:/app/datamart-userend
       - /nfs1/dsbox-repo/data/datasets-v32/seed_datasets_data_augmentation:/data
+      - /data/datamart-system/data/memcache_storage:/root/memcache_storage
   datamart_wikifier:
     network_mode: "host"
     image: "datamart-wikifier:latest"
