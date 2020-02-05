@@ -1338,7 +1338,7 @@ def augment():
         record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
-
+# get_identifiers and get_properties are wrapped original from minds03.isi.edu:4444's wikifier
 @app.route('/get_identifiers', methods=['POST'])
 @cross_origin()
 def get_identifiers():
@@ -1361,6 +1361,22 @@ def get_identifiers():
         status=200,
         mimetype='application/json'
     )
+    return response
+
+
+@app.route('/get_properties', methods=['POST'])
+@cross_origin()
+def get_properties():
+    request_data = json.loads(request.data)
+    property_map = REDIS_MANAGER.getKeys(request_data, "propall:")
+    data = dict()
+    for key in property_map:
+        data[key] = list(property_map[key])
+    response = app.response_class(
+        response = json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )   
     return response
 
 
