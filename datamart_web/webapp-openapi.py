@@ -248,10 +248,12 @@ def load_csv_data(data) -> d3m_Dataset:
     :return: a d3m style Dataset
     """
     _logger.debug("Trying to load csv data with first 100 characters as:")
+
     if isinstance(data, str):
         _logger.debug(str(data))
     else:
         _logger.debug(str(data[:10]))
+
     if type(data) is str:
         data = pd.read_csv(data, converters=StringConverter())
     elif type(data) is pd.DataFrame:
@@ -719,6 +721,7 @@ def search():
                         # updated v2020.1.6: do not return this results if get nothing on first 10 rows
                         if temp_df.shape[0] == 0 or temp_df.shape[1] == 0:
                             continue
+
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                     elif search_type == "general":
@@ -802,6 +805,7 @@ def search_without_data():
         _logger.debug("The search's keywords are: {}".format(str(keywords)))
         _logger.debug("The search's variables are: {}".format(str(variables)))
         _logger.debug("The search's return docs amount is: {}".format(str(max_return_docs)))
+
         # query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
 
         # keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None

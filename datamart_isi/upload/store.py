@@ -37,6 +37,7 @@ from datamart_isi.materializers.wikitables_materializer import WikitablesMateria
 from datamart_isi import config as config_datamart
 from datamart_isi.cache.general_search_cache import GeneralSearchCache
 
+
 DATAMART_SERVER = connection.get_general_search_server_url()
 
 
@@ -474,6 +475,7 @@ class Datamart_isi_upload:
                         self._logger.info("Detect year data on column No.{}!".format(str(column_number)))
                 except:
                     pass
+
 
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
