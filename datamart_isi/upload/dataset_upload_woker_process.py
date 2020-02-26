@@ -11,6 +11,21 @@ from datamart_isi.upload import store
 
 def upload_to_datamart(datamart_upload_address, dataset_information):
     logger = logging.getLogger()
+    has_logger_in_stdeer = False
+    for each_handler in logger.handlers:
+        if "stderr" in str(each_handler.stream):
+            has_logger_in_stdeer = True
+
+    if not has_logger_in_stdeer:
+        # define a Handler which writes INFO messages or higher to the sys.stderr
+        console = logging.StreamHandler()
+        console.setLevel(logging.DEBUG)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
     logger.setLevel(logging.DEBUG)
     # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
     # set up logging to file - see previous section for more details
@@ -20,20 +35,13 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
                         filename='datamart_upload_worker_{}.log'.format(os.getpid()),
                         filemode='w'
                         )
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+
     start_time = time.time()
     job = get_current_job()
-    job.meta['condition'] = "OK"
-    job.meta['progress'] = "0%"
-    job.meta['step'] = "Loading and processing data..."
+    if job is not None:
+        job.meta['condition'] = "OK"
+        job.meta['progress'] = "0%"
+        job.meta['step'] = "Loading and processing data..."
 
     url = dataset_information.get("url")
     file_type = dataset_information.get("file_type")
@@ -41,6 +49,7 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
     description = dataset_information.get("dataset_information")
     keywords = dataset_information.get("keywords")
     user_information = dataset_information.get("user_information")
+    need_process_columns = dataset_information.get("need_process_columns")
     if not user_information:
         raise ValueError("No user information given!!!")
     wikifier_choice = dataset_information.get("wikifier_choice", "auto")
@@ -60,11 +69,13 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
     try:
         datamart_upload_instance = Datamart_isi_upload(update_server=datamart_upload_address,
                                                        query_server=datamart_upload_address)
-        job.save_meta()
+        if job is not None:
+            job.save_meta()
         df, meta = datamart_upload_instance.load_and_preprocess(job=job, input_dir=url, file_type=file_type, wikifier_choice=wikifier_choice)
-        job.meta['step'] = "Load and preprocess data finished..."
-        job.meta['progress'] = "50%"
-        job.save_meta()
+        if job is not None:
+            job.meta['step'] = "Load and preprocess data finished..."
+            job.meta['progress'] = "50%"
+            job.save_meta()
         try:
             for i in range(len(df)):
                 if title:
@@ -83,34 +94,49 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
             if keywords:
                 msg += str(len(keywords)) + "keywords"
             msg += " given."
-            job.meta['condition'] = "ERROR"
-            job.meta['step'] = msg
-            job.save_meta()
+            if job is not None:
+                job.meta['condition'] = "ERROR"
+                job.meta['step'] = msg
+                job.save_meta()
             return
 
         dataset_ids = []
         upload_started_time = datetime.datetime.now()
         user_information['upload_time'] = str(upload_started_time)
         for i in range(len(df)):
-            job.meta['step'] = "Start modeling and uploading No.{} dataset".format(str(i))
-            job.meta['progress'] = str(50 + (i+1) / len(df) * 50) + "%"
-            job.save_meta()
-            datamart_upload_instance.model_data(input_dfs=df, metadata=meta, number=i, uploader_information=user_information, job=job)
+            if job is not None:
+                job.meta['step'] = "Start modeling and uploading No.{} dataset".format(str(i))
+                job.meta['progress'] = str(50 + (i+1) / len(df) * 50) + "%"
+                job.save_meta()
+
+            if need_process_columns and len(need_process_columns) > i:
+                current_need_process_columns = need_process_columns[i]
+            else:
+                current_need_process_columns = None
+            datamart_upload_instance.model_data(input_dfs=df, metadata=meta, 
+                                                number=i, uploader_information=user_information, 
+                                                job=job, need_process_columns=current_need_process_columns)
             dataset_ids.append(datamart_upload_instance.modeled_data_id)
             response_id = datamart_upload_instance.upload()
 
         time_used = time.time() - start_time
-        job.meta['step'] = "Upload finished!"
-        job.meta['progress'] = "100%"
-        job.meta['total time used'] = str(datetime.timedelta(seconds=time_used))
-        job.meta['dataset_ids'] = dataset_ids
-        job.save_meta()
+        if job is not None:
+            job.meta['step'] = "Upload finished!"
+            job.meta['progress'] = "100%"
+            job.meta['total time used'] = str(datetime.timedelta(seconds=time_used))
+            job.meta['dataset_ids'] = dataset_ids
+            job.save_meta()
+        else:
+            # this message will only captured when not using redis server
+            msg = "Upload success! The uploaded dataset id is: {}. Upload totally used {}".format(dataset_ids, str(datetime.timedelta(seconds=time_used)))
+            return msg
 
     except Exception as e:
-        msg="FAIL UPLOAD - %s \n %s" % (str(e), str(traceback.format_exc()))
-        job.meta['condition'] = "ERROR"
-        job.meta['step'] = msg
-        job.save_meta() 
-
-    finally:
-        return
+        msg = "FAIL UPLOAD - %s \n %s" % (str(e), str(traceback.format_exc()))
+        if job is not None:
+            job.meta['condition'] = "ERROR"
+            job.meta['step'] = msg
+            job.save_meta() 
+        else:
+            # this message will only captured when not using redis server
+            return msg

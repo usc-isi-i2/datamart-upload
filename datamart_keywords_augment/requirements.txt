@@ -1,0 +1,9 @@
+flask_restful
+nltk
+gensim
+scikit-learn
+PyYAML
+pandas
+numpy
+pyjarowinkler
+edit_distance

@@ -248,7 +248,12 @@ def load_csv_data(data) -> d3m_Dataset:
     :return: a d3m style Dataset
     """
     _logger.debug("Trying to load csv data with first 100 characters as:")
-    _logger.debug(str(data[:10]))
+
+    if isinstance(data, str):
+        _logger.debug(str(data))
+    else:
+        _logger.debug(str(data[:10]))
+
     if type(data) is str:
         data = pd.read_csv(data, converters=StringConverter())
     elif type(data) is pd.DataFrame:
@@ -565,6 +570,7 @@ def search():
             data_file = request.files.get('data')
         except:
             data_file = None
+
         data, loaded_dataset = load_input_supplied_data(request.values.get('data'), data_file)
 
         if loaded_dataset is None:
@@ -690,13 +696,32 @@ def search():
                         target_column_name = materialize_info_decoded["metadata"]['search_result']['target_q_node_column_name']
                         first_10_rows_df = DownloadManager.fetch_fb_embeddings(q_nodes_list=q_nodes_list, 
                                                                                  target_q_node_column_name=target_column_name)
+                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
+                        if first_10_rows_df.shape[0] == 0:
+                            continue
                         first_10_rows_info = first_10_rows_df.to_csv(index=False)
 
                     elif search_type == "wikidata":
                         p_nodes = each_res.id().split("___")
+                        if p_nodes[-1].startswith("with_column"):
+                            suffix_col_name = "_for_" + p_nodes[-1][12:]
+                        else:
+                            suffix_col_name = ""
                         p_nodes = p_nodes[1: -1]
-                        materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
+                        if len(p_nodes) == 0:
+                            _logger.error("No Q nodes given for this search result! Will skip")
+                            continue
+                        materialize_info_wikidata = {
+                            "p_nodes_needed": p_nodes, 
+                            "length": 10, 
+                            "suffix_col_name": suffix_col_name,
+                            "show_item_label": True
+                            }
                         temp_df = MaterializerCache.materialize(materialize_info_wikidata)
+                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
+                        if temp_df.shape[0] == 0 or temp_df.shape[1] == 0:
+                            continue
+
                         first_10_rows_info = temp_df.to_csv(index=False)
 
                     elif search_type == "general":
@@ -712,7 +737,12 @@ def search():
                     first_10_rows_info = ""
 
                 cur = {
-                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': augmentation_part['left_columns'], 'right_columns': augmentation_part['right_columns']},
+                    'augmentation': {
+                        'type': augmentation_part['properties'], 
+                        'left_columns': augmentation_part['left_columns'], 
+                        'right_columns': augmentation_part['right_columns'],
+                        },
+                    'all_column_names': materialize_info_decoded['dataframe_column_names'],
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
                     'metadata': each_res.get_metadata().to_json_structure(),
@@ -763,8 +793,18 @@ def search_without_data():
         else:
             return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
 
+        # remove empty and duplicate keywords
+        keywords_set = set(keywords)
+        if "" in keywords_set:
+            keywords_set.remove("")
+        if " " in keywords_set:
+            keywords_set.remove(" ")
+        keywords = list(keywords_set)
+        keywords.sort()
+
         _logger.debug("The search's keywords are: {}".format(str(keywords)))
         _logger.debug("The search's variables are: {}".format(str(variables)))
+        _logger.debug("The search's return docs amount is: {}".format(str(max_return_docs)))
 
         # query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
 
@@ -780,7 +820,7 @@ def search_without_data():
 
         _logger.debug("Starting datamart search service...")
         datamart_instance = Datamart(connection_url=config_datamart.default_datamart_url)
-        res = datamart_instance.search(query=query_wrapped).get_next_page() or []
+        res = datamart_instance.search(query=query_wrapped).get_next_page(limit=max_return_docs) or []
         _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
         results = []
         for each_res in res:
@@ -805,12 +845,10 @@ def search_without_data():
                 'materialize_info': materialize_info
             }
             results.append(cur)
-        if not results:
-            return wrap_response(code='200', msg="FAIL SEARCH - did not find the results")
-        else:
-            json_return = dict()
-            json_return["results"] = results
-            return json.dumps(json_return, indent=2)
+
+        json_return = dict()
+        json_return["results"] = results
+        return json.dumps(json_return, indent=2)
 
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])
@@ -1143,7 +1181,6 @@ def augment():
                                  msg='FAIL SEARCH - Unable to get search result or input is a bad format!',
                                  data=None)
 
-        
         if request.values.get('use_cache'):
             use_cache = request.values.get('use_cache')
             if use_cache.lower() == "false":
@@ -1305,7 +1342,7 @@ def augment():
         record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
-
+# get_identifiers and get_properties are wrapped original from minds03.isi.edu:4444's wikifier
 @app.route('/get_identifiers', methods=['POST'])
 @cross_origin()
 def get_identifiers():
@@ -1328,6 +1365,22 @@ def get_identifiers():
         status=200,
         mimetype='application/json'
     )
+    return response
+
+
+@app.route('/get_properties', methods=['POST'])
+@cross_origin()
+def get_properties():
+    request_data = json.loads(request.data)
+    property_map = REDIS_MANAGER.getKeys(request_data, "propall:")
+    data = dict()
+    for key in property_map:
+        data[key] = list(property_map[key])
+    response = app.response_class(
+        response = json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )   
     return response
 
 
@@ -1455,6 +1508,19 @@ def upload_function(request, test_mode=False):
                                      msg='FAIL UPLOAD - wrong password',
                                      data=None)
 
+        if request.values.get('upload_async'):
+            upload_async = request.values.get('upload_async')
+            if upload_async.lower() == "false":
+                upload_async = False
+            elif upload_async.lower() == "true":
+                upload_async = True
+            else:
+                upload_async = True
+                _logger.warning("Unknown value for upload_async as {}, use default as True" + str(upload_async))
+        else:
+            upload_async = True
+            _logger.info("upload_async value not detected, use default as True")
+
         need_process_columns_parsed = []
         need_process_columns = request.values.get('need_process_columns')
         if need_process_columns is not None:
@@ -1510,7 +1576,7 @@ def upload_function(request, test_mode=False):
         redis_conn = redis.Redis(connection_pool=pool)
 
         # if not get redis server, try to run locally
-        if not is_redis_available(redis_conn):
+        if not upload_async or not is_redis_available(redis_conn):
             _logger.warning("Redis server not respond! Can't run in asyn mode!!")
             response_msg = upload_to_datamart(server_address, dataset_information)
             if response_msg.startswith("FAIL"):

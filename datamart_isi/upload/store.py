@@ -37,6 +37,7 @@ from datamart_isi.materializers.wikitables_materializer import WikitablesMateria
 from datamart_isi import config as config_datamart
 from datamart_isi.cache.general_search_cache import GeneralSearchCache
 
+
 DATAMART_SERVER = connection.get_general_search_server_url()
 
 
@@ -220,6 +221,8 @@ class Datamart_isi_upload:
         all_wikifier_res = []
         all_metadata = []
         for df_count, each_df in enumerate(loaded_data):
+            if each_df.shape[0] == 0:
+                raise ValueError("Detect empty when loading No.{} table, please check!".format(str(df_count)))
             if wikifier_choice == "false":
                 do_wikifier = False
             elif wikifier_choice == "true":
@@ -316,6 +319,7 @@ class Datamart_isi_upload:
         if need_process_columns is None:
             need_process_columns = list(range(input_dfs[number].shape[1]))
         else:
+            self._logger.info("Received specified target process columns as {}".format(str(need_process_columns)))
             for each_column_number in need_process_columns:
                 if each_column_number >= input_dfs[number].shape[1]:
                     raise ValueError(
@@ -419,6 +423,7 @@ class Datamart_isi_upload:
             job.save_meta()
 
         self._logger.info("Modeling abstarct data finished. Totally take " + str(end1 - start) + " seconds.")
+
         # each columns
         for i in need_process_columns:
             if job is not None:
@@ -461,6 +466,16 @@ class Datamart_isi_upload:
         self._logger.debug("Start processing No." + str(column_number) + " column.")
         statement = item.add_statement('C2005', StringValue(column_data.name))  # variable measured
         try:
+            # updated v2020.1.9, it seems dsbox profiler do not convert "year" only data, we need to check here
+            if 'http://schema.org/Integer' in semantic_type and "year" in column_data.name:
+                try:
+                    column_data = column_data.astype("int")
+                    if max(column_data) < 2100 and min(column_data) > 1000:
+                        column_data = pd.to_datetime(column_data, format='%Y', errors="raise")
+                        self._logger.info("Detect year data on column No.{}!".format(str(column_number)))
+                except:
+                    pass
+
 
             if 'http://schema.org/DateTime' in semantic_type or "datetime" in column_data.dtype.name:
                 data_type = "datetime"
