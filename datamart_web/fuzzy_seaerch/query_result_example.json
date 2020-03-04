@@ -1,119 +1,217 @@
-[
-  {
-    "id": "D4c80863fc3f0cf967aededf6f10a1cb5",
-    "score": 0.56789,
-    "metadata": {
-      "column_meta_0": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "variable"
+{
+  "results": [
+    {
+      "id": "De1758b791f9f226d0519e4459b3199b5",
+      "score": 0.4552491190809165,
+      "type": "csv",
+      "metadata": {
+        "column_meta_0": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "variable"
+        },
+        "column_meta_1": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "variable_name"
+        },
+        "column_meta_2": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "region_wikidata"
+        },
+        "column_meta_3": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "regionLabel"
+        },
+        "column_meta_4": {
+          "semantic_type": [
+            "http://schema.org/DateTime",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "time"
+        },
+        "column_meta_5": {
+          "semantic_type": [
+            "http://schema.org/Integer",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "precision"
+        },
+        "column_meta_6": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "calendar"
+        },
+        "column_meta_7": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "precipitation height"
+        },
+        "column_meta_8": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "source_of_fileLabel"
+        },
+        "column_meta_9": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "data_curatorLabel"
+        },
+        "data_metadata": {
+          "shape_0": 29958,
+          "shape_1": 10
+        }
       },
-      "column_meta_1": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "variable_name"
-      },
-      "column_meta_2": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "crop_wikidata"
-      },
-      "column_meta_3": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "crop_name"
-      },
-      "column_meta_4": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "region_wikidata"
-      },
-      "column_meta_5": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "region_label"
-      },
-      "column_meta_6": {
-        "semantic_type": [
-          "http://schema.org/DateTime",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "time"
-      },
-      "column_meta_7": {
-        "semantic_type": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "precision"
-      },
-      "column_meta_8": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "calendar"
-      },
-      "column_meta_9": {
-        "semantic_type": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "total produced mango"
-      },
-      "column_meta_10": {
-        "semantic_type": [
-          "http://schema.org/Integer",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "holders"
-      },
-      "column_meta_11": {
-        "semantic_type": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "area"
-      },
-      "column_meta_12": {
-        "semantic_type": [
-          "http://schema.org/Float",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "yield"
-      },
-      "column_meta_13": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "sourceLabel"
-      },
-      "column_meta_14": {
-        "semantic_type": [
-          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-          "https://metadata.datadrivendiscovery.org/types/Attribute"
-        ],
-        "name": "data_curatorLabel"
-      },
-      "data_metadata": {
-        "shape_0": 19,
-        "shape_1": 15
-      }
+      "sample_data": ",variable,variable_name,region_wikidata,regionLabel,time,precision,calendar,precipitation height,source_of_fileLabel,data_curatorLabel\n0,P3036,precipitation height,Q2820216,Abay Chomen,2008-01-01 00:00:00+00:00,10,Q1985727,22.91175199,Information Sciences Institute,Information Sciences Institute\n1,P3036,precipitation height,Q2820216,Abay Chomen,2008-02-01 00:00:00+00:00,10,Q1985727,9.724647021000001,Information Sciences Institute,Information Sciences Institute\n2,P3036,precipitation height,Q2820216,Abay Chomen,2008-03-01 00:00:00+00:00,10,Q1985727,10.38344908,Information Sciences Institute,Information Sciences Institute\n3,P3036,precipitation height,Q2820216,Abay Chomen,2008-04-01 00:00:00+00:00,10,Q1985727,100.2447166,Information Sciences Institute,Information Sciences Institute\n4,P3036,precipitation height,Q2820216,Abay Chomen,2008-05-01 00:00:00+00:00,10,Q1985727,326.5857285,Information Sciences Institute,Information Sciences Institute\n5,P3036,precipitation height,Q2820216,Abay Chomen,2008-06-01 00:00:00+00:00,10,Q1985727,303.471817,Information Sciences Institute,Information Sciences Institute\n6,P3036,precipitation height,Q2820216,Abay Chomen,2008-07-01 00:00:00+00:00,10,Q1985727,362.4139633,Information Sciences Institute,Information Sciences Institute\n7,P3036,precipitation height,Q2820216,Abay Chomen,2008-08-01 00:00:00+00:00,10,Q1985727,296.80655210000003,Information Sciences Institute,Information Sciences Institute\n8,P3036,precipitation height,Q2820216,Abay Chomen,2008-09-01 00:00:00+00:00,10,Q1985727,211.85144810000003,Information Sciences Institute,Information Sciences Institute\n9,P3036,precipitation height,Q2820216,Abay Chomen,2008-10-01 00:00:00+00:00,10,Q1985727,109.86050719999999,Information Sciences Institute,Information Sciences Institute\n10,P3036,precipitation height,Q2820216,Abay Chomen,2008-11-01 00:00:00+00:00,10,Q1985727,73.44242477,Information Sciences Institute,Information Sciences Institute\n"
     },
-    "type": "csv",
-    "sample_data": ",variable,variable_name,crop_wikidata,crop_name,region_wikidata,region_label,time,precision,calendar,total produced mango,holders,area,yield,sourceLabel,data_curatorLabel\n0,P1092,total produced,Q169,mango,Q203009,Amhara Region,2010-01-01 00:00:00+00:00,9,Q1985727,280.79,37156,,,Central Statistical Agency,Information Sciences Institute\n1,P1092,total produced,Q169,mango,Q203009,Amhara Region,2011-01-01 00:00:00+00:00,9,Q1985727,12871.98,51818,214.44,60.03,Central Statistical Agency,Information Sciences Institute\n2,P1092,total produced,Q169,mango,Q203009,Amhara Region,2013-01-01 00:00:00+00:00,9,Q1985727,10408.67,60552,246.85,42.17,Central Statistical Agency,Information Sciences Institute\n3,P1092,total produced,Q169,mango,Q203009,Amhara Region,2014-01-01 00:00:00+00:00,9,Q1985727,28263.17,73610,800.63,35.3,Central Statistical Agency,Information Sciences Institute\n4,P1092,total produced,Q169,mango,Q203009,Amhara Region,2015-01-01 00:00:00+00:00,9,Q1985727,52338.27,119240,,,Central Statistical Agency,Information Sciences Institute\n5,P1092,total produced,Q169,mango,Q203009,Amhara Region,2016-01-01 00:00:00+00:00,9,Q1985727,48789.73,130204,1146.64,42.55,Central Statistical Agency,Information Sciences Institute\n6,P1092,total produced,Q169,mango,Q203009,Amhara Region,2017-01-01 00:00:00+00:00,9,Q1985727,70156.32,276886,1349.15,52.0,Central Statistical Agency,Information Sciences Institute\n7,P1092,total produced,Q169,mango,Q203009,Amhara Region,2018-01-01 00:00:00+00:00,9,Q1985727,82399.68,195900,1506.46,54.7,Central Statistical Agency,Information Sciences Institute\n8,P1092,total produced,Q169,mango,Q202107,Oromia Region,2010-01-01 00:00:00+00:00,9,Q1985727,296498.8,286625,3791.54,78.2,Central Statistical Agency,Information Sciences Institute\n9,P1092,total produced,Q169,mango,Q202107,Oromia Region,2011-01-01 00:00:00+00:00,9,Q1985727,1656.65,8401,48.4,34.23,Central Statistical Agency,Information Sciences Institute\n10,P1092,total produced,Q169,mango,Q202107,Oromia Region,2013-01-01 00:00:00+00:00,9,Q1985727,284065.79,378670,3789.47,74.96,Central Statistical Agency,Information Sciences Institute\n"
-  }
-]
+    {
+      "id": "D141456c03979138101e6d7649db31562",
+      "score": 0.3860742952647332,
+      "type": "csv",
+      "metadata": {
+        "column_meta_0": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "variable"
+        },
+        "column_meta_1": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "variable_name"
+        },
+        "column_meta_2": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "region_wikidata"
+        },
+        "column_meta_3": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "regionLabel"
+        },
+        "column_meta_4": {
+          "semantic_type": [
+            "http://schema.org/Integer",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "year"
+        },
+        "column_meta_5": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month1"
+        },
+        "column_meta_6": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month2"
+        },
+        "column_meta_7": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month3"
+        },
+        "column_meta_8": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month4"
+        },
+        "column_meta_9": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month5"
+        },
+        "column_meta_10": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month6"
+        },
+        "column_meta_11": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month7"
+        },
+        "column_meta_12": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month8"
+        },
+        "column_meta_13": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month9"
+        },
+        "column_meta_14": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month10"
+        },
+        "column_meta_15": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month11"
+        },
+        "column_meta_16": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "month12"
+        },
+        "data_metadata": {
+          "shape_0": 2568,
+          "shape_1": 17
+        }
+      },
+      "sample_data": ",variable,variable_name,region_wikidata,regionLabel,year,month1,month2,month3,month4,month5,month6,month7,month8,month9,month10,month11,month12\n0,P3036,precipitation height,Q2820216,Abay Chomen,2008,22.91175199,9.724647021000001,10.38344908,100.2447166,326.5857285,303.471817,362.4139633,296.80655210000003,211.85144810000003,109.86050719999999,73.44242477,6.75996325\n1,P3036,precipitation height,Q2820216,Abay Chomen,2009,16.32101917,21.63987846,52.93341293,88.94744109999999,49.76253052,239.4160767,285.4686768,418.2097534,182.3193169,166.11289409999998,10.11202598,30.73511629\n2,P3036,precipitation height,Q2820216,Abay Chomen,2010,33.19119081,37.92621384,31.85471611,71.38615608,276.58259510000005,237.154129,415.708931,301.17233660000005,241.3206253,63.12945347,51.32826233,22.14862633\n3,P3036,precipitation height,Q2820216,Abay Chomen,2011,21.57488112,6.294656086,56.21886139,67.08623886,221.50490040000003,286.9000397,314.6136719,307.4682892,316.4547272,29.73013868,68.0258503,4.174989736000001\n4,P3036,precipitation height,Q2820216,Abay Chomen,2012,17.53955903,12.98957734,134.2935955,67.68087959,73.32407494,194.0011139,351.1255188,317.7583725,247.84909059999998,34.16196299,37.36466503,15.02814827\n5,P3036,precipitation height,Q2820216,Abay Chomen,2013,17.73738589,4.6502309319999995,28.76390457,38.42047119,274.33869480000004,305.0766907,373.5566223,324.08641969999996,194.45372769999997,151.4083168,56.39389801,4.93911761\n6,P3036,precipitation height,Q2820216,Abay Chomen,2014,15.26532912,16.57168503,53.35633049,147.39402009999998,288.902536,226.764679,319.95913310000003,304.0751335,304.1936188,157.8634888,31.68059349,22.96832547\n7,P3036,precipitation height,Q2820216,Abay Chomen,2015,4.8569709780000005,8.802329636,65.75868378,41.37701225,323.2742165,189.24299240000002,293.5532219,311.9618134,265.2471771,46.47706728,73.88288498,39.08461609\n8,P3036,precipitation height,Q2820216,Abay Chomen,2016,31.48064699,39.35865765,58.2536562,57.58819199,365.9526207,245.7582321,372.4273521,371.696627,298.0160522,104.41248279999999,10.94238997,10.899745699999999\n9,P3036,precipitation height,Q2820216,Abay Chomen,2017,6.995316315,69.14307785,57.34022026,102.10157779999999,253.26133419999996,197.8441772,342.48443910000003,305.12746660000005,369.35904689999995,87.74674854,18.71228313,17.85174203\n10,P3036,precipitation height,Q2820216,Abay Chomen,2018,18.103369283676148,45.55428695678711,36.24467792510986,70.78356170654297,185.9087776184082,321.07683563232416,348.11099395751955,320.8530982971191,228.81941986083984,123.2477642059326,76.12781524658203,8.807271718978884\n"
+    }
+  ]
+}

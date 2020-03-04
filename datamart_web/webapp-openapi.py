@@ -49,7 +49,7 @@ from datamart_isi.cache.materializer_cache import MaterializerCache
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
-
+from datamart_isi.augment import Augment
 
 
 _logger = logging.getLogger()
@@ -1819,6 +1819,89 @@ def keywords_augmentation(keywords):
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
+@app.route('/fuzzy_search/search', methods=['POST'])
+@cross_origin()
+def fyzzy_search_without_data():
+    try:
+        _logger.debug("Start running fuzzy search without supplied data...")
+        # check that each parameter meets the requirements
+        query = read_file(request.values, 'query', 'json')
+        # if not send the json via file
+        if not query and request.form.get('query_json'):
+            query = json.loads(request.form.get('query_json'))
+        if not query and request.files.get("query"):
+            query = json.load(request.files.get('query'))
+        if not query and request.json:
+            query = request.json
+        max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
+
+        if query:
+            keywords = query.get("keywords", [])
+            geospatial_names = query.get("geospatial_names", [])
+            if geospatial_names is None:
+                geospatial_names = []
+        else:
+            return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
+
+        keywords = clean_list_of_words(keywords)
+        geospatial_names = clean_list_of_words(geospatial_names)
+
+        _logger.debug("The search's keywords are: {}".format(str(keywords)))
+        _logger.debug("The search's geospatial_names are: {}".format(str(geospatial_names)))
+        _logger.debug("The search's return docs amount is: {}".format(str(max_return_docs)))
+        # END processing inputs
+
+        # start query in datamart
+        query_wrapped = {"keywords_search": keywords, "variables": {"values": " ".join(geospatial_names)}}
+        _logger.debug("Starting datamart search service...")
+        datamart_search_unit = Augment()
+        res = datamart_search_unit.query_by_sparql(query=query_wrapped, dataset="dummy")
+        _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
+
+        # parse the search results
+        results = []
+        for each_res in res:
+            extra_information = json.loads(each_res['extra_information']['value'])
+            metadata = {}
+            for k, v in extra_information.items():
+                if "meta" in k:
+                    metadata[k] = v
+            data_metadata = extra_information
+            file_type = each_res['file_type']['value']
+            if file_type == "csv":
+                sample_data = extra_information['first_10_rows']
+            else:
+                sample_data = ""
+            cur = {
+                'id': each_res['datasetLabel']['value'],
+                'score': float(each_res['score']['value']),
+                'type': each_res['file_type']['value'],
+                'metadata': metadata,
+                'sample_data': sample_data,
+            }
+            results.append(cur)
+
+        json_return = dict()
+        json_return["results"] = results
+        return json.dumps(json_return, indent=2)
+
+    except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
+def clean_list_of_words(input_words: typing.List[str]) -> typing.List[str]:
+    # remove empty and duplicate keywords, then return the sorted result
+    words_set = set(input_words)
+    if "" in words_set:
+        words_set.remove("")
+    if " " in words_set:
+        words_set.remove(" ")
+    output_words = [str(each) for each in words_set]
+    output_words.sort()
+    return output_words
+
+
 def generate_dataset_metadata():
     '''
     Add D3M dataset metadata to cache
@@ -1835,7 +1918,7 @@ def generate_dataset_metadata():
     for path in dataset_paths:
         path = pathlib.Path(path)
         if path.exists:
-            metadata_cache.MetadataCache.generate_real_metadata_files([str(path)])
+            metadata_cache.MetadataCache.generate_real_metadata_files([str(path).lower()])
     print('Done generate_dataset_metadata')
 
 

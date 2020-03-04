@@ -914,6 +914,52 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /fuzzy_search/search:
+    post:
+      tags:
+        - Search API
+      summary: Search by keywords and geospatial_names, used for fuzzy search page
+      description: |
+        Find datasets by keywords and/or geospatial_names.
+
+        **Attention:** The search results found here cannot be used for augmentation. If you want to use the search
+          result for augmentation, please use **/search** endpoint instead!
+
+        Required request body:
+          * **query_json**: A JSON query to specify additional search constraints You can follow the example <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/d3m/examples/sample_time_search_variables.json">here</a>. <br> Please see detail explainations on example part.
+      requestBody:
+        content:
+          application/json:
+            description: "keywords and geospatial information for search"
+            schema:
+              $ref: '#/components/schemas/Query'
+            examples:
+              keywords_searching:
+                description: "Search using the keywords `rain`, with geospatial information at `Abay Chomen`, `Haru` and `Jarso`"
+                value:
+                  keywords:
+                    - "rain"
+                  geospatial_names:
+                    - "Abay Chomen"
+                    - "Haru"
+                    - "Jarso"
+
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Results'
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     Query:
