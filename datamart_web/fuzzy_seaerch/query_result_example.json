@@ -1,0 +1,119 @@
+[
+  {
+    "id": "D4c80863fc3f0cf967aededf6f10a1cb5",
+    "score": 0.56789,
+    "metadata": {
+      "column_meta_0": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "variable"
+      },
+      "column_meta_1": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "variable_name"
+      },
+      "column_meta_2": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "crop_wikidata"
+      },
+      "column_meta_3": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "crop_name"
+      },
+      "column_meta_4": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "region_wikidata"
+      },
+      "column_meta_5": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "region_label"
+      },
+      "column_meta_6": {
+        "semantic_type": [
+          "http://schema.org/DateTime",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "time"
+      },
+      "column_meta_7": {
+        "semantic_type": [
+          "http://schema.org/Integer",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "precision"
+      },
+      "column_meta_8": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "calendar"
+      },
+      "column_meta_9": {
+        "semantic_type": [
+          "http://schema.org/Float",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "total produced mango"
+      },
+      "column_meta_10": {
+        "semantic_type": [
+          "http://schema.org/Integer",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "holders"
+      },
+      "column_meta_11": {
+        "semantic_type": [
+          "http://schema.org/Float",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "area"
+      },
+      "column_meta_12": {
+        "semantic_type": [
+          "http://schema.org/Float",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "yield"
+      },
+      "column_meta_13": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "sourceLabel"
+      },
+      "column_meta_14": {
+        "semantic_type": [
+          "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+          "https://metadata.datadrivendiscovery.org/types/Attribute"
+        ],
+        "name": "data_curatorLabel"
+      },
+      "data_metadata": {
+        "shape_0": 19,
+        "shape_1": 15
+      }
+    },
+    "type": "csv",
+    "sample_data": ",variable,variable_name,crop_wikidata,crop_name,region_wikidata,region_label,time,precision,calendar,total produced mango,holders,area,yield,sourceLabel,data_curatorLabel\n0,P1092,total produced,Q169,mango,Q203009,Amhara Region,2010-01-01 00:00:00+00:00,9,Q1985727,280.79,37156,,,Central Statistical Agency,Information Sciences Institute\n1,P1092,total produced,Q169,mango,Q203009,Amhara Region,2011-01-01 00:00:00+00:00,9,Q1985727,12871.98,51818,214.44,60.03,Central Statistical Agency,Information Sciences Institute\n2,P1092,total produced,Q169,mango,Q203009,Amhara Region,2013-01-01 00:00:00+00:00,9,Q1985727,10408.67,60552,246.85,42.17,Central Statistical Agency,Information Sciences Institute\n3,P1092,total produced,Q169,mango,Q203009,Amhara Region,2014-01-01 00:00:00+00:00,9,Q1985727,28263.17,73610,800.63,35.3,Central Statistical Agency,Information Sciences Institute\n4,P1092,total produced,Q169,mango,Q203009,Amhara Region,2015-01-01 00:00:00+00:00,9,Q1985727,52338.27,119240,,,Central Statistical Agency,Information Sciences Institute\n5,P1092,total produced,Q169,mango,Q203009,Amhara Region,2016-01-01 00:00:00+00:00,9,Q1985727,48789.73,130204,1146.64,42.55,Central Statistical Agency,Information Sciences Institute\n6,P1092,total produced,Q169,mango,Q203009,Amhara Region,2017-01-01 00:00:00+00:00,9,Q1985727,70156.32,276886,1349.15,52.0,Central Statistical Agency,Information Sciences Institute\n7,P1092,total produced,Q169,mango,Q203009,Amhara Region,2018-01-01 00:00:00+00:00,9,Q1985727,82399.68,195900,1506.46,54.7,Central Statistical Agency,Information Sciences Institute\n8,P1092,total produced,Q169,mango,Q202107,Oromia Region,2010-01-01 00:00:00+00:00,9,Q1985727,296498.8,286625,3791.54,78.2,Central Statistical Agency,Information Sciences Institute\n9,P1092,total produced,Q169,mango,Q202107,Oromia Region,2011-01-01 00:00:00+00:00,9,Q1985727,1656.65,8401,48.4,34.23,Central Statistical Agency,Information Sciences Institute\n10,P1092,total produced,Q169,mango,Q202107,Oromia Region,2013-01-01 00:00:00+00:00,9,Q1985727,284065.79,378670,3789.47,74.96,Central Statistical Agency,Information Sciences Institute\n"
+  }
+]
