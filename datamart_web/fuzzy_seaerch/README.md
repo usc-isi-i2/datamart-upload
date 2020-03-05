@@ -1,10 +1,14 @@
 ## query(search) API
-This is the API that sent from fuzzy search main menu, It can contains:
+This is the API that sent from fuzzy search main menu, With default, it will return maximum 20 search results. It can contains:
 ### POST
-#### keywords
+#### (required) Query
+This is the main query in json format, it should be send via a content body
+##### keywords
 It should be a list of string, each string represent what related domain the user want to search
-#### geospatial data
-Corresponding geospatial data (in string format) which is the details of the area the user what to search. For example, with ethiopia datasets, we can give `Abay Chomen`, `Haru`, `Jarso`
+##### geospatial data
+Corresponding geospatial data (in string format) which is the details of the area the user what to search. For example, we can give `los angeles`, `new york`, `orange county`
+#### (optional) max_return_docs
+The maxixum returned search results is allow adjustable, if not given, the default value will be 20. This parameter should be sent separately from query, please see `query_eample_curl_command.sh` for details.
 ### RETURN <200>
 The API Will return a list of search results, each search results contains:
 #### id

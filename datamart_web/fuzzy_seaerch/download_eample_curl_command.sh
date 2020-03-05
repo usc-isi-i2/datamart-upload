@@ -1,1 +1,1 @@
-curl -X GET "https://dsbox02.isi.edu:9005/download/Dd72ddbaa4085e06ba21861c03c6245f0?format=csv"
+curl -X GET "https://dsbox02.isi.edu:9000/download/D137dec50-9150-46ce-966e-5e1f47170f42?format=csv"

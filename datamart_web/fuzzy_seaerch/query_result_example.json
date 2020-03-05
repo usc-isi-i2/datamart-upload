@@ -1,217 +1,345 @@
 {
   "results": [
     {
-      "id": "De1758b791f9f226d0519e4459b3199b5",
-      "score": 0.4552491190809165,
+      "id": "D43c9f76f-3c5d-4908-863e-02da2d682b4a",
+      "score": 0.24548395029925768,
       "type": "csv",
       "metadata": {
         "column_meta_0": {
           "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "http://schema.org/Integer",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "variable"
+          "name": "FIPStxt"
         },
         "column_meta_1": {
           "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "http://schema.org/Text",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "variable_name"
+          "name": "State"
         },
         "column_meta_2": {
           "semantic_type": [
             "http://schema.org/Text",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "region_wikidata"
+          "name": "Area_Name"
         },
         "column_meta_3": {
-          "semantic_type": [
-            "http://schema.org/Text",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "regionLabel"
-        },
-        "column_meta_4": {
-          "semantic_type": [
-            "http://schema.org/DateTime",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "time"
-        },
-        "column_meta_5": {
           "semantic_type": [
             "http://schema.org/Integer",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "precision"
-        },
-        "column_meta_6": {
-          "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "calendar"
-        },
-        "column_meta_7": {
-          "semantic_type": [
-            "http://schema.org/Float",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "precipitation height"
-        },
-        "column_meta_8": {
-          "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "source_of_fileLabel"
-        },
-        "column_meta_9": {
-          "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "data_curatorLabel"
-        },
-        "data_metadata": {
-          "shape_0": 29958,
-          "shape_1": 10
-        }
-      },
-      "sample_data": ",variable,variable_name,region_wikidata,regionLabel,time,precision,calendar,precipitation height,source_of_fileLabel,data_curatorLabel\n0,P3036,precipitation height,Q2820216,Abay Chomen,2008-01-01 00:00:00+00:00,10,Q1985727,22.91175199,Information Sciences Institute,Information Sciences Institute\n1,P3036,precipitation height,Q2820216,Abay Chomen,2008-02-01 00:00:00+00:00,10,Q1985727,9.724647021000001,Information Sciences Institute,Information Sciences Institute\n2,P3036,precipitation height,Q2820216,Abay Chomen,2008-03-01 00:00:00+00:00,10,Q1985727,10.38344908,Information Sciences Institute,Information Sciences Institute\n3,P3036,precipitation height,Q2820216,Abay Chomen,2008-04-01 00:00:00+00:00,10,Q1985727,100.2447166,Information Sciences Institute,Information Sciences Institute\n4,P3036,precipitation height,Q2820216,Abay Chomen,2008-05-01 00:00:00+00:00,10,Q1985727,326.5857285,Information Sciences Institute,Information Sciences Institute\n5,P3036,precipitation height,Q2820216,Abay Chomen,2008-06-01 00:00:00+00:00,10,Q1985727,303.471817,Information Sciences Institute,Information Sciences Institute\n6,P3036,precipitation height,Q2820216,Abay Chomen,2008-07-01 00:00:00+00:00,10,Q1985727,362.4139633,Information Sciences Institute,Information Sciences Institute\n7,P3036,precipitation height,Q2820216,Abay Chomen,2008-08-01 00:00:00+00:00,10,Q1985727,296.80655210000003,Information Sciences Institute,Information Sciences Institute\n8,P3036,precipitation height,Q2820216,Abay Chomen,2008-09-01 00:00:00+00:00,10,Q1985727,211.85144810000003,Information Sciences Institute,Information Sciences Institute\n9,P3036,precipitation height,Q2820216,Abay Chomen,2008-10-01 00:00:00+00:00,10,Q1985727,109.86050719999999,Information Sciences Institute,Information Sciences Institute\n10,P3036,precipitation height,Q2820216,Abay Chomen,2008-11-01 00:00:00+00:00,10,Q1985727,73.44242477,Information Sciences Institute,Information Sciences Institute\n"
-    },
-    {
-      "id": "D141456c03979138101e6d7649db31562",
-      "score": 0.3860742952647332,
-      "type": "csv",
-      "metadata": {
-        "column_meta_0": {
-          "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "variable"
-        },
-        "column_meta_1": {
-          "semantic_type": [
-            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "variable_name"
-        },
-        "column_meta_2": {
-          "semantic_type": [
-            "http://schema.org/Text",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "region_wikidata"
-        },
-        "column_meta_3": {
-          "semantic_type": [
-            "http://schema.org/Text",
-            "https://metadata.datadrivendiscovery.org/types/Attribute"
-          ],
-          "name": "regionLabel"
+          "name": "Rural-urban_Continuum_Code_2003"
         },
         "column_meta_4": {
           "semantic_type": [
             "http://schema.org/Integer",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "year"
+          "name": "Urban_Influence_Code_2003"
         },
         "column_meta_5": {
           "semantic_type": [
-            "http://schema.org/Float",
+            "http://schema.org/Integer",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month1"
+          "name": "Rural-urban_Continuum_Code_2013"
         },
         "column_meta_6": {
           "semantic_type": [
-            "http://schema.org/Float",
+            "http://schema.org/Integer",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month2"
+          "name": "Urban_Influence_Code_2013"
         },
         "column_meta_7": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month3"
+          "name": "POVALL_2017"
         },
         "column_meta_8": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month4"
+          "name": "CI90LBAll_2017"
         },
         "column_meta_9": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month5"
+          "name": "CI90UBALL_2017"
         },
         "column_meta_10": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month6"
+          "name": "PCTPOVALL_2017"
         },
         "column_meta_11": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month7"
+          "name": "CI90LBALLP_2017"
         },
         "column_meta_12": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month8"
+          "name": "CI90UBALLP_2017"
         },
         "column_meta_13": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month9"
+          "name": "POV017_2017"
         },
         "column_meta_14": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month10"
+          "name": "CI90LB017_2017"
         },
         "column_meta_15": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month11"
+          "name": "CI90UB017_2017"
         },
         "column_meta_16": {
           "semantic_type": [
             "http://schema.org/Float",
             "https://metadata.datadrivendiscovery.org/types/Attribute"
           ],
-          "name": "month12"
+          "name": "PCTPOV017_2017"
+        },
+        "column_meta_17": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB017P_2017"
+        },
+        "column_meta_18": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB017P_2017"
+        },
+        "column_meta_19": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "POV517_2017"
+        },
+        "column_meta_20": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB517_2017"
+        },
+        "column_meta_21": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB517_2017"
+        },
+        "column_meta_22": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "PCTPOV517_2017"
+        },
+        "column_meta_23": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB517P_2017"
+        },
+        "column_meta_24": {
+          "semantic_type": [
+            "http://schema.org/Float",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB517P_2017"
+        },
+        "column_meta_25": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "MEDHHINC_2017"
+        },
+        "column_meta_26": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LBINC_2017"
+        },
+        "column_meta_27": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UBINC_2017"
+        },
+        "column_meta_28": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "POV04_2017"
+        },
+        "column_meta_29": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB04_2017"
+        },
+        "column_meta_30": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB04_2017"
+        },
+        "column_meta_31": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "PCTPOV04_2017"
+        },
+        "column_meta_32": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB04P_2017"
+        },
+        "column_meta_33": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB04P_2017"
+        },
+        "column_meta_34": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "FIPStxt_wikidata"
+        },
+        "column_meta_35": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LBAll_wikidata"
+        },
+        "column_meta_36": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "POV517_wikidata"
+        },
+        "column_meta_37": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB017_wikidata"
+        },
+        "column_meta_38": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB04_wikidata"
+        },
+        "column_meta_39": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB517_wikidata"
+        },
+        "column_meta_40": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "POV04_wikidata"
+        },
+        "column_meta_41": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "Area_wikidata"
+        },
+        "column_meta_42": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB017_wikidata"
+        },
+        "column_meta_43": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90UB517_wikidata"
+        },
+        "column_meta_44": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "POV017_wikidata"
+        },
+        "column_meta_45": {
+          "semantic_type": [
+            "https://metadata.datadrivendiscovery.org/types/CategoricalData",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "CI90LB04_wikidata"
+        },
+        "column_meta_46": {
+          "semantic_type": [
+            "http://schema.org/Text",
+            "https://metadata.datadrivendiscovery.org/types/Attribute"
+          ],
+          "name": "State_wikidata"
         },
         "data_metadata": {
-          "shape_0": 2568,
-          "shape_1": 17
+          "shape_0": 3194,
+          "shape_1": 47
         }
       },
-      "sample_data": ",variable,variable_name,region_wikidata,regionLabel,year,month1,month2,month3,month4,month5,month6,month7,month8,month9,month10,month11,month12\n0,P3036,precipitation height,Q2820216,Abay Chomen,2008,22.91175199,9.724647021000001,10.38344908,100.2447166,326.5857285,303.471817,362.4139633,296.80655210000003,211.85144810000003,109.86050719999999,73.44242477,6.75996325\n1,P3036,precipitation height,Q2820216,Abay Chomen,2009,16.32101917,21.63987846,52.93341293,88.94744109999999,49.76253052,239.4160767,285.4686768,418.2097534,182.3193169,166.11289409999998,10.11202598,30.73511629\n2,P3036,precipitation height,Q2820216,Abay Chomen,2010,33.19119081,37.92621384,31.85471611,71.38615608,276.58259510000005,237.154129,415.708931,301.17233660000005,241.3206253,63.12945347,51.32826233,22.14862633\n3,P3036,precipitation height,Q2820216,Abay Chomen,2011,21.57488112,6.294656086,56.21886139,67.08623886,221.50490040000003,286.9000397,314.6136719,307.4682892,316.4547272,29.73013868,68.0258503,4.174989736000001\n4,P3036,precipitation height,Q2820216,Abay Chomen,2012,17.53955903,12.98957734,134.2935955,67.68087959,73.32407494,194.0011139,351.1255188,317.7583725,247.84909059999998,34.16196299,37.36466503,15.02814827\n5,P3036,precipitation height,Q2820216,Abay Chomen,2013,17.73738589,4.6502309319999995,28.76390457,38.42047119,274.33869480000004,305.0766907,373.5566223,324.08641969999996,194.45372769999997,151.4083168,56.39389801,4.93911761\n6,P3036,precipitation height,Q2820216,Abay Chomen,2014,15.26532912,16.57168503,53.35633049,147.39402009999998,288.902536,226.764679,319.95913310000003,304.0751335,304.1936188,157.8634888,31.68059349,22.96832547\n7,P3036,precipitation height,Q2820216,Abay Chomen,2015,4.8569709780000005,8.802329636,65.75868378,41.37701225,323.2742165,189.24299240000002,293.5532219,311.9618134,265.2471771,46.47706728,73.88288498,39.08461609\n8,P3036,precipitation height,Q2820216,Abay Chomen,2016,31.48064699,39.35865765,58.2536562,57.58819199,365.9526207,245.7582321,372.4273521,371.696627,298.0160522,104.41248279999999,10.94238997,10.899745699999999\n9,P3036,precipitation height,Q2820216,Abay Chomen,2017,6.995316315,69.14307785,57.34022026,102.10157779999999,253.26133419999996,197.8441772,342.48443910000003,305.12746660000005,369.35904689999995,87.74674854,18.71228313,17.85174203\n10,P3036,precipitation height,Q2820216,Abay Chomen,2018,18.103369283676148,45.55428695678711,36.24467792510986,70.78356170654297,185.9087776184082,321.07683563232416,348.11099395751955,320.8530982971191,228.81941986083984,123.2477642059326,76.12781524658203,8.807271718978884\n"
+      "sample_data": ",FIPStxt,State,Area_Name,Rural-urban_Continuum_Code_2003,Urban_Influence_Code_2003,Rural-urban_Continuum_Code_2013,Urban_Influence_Code_2013,POVALL_2017,CI90LBAll_2017,CI90UBALL_2017,PCTPOVALL_2017,CI90LBALLP_2017,CI90UBALLP_2017,POV017_2017,CI90LB017_2017,CI90UB017_2017,PCTPOV017_2017,CI90LB017P_2017,CI90UB017P_2017,POV517_2017,CI90LB517_2017,CI90UB517_2017,PCTPOV517_2017,CI90LB517P_2017,CI90UB517P_2017,MEDHHINC_2017,CI90LBINC_2017,CI90UBINC_2017,POV04_2017,CI90LB04_2017,CI90UB04_2017,PCTPOV04_2017,CI90LB04P_2017,CI90UB04P_2017,FIPStxt_wikidata,CI90LBAll_wikidata,POV517_wikidata,CI90UB017_wikidata,CI90UB04_wikidata,CI90LB517_wikidata,POV04_wikidata,Area_wikidata,CI90LB017_wikidata,CI90UB517_wikidata,POV017_wikidata,CI90LB04_wikidata,State_wikidata\n0,0,US,United States,,,,,\"42,583,651\",\"42,342,619\",\"42,824,683\",13.4,13.3,13.5,\"13,353,202\",\"13,229,339\",\"13,477,065\",18.4,18.2,18.6,\"9,120,503\",\"9,033,090\",\"9,207,916\",17.3,17.1,17.5,\"60,336\",\"60,250\",\"60,422\",\"3,932,969\",\"3,880,645\",\"3,985,293\",20.2,19.9,20.5,,,,,,,,Q502737,,,,,Q920643\n1,1000,AL,Alabama,,,,,\"802,263\",\"784,517\",\"820,009\",16.9,16.5,17.3,\"262,909\",\"253,694\",\"272,124\",24.4,23.5,25.3,\"180,594\",\"172,412\",\"188,776\",22.8,21.8,23.8,\"48,193\",\"47,451\",\"48,935\",\"78,986\",\"75,009\",\"82,963\",27.7,26.3,29.1,,,,,,,,Q29364,,,,,Q173\n2,1001,AL,Autauga County,2.0,2.0,2.0,2.0,\"7,390\",\"6,147\",\"8,633\",13.4,11.1,15.7,\"2,542\",\"2,081\",\"3,003\",19.3,15.8,22.8,\"1,842\",\"1,492\",\"2,192\",18.6,15.1,22.1,\"58,343\",\"52,121\",\"64,565\",,,,,,,Q156168,Q46902724,Q62694263,Q29716874,Q29791211,Q62691716,Q814448,Q156168,,Q16605576,Q243384,Q814448,Q173\n3,1003,AL,Baldwin County,4.0,5.0,3.0,2.0,\"21,199\",\"17,444\",\"24,954\",10.1,8.3,11.9,\"6,734\",\"5,079\",\"8,389\",14.7,11.1,18.3,\"4,871\",\"3,641\",\"6,101\",14.3,10.7,17.9,\"56,607\",\"52,439\",\"60,775\",,,,,,,Q156163,,Q37664748,Q28948255,Q29791211,Q52382454,Q814448,Q156163,Q59795394,Q34340032,,Q814448,Q173\n4,1005,AL,Barbour County,6.0,6.0,6.0,6.0,\"7,414\",\"6,325\",\"8,503\",33.4,28.5,38.3,\"2,606\",\"2,262\",\"2,950\",50.3,43.7,56.9,\"1,904\",\"1,660\",\"2,148\",48.8,42.6,55.0,\"32,490\",\"29,218\",\"35,762\",,,,,,,Q109437,Q30053499,Q62694666,Q62142893,Q29791211,Q62692986,Q814448,Q109437,Q50568772,Q50908706,Q52633591,Q814448,Q173\n5,1007,AL,Bibb County,1.0,1.0,1.0,1.0,\"4,137\",\"3,187\",\"5,087\",20.2,15.5,24.9,\"1,242\",936,\"1,548\",27.3,20.6,34.0,870,641,\"1,099\",26.8,19.8,33.8,\"45,795\",\"40,924\",\"50,666\",,,,,,,Q461204,Q58842548,Q62255086,Q62692127,Q29791211,Q641,Q814448,Q461204,Q19060646,Q35490124,Q37809988,Q814448,Q173\n6,1009,AL,Blount County,1.0,1.0,1.0,1.0,\"7,343\",\"5,805\",\"8,881\",12.8,10.1,15.5,\"2,484\",\"1,881\",\"3,087\",18.5,14.0,23.0,\"1,763\",\"1,307\",\"2,219\",17.7,13.1,22.3,\"48,253\",\"43,784\",\"52,722\",,,,,,,Q111250,Q46787634,Q62693695,,Q29791211,Q18972735,Q814448,Q111250,Q62694519,Q59104300,Q33765608,Q814448,Q173\n7,1011,AL,Bullock County,6.0,6.0,6.0,6.0,\"2,956\",\"2,316\",\"3,596\",34.4,27.0,41.8,\"1,015\",790,\"1,240\",48.3,37.6,59.0,732,562,902,49.0,37.6,60.4,\"29,113\",\"25,929\",\"32,297\",,,,,,,Q111259,Q59103817,Q18925305,Q61922816,Q29791211,Q27729836,Q814448,Q111259,Q62255098,Q18614788,Q52608450,Q814448,Q173\n8,1013,AL,Butler County,6.0,6.0,6.0,6.0,\"4,154\",\"3,155\",\"5,153\",21.3,16.2,26.4,\"1,471\",\"1,085\",\"1,857\",33.0,24.3,41.7,\"1,049\",759,\"1,339\",31.8,23.0,40.6,\"36,842\",\"33,405\",\"40,279\",,,,,,,Q108871,Q30837658,Q49001600,Q62694361,Q29791211,Q759,Q814448,Q108871,Q35078655,Q51984112,Q57064773,Q814448,Q173\n9,1015,AL,Calhoun County,3.0,2.0,3.0,2.0,\"19,832\",\"16,938\",\"22,726\",17.7,15.1,20.3,\"5,932\",\"4,701\",\"7,163\",24.2,19.2,29.2,\"4,021\",\"3,066\",\"4,976\",22.2,16.9,27.5,\"45,937\",\"43,419\",\"48,455\",,,,,,,Q108856,,,Q18063854,Q29791211,,Q814448,Q108856,Q55595249,,,Q814448,Q173\n10,1017,AL,Chambers County,6.0,5.0,6.0,5.0,\"6,036\",\"4,653\",\"7,419\",18.2,14.0,22.4,\"2,071\",\"1,529\",\"2,613\",29.6,21.8,37.4,\"1,515\",\"1,092\",\"1,938\",30.1,21.7,38.5,\"36,883\",\"33,288\",\"40,478\",,,,,,,Q111280,Q28659531,Q18973442,Q36076323,Q29791211,Q22122153,Q814448,Q111280,Q62691976,Q62694888,,Q814448,Q173\n"
     }
   ]
 }
