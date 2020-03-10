@@ -371,6 +371,8 @@ def load_input_supplied_data(data_from_value, data_from_file):
 
 
 def check_return_format(format_):
+    if format_ is None:
+        return None
     if format_.lower() == "csv":
         return_format = "csv"
     elif format_.lower() == "d3m":
@@ -994,9 +996,10 @@ def download_by_id(id):
     _logger.debug("Start downloading with id " + str(datamart_id))
     return_format = check_return_format(request.values.get('format'))
     if return_format is None:
-        return wrap_response(code='400',
-                             msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
-                             data=None)
+        return_format = "original"
+        # return wrap_response(code='400',
+        #                      msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
+        #                      data=None)
     try:
         # general format datamart id
         if datamart_id.startswith("wikidata_search_on"):
@@ -1106,7 +1109,7 @@ def download_by_id(id):
                 return Response(data.getvalue(), mimetype="text/csv")
         else:
             _logger.warning("Non csv file detected, will only return the original content.")
-            return send_file(result, 
+            return send_file(io.BytesIO(result), 
                              mimetype="application/x-binary", 
                              as_attachment=True,
                              attachment_filename=original_file_name)

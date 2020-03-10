@@ -502,11 +502,11 @@ paths:
               value: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
         - in: query
           name: format
-          description: Download format(general csv format or d3m format)
+          description: Download format(original uploaded format or d3m format) D3M format only works for CSV(table) format data.
           required: true
           schema:
             type: string
-            enum: [csv, d3m]
+            enum: [original, d3m]
       responses:
         '200':
           description: A zip file
