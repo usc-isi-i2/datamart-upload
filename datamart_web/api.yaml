@@ -596,10 +596,15 @@ paths:
           in: query
           schema:
             type: string
+            example: auto
             enum:
+              - auto
               - online_csv
+              - image
+              - pdf
+              - other
           required: true
-          description: Online file type, currently only support online_csv
+          description: file type, if set to auto, it will try to detect format by the file name suffix
         - name: title
           in: query
           schema:

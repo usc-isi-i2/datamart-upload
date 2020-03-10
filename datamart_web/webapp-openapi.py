@@ -16,6 +16,7 @@ import requests
 import copy
 import time
 import redis
+import hashlib
 import socket
 import inspect
 import datetime
@@ -42,7 +43,7 @@ from datamart_isi import config as config_datamart
 from datamart_isi import config_services
 from datamart_isi.utilities import connection
 from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
-from datamart_isi.upload.store import Datamart_isi_upload
+from datamart_isi.upload.store import DatamartISIUpload
 from datamart_isi.utilities.download_manager import DownloadManager
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.materializer_cache import MaterializerCache
@@ -106,7 +107,7 @@ FUZZY_SEARCH_CORE = load_keywords_augment_resources()
 _logger.info("Loading finished!!")
 DATAMART_SERVER = connection.get_general_search_server_url()
 DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
-datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
+datamart_upload_instance = DatamartISIUpload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
 REDIS_MANAGER = RedisManager()
@@ -1031,69 +1032,84 @@ def download_by_id(id):
             if len(results) == 0:
                 return wrap_response('400', msg="Can't find corresponding dataset with given id.")
             _logger.debug("Start materialize the dataset...")
-            result_df = MaterializerCache.materialize(metadata=results[0], run_wikifier=False)
-
+            result = MaterializerCache.materialize(metadata=results[0], run_wikifier=False)
+            original_file_type = results[0]['file_type']['value']
+            original_file_name = results[0]['url']['value'].split("/")[-1]
+            _logger.debug("result original format is {}".format(original_file_type))
         # else:
         # return wrap_response('400', msg="FAIL MATERIALIZE - Unknown input id format.")
 
         _logger.debug("Materialize finished, start sending...")
-        result_id = str(hash(result_df.values.tobytes()))
+        if isinstance(result, pd.DataFrame):
+            result_id = str(hash(result.values.tobytes()))
+        else:
+            hash_generator = hashlib.md5()
+            hash_generator.update(str(result).encode('utf-8'))
+            result_id = hash_generator.hexdigest()
+
         save_dir = "/tmp/download_result" + result_id
         if os.path.isdir(save_dir) or os.path.exists(save_dir):
             shutil.rmtree(save_dir)
 
-        if return_format == "d3m":
-            # save dataset
-            d3m_df = d3m_DataFrame(result_df, generate_metadata=False)
-            resources = {AUGMENT_RESOURCE_ID: d3m_df}
-            return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
-            return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
-            metadata_all_level = {
-                "id": datamart_id,
-                "version": "2.0",
-                "name": "datamart_dataset_" + datamart_id,
-                # "location_uris":('file:///tmp/datasetDoc.json',),
-                "digest": "",
-                "description": "",
-                "source": {'license': 'Other'},
-            }
-            return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
-            # update structure type
-            update_part = {"structural_type": str}
-            for i in range(result_df.shape[1]):
-                return_ds.metadata = return_ds.metadata.update(metadata=update_part,
-                                                               selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
+        if "csv" in original_file_type:
+            if return_format == "d3m":
+                # save dataset
+                d3m_df = d3m_DataFrame(result, generate_metadata=False)
+                resources = {AUGMENT_RESOURCE_ID: d3m_df}
+                return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
+                return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
+                metadata_all_level = {
+                    "id": datamart_id,
+                    "version": "2.0",
+                    "name": "datamart_dataset_" + datamart_id,
+                    # "location_uris":('file:///tmp/datasetDoc.json',),
+                    "digest": "",
+                    "description": "",
+                    "source": {'license': 'Other'},
+                }
+                return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
+                # update structure type
+                update_part = {"structural_type": str}
+                for i in range(result.shape[1]):
+                    return_ds.metadata = return_ds.metadata.update(metadata=update_part,
+                                                                   selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
 
-            with tempfile.TemporaryDirectory() as tmpdir:
-                save_dir = os.path.join(str(tmpdir), result_id)
-                absolute_path_part_length = len(str(save_dir))
-                # print(save_dir)
-                # sys.stdout.flush()
-                return_ds.save("file://" + save_dir + "/datasetDoc.json")
-                # zip and send to client
-                base_path = pathlib.Path(save_dir + '/')
-                data = io.BytesIO()
-                filePaths = retrieve_file_paths(save_dir)
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    save_dir = os.path.join(str(tmpdir), result_id)
+                    absolute_path_part_length = len(str(save_dir))
+                    # print(save_dir)
+                    # sys.stdout.flush()
+                    return_ds.save("file://" + save_dir + "/datasetDoc.json")
+                    # zip and send to client
+                    base_path = pathlib.Path(save_dir + '/')
+                    data = io.BytesIO()
+                    filePaths = retrieve_file_paths(save_dir)
 
-                zip_file = zipfile.ZipFile(data, 'w')
-                with zip_file:
-                    # write each file seperately
-                    for fileName in filePaths:
-                        shorter_path = fileName[absolute_path_part_length:]
-                        zip_file.write(fileName, shorter_path)
-                data.seek(0)
+                    zip_file = zipfile.ZipFile(data, 'w')
+                    with zip_file:
+                        # write each file seperately
+                        for fileName in filePaths:
+                            shorter_path = fileName[absolute_path_part_length:]
+                            zip_file.write(fileName, shorter_path)
+                    data.seek(0)
 
-                return send_file(
-                    data,
-                    mimetype='application/zip',
-                    as_attachment=True,
-                    attachment_filename=datamart_id + '.zip'
-                )
+                    return send_file(
+                        data,
+                        mimetype='application/zip',
+                        as_attachment=True,
+                        attachment_filename=datamart_id + '.zip'
+                    )
 
+            elif return_format == "csv":
+                data = io.StringIO()
+                result.to_csv(data, index=False)
+                return Response(data.getvalue(), mimetype="text/csv")
         else:
-            data = io.StringIO()
-            result_df.to_csv(data, index=False)
-            return Response(data.getvalue(), mimetype="text/csv")
+            _logger.warning("Non csv file detected, will only return the original content.")
+            return send_file(result, 
+                             mimetype="application/x-binary", 
+                             as_attachment=True,
+                             attachment_filename=original_file_name)
 
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])
@@ -1449,7 +1465,8 @@ def upload():
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
-    # same as upload function, only difference is it will upload the dataset to a testing blazegraph namespace
+    # same as upload function, only difference is it will 
+    # upload the dataset to a testing blazegraph namespace
     return upload_function(request, test_mode=True)
 
 
@@ -1868,7 +1885,7 @@ def fyzzy_search_without_data():
                     metadata[k] = v
             data_metadata = extra_information
             file_type = each_res['file_type']['value']
-            if file_type == "csv":
+            if file_type != "other":
                 sample_data = extra_information['first_10_rows']
             else:
                 sample_data = ""

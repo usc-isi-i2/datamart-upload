@@ -108,3 +108,6 @@ There are also some other files that stored some extra information.
 - The general augment cache. This is used for memorizing the augment results.The cache files are currently stored on `/data00/dsbox/datamart/memcache_storage/general_search_cache`.
 - The wikifier target cache. This is used for memorizing the corresponding wikifier. The cache files are currently stored on `/data00/dsbox/datamart/memcache_storage/wikifier_cache`.
 - The datasets cache. This is used for memorizing the metadata for the supplied data as if sent from NYU'S rest api service, metadata will not be sent (only a csv file will received). The cache files are currently stored on `/data00/dsbox/datamart/memcache_storage/datasets_cache`.
+
+#### Apache Tica service
+There is a apache tica service should be also running. This is used to parse files not in csv format. This can extract content information and some metadata information. Currently it is running at `dsbox02.isi.edu:9007`. To support running OCR on given files, additionaly service `tesseract` is also required to installed for Tica. The corresponding docker build file is stored at `datamart-upload/config/Dockerfile-tika`. The official docker DO NOT support OCR. To run the docker, run with command after docker was built as: `docker run --name datamart-upload_tika -d -p 9007:9998 tika_with_ocr`

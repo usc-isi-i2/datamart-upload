@@ -4,6 +4,7 @@ jsonlines>=1.2.0
 psycopg2-binary>=2.7.5
 python-dateutil>=2.7.3
 etk@git+https://github.com/ckxz105/etk.git@jun_test
+tika==1.23.1
 rltk==2.0.0a13
 tablextract>=1.2.5
 termcolor>=1.1.0
@@ -18,7 +19,7 @@ bcrypt>=3.1.7
 gunicorn>=19.9.0
 tables>=3.5.2
 gensim>=3.4
-nltk
+nltk==3.4.5
 PyYAML
 pyjarowinkler
 edit_distance

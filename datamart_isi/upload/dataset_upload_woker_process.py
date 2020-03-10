@@ -5,8 +5,8 @@ import os
 import traceback
 import datetime
 from rq import get_current_job
-from datamart_isi.upload.store import Datamart_isi_upload
-from datamart_isi.upload import store
+from .store import DatamartISIUpload
+from . import store
 
 
 def upload_to_datamart(datamart_upload_address, dataset_information):
@@ -15,19 +15,14 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
     for each_handler in logger.handlers:
         if "stderr" in str(each_handler.stream):
             has_logger_in_stdeer = True
-
+    # only print once on screen
     if not has_logger_in_stdeer:
-        # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
         console.setLevel(logging.DEBUG)
-        # set a format which is simpler for console use
         formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s", '%m-%d %H:%M:%S')
-        # tell the handler to use this format
         console.setFormatter(formatter)
-        # add the handler to the root logger
         logging.getLogger('').addHandler(console)
     logger.setLevel(logging.DEBUG)
-    # logging.basicConfig(format=FORMAT, stream=sys.stdout, level=logging.DEBUG)
     # set up logging to file - see previous section for more details
     logging.basicConfig(level=logging.DEBUG,
                         format="%(asctime)s [%(levelname)s] %(name)s %(lineno)d -- %(message)s",
@@ -60,33 +55,37 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
     if not os.path.exists(password_record_file):
         raise ValueError("No password config file found at {}!!!".format(password_record_file))
 
-    with open(password_record_file ,"r") as f:
+    with open(password_record_file, "r") as f:
         user_passwd_pairs = json.load(f)
 
     if user_information["username"] not in user_passwd_pairs:
         raise ValueError("Given username {} does not exist!!!".format(user_information["username"]))
 
     try:
-        datamart_upload_instance = Datamart_isi_upload(update_server=datamart_upload_address,
-                                                       query_server=datamart_upload_address)
+        datamart_upload_instance = DatamartISIUpload(update_server=datamart_upload_address,
+                                                     query_server=datamart_upload_address)
         if job is not None:
             job.save_meta()
-        df, meta = datamart_upload_instance.load_and_preprocess(job=job, input_dir=url, file_type=file_type, wikifier_choice=wikifier_choice)
+        pre_parsed_result = datamart_upload_instance.load_and_preprocess(job=job, input_dir=url, file_type=file_type,
+                                                                         wikifier_choice=wikifier_choice)
+        # df, meta
         if job is not None:
             job.meta['step'] = "Load and preprocess data finished..."
             job.meta['progress'] = "50%"
             job.save_meta()
+
         try:
-            for i in range(len(df)):
+            for i in range(len(pre_parsed_result.content)):
+                # replace the auto-generated information to user given information if found
                 if title:
-                    meta[i]['title'] = title[i]
+                    pre_parsed_result.metadata[i]['title'] = title[i]
                 if description:
-                    meta[i]['description'] = description[i]
+                    pre_parsed_result.metadata[i]['description'] = description[i]
                 if keywords:
-                    meta[i]['keywords'] = keywords[i]
+                    pre_parsed_result.metadata[i]['keywords'] = keywords[i]
         except:
             msg = "ERROR set the user defined title / description / keywords: " + str(
-                len(meta)) + " tables detected but only "
+                len(pre_parsed_result.metadata)) + " tables detected but only "
             if title:
                 msg += str(len(title)) + " title, "
             if description:
@@ -103,18 +102,19 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
         dataset_ids = []
         upload_started_time = datetime.datetime.now()
         user_information['upload_time'] = str(upload_started_time)
-        for i in range(len(df)):
+        # start modeling the data
+        for i in range(len(pre_parsed_result.content)):
             if job is not None:
                 job.meta['step'] = "Start modeling and uploading No.{} dataset".format(str(i))
-                job.meta['progress'] = str(50 + (i+1) / len(df) * 50) + "%"
+                job.meta['progress'] = str(50 + (i + 1) / len(pre_parsed_result.content) * 50) + "%"
                 job.save_meta()
 
             if need_process_columns and len(need_process_columns) > i:
                 current_need_process_columns = need_process_columns[i]
             else:
                 current_need_process_columns = None
-            datamart_upload_instance.model_data(input_dfs=df, metadata=meta, 
-                                                number=i, uploader_information=user_information, 
+            datamart_upload_instance.model_data(inputs=pre_parsed_result,
+                                                number=i, uploader_information=user_information,
                                                 job=job, need_process_columns=current_need_process_columns)
             dataset_ids.append(datamart_upload_instance.modeled_data_id)
             response_id = datamart_upload_instance.upload()
@@ -128,7 +128,8 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
             job.save_meta()
         else:
             # this message will only captured when not using redis server
-            msg = "Upload success! The uploaded dataset id is: {}. Upload totally used {}".format(dataset_ids, str(datetime.timedelta(seconds=time_used)))
+            msg = "Upload success! The uploaded dataset id is: {}. Upload totally used {}".format(dataset_ids, str(
+                datetime.timedelta(seconds=time_used)))
             return msg
 
     except Exception as e:
@@ -136,7 +137,7 @@ def upload_to_datamart(datamart_upload_address, dataset_information):
         if job is not None:
             job.meta['condition'] = "ERROR"
             job.meta['step'] = msg
-            job.save_meta() 
+            job.save_meta()
         else:
             # this message will only captured when not using redis server
             return msg
