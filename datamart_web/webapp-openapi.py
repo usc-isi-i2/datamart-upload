@@ -687,58 +687,23 @@ def search():
         results = []
         for i, each_res in enumerate(res):
             try:
+                file_type = each_res.search_result['file_type']['value']
                 materialize_info = each_res.serialize()
                 materialize_info_decoded = json.loads(materialize_info)
                 augmentation_part = materialize_info_decoded['augmentation']
                 search_type = materialize_info_decoded["metadata"]['search_type']
-
-                # for vector search results and wikidata search results, we need to fetech the results
-                try:
-                    if search_type == "vector":
-                        q_nodes_list = materialize_info_decoded["metadata"]['search_result']['q_nodes_list'][:10]
-                        target_column_name = materialize_info_decoded["metadata"]['search_result']['target_q_node_column_name']
-                        first_10_rows_df = DownloadManager.fetch_fb_embeddings(q_nodes_list=q_nodes_list, 
-                                                                                 target_q_node_column_name=target_column_name)
-                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
-                        if first_10_rows_df.shape[0] == 0:
-                            continue
-                        first_10_rows_info = first_10_rows_df.to_csv(index=False)
-
-                    elif search_type == "wikidata":
-                        p_nodes = each_res.id().split("___")
-                        if p_nodes[-1].startswith("with_column"):
-                            suffix_col_name = "_for_" + p_nodes[-1][12:]
-                        else:
-                            suffix_col_name = ""
-                        p_nodes = p_nodes[1: -1]
-                        if len(p_nodes) == 0:
-                            _logger.error("No Q nodes given for this search result! Will skip")
-                            continue
-                        materialize_info_wikidata = {
-                            "p_nodes_needed": p_nodes, 
-                            "length": 10, 
-                            "suffix_col_name": suffix_col_name,
-                            "show_item_label": True
-                            }
-                        temp_df = MaterializerCache.materialize(materialize_info_wikidata)
-                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
-                        if temp_df.shape[0] == 0 or temp_df.shape[1] == 0:
-                            continue
-
-                        first_10_rows_info = temp_df.to_csv(index=False)
-
-                    elif search_type == "general":
-                        extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
-                        temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
-                        if 'Unnamed: 0' in temp_df.columns:
-                            temp_df = temp_df.drop(columns=['Unnamed: 0'])
-                        first_10_rows_info = temp_df.to_csv(index=False)
-
-                except Exception as e:
-                    _logger.error("Feteching the first 10 rows failed!")
-                    _logger.debug(e, exc_info=True)
-                    first_10_rows_info = ""
-
+                sample_data = DownloadManager.get_sample_dataset(each_res)
+                # if returned false from `sample_data`, we should skip this result because it is useless
+                if sample_data == False:
+                    _logger.info("No.{} search result is useless, skipped.".format(str(i)))
+                    continue
+                # updated v2020.3.17, now we can't do download/augment operation for non csv format
+                # this extra parameter can let the frontend know if this search result can be used for augment or not
+                if file_type != "csv":
+                    preview_only = True
+                else:
+                    metadata = DownloadManager.get_metadata(each_res)
+                    preview_only = False
                 cur = {
                     'augmentation': {
                         'type': augmentation_part['properties'], 
@@ -748,9 +713,11 @@ def search():
                     'all_column_names': materialize_info_decoded['dataframe_column_names'],
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
-                    'metadata': each_res.get_metadata().to_json_structure(),
+                    'metadata': metadata,
                     'id': each_res.id(),
-                    'sample': first_10_rows_info,
+                    'sample': sample_data,
+                    'file_type': file_type,
+                    'preview_only': preview_only,
                     'materialize_info': materialize_info
                 }
                 results.append(cur)
@@ -829,23 +796,18 @@ def search_without_data():
         for each_res in res:
             materialize_info = each_res.serialize()
             materialize_info_decoded = json.loads(materialize_info)
-            search_type = materialize_info_decoded["metadata"]['search_type']
-            if search_type == "general":
-                extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
-                temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
-                if 'Unnamed: 0' in temp_df.columns:
-                    temp_df = temp_df.drop(columns=['Unnamed: 0'])
-                first_10_rows_info = temp_df.to_csv(index=False)
-            else:
-                first_10_rows_info = ""
+            sample_data = DownloadManager.get_sample_dataset(each_res)
+            metadata = DownloadManager.get_metadata(each_res)
+            file_type = each_res.search_result['file_type']['value']
             cur = {
                 'augmentation': {'type': "", 'left_columns': [], 'right_columns':[]},
                 'summary': parse_search_result(each_res),
                 'score': each_res.score(),
-                'metadata': each_res.get_metadata().to_json_structure(),
+                'metadata': metadata,
                 'id': each_res.id(),
-                'sample': first_10_rows_info,
-                'materialize_info': materialize_info
+                'sample': sample_data,
+                'materialize_info': materialize_info,
+                'file_type': file_type
             }
             results.append(cur)
 
@@ -1920,7 +1882,6 @@ def clean_list_of_words(input_words: typing.List[str]) -> typing.List[str]:
     output_words = [str(each) for each in words_set]
     output_words.sort()
     return output_words
-
 
 def generate_dataset_metadata():
     '''
