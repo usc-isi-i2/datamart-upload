@@ -535,18 +535,18 @@ paths:
         The method automatically generates metadata for the datasets.
 
         Required parameters:
-          * **file_type**: A string indicating the type of the data source, currently only **online_csv** is suported.
+          * **url / file**: The address to the dataset resource or upload the file via content body.
           * **username**: The username of the upload user. If you do not have an account, ask the datamart
               administrator. If you just want to try out the upload functionality, use the **/upload/test** endpoint.
           * **password**: The password of the upload user.
 
         Optional parameters:
-          * **url**: The address to the dataset resource. An alternative way is upload a local file using request body.
-          * **run_wikifier**: If true, runs the wikifier to add additional Wikidata Qnode columns.
-          * **title**: The name of the dataset.
-          * **description**: Text description of the dataset.
-          * **keywords**: Keywords associated with the dataset.
-
+          * **file_type**: A string indicating the type of the data source, if not given default is **auto**.
+          * **upload_async**: If true, the job will be scheduled on server side and return a job id. If false, you have to wait until the request responsed.
+          * **run_wikifier**: If true, runs the wikifier to add additional Wikidata Qnode columns. Default is auto. I will determine whether to run wikifier or not base on the uploaded dataset size and type.
+          * **title**: The name of the dataset. If not given, it will use the file name.
+          * **description**: Text description of the dataset. 
+          * **keywords**: Keywords associated with the dataset. If not given, it will use the column names of the files.
         Request body:
           * Filepath to dataset.
       requestBody:
