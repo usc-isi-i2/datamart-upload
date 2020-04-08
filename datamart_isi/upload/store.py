@@ -98,14 +98,14 @@ class DatamartISIUpload:
 
         # give definition of the nodes we definied
         p = WDProperty('C2001', Datatype.MonolingualText)
-        p.add_label('keywords', lang='en')
+        p.add_label('datamart identifier', lang='en')
         p.add_description('identifier of a dataset in the Datamart system', lang='en')
         p.add_statement('P31', Item('Q19847637'))
         p.add_statement('P1629', Item('Q1172284'))
         doc.kg.add_subject(p)
 
         p = WDProperty('C2004', Datatype.StringValue)
-        p.add_label('datamart identifier', lang='en')
+        p.add_label('keywords', lang='en')
         p.add_description('keywords associated with an item to facilitate finding the item using text search', lang='en')
         p.add_statement('P31', Item('Q18616576'))
         doc.kg.add_subject(p)
