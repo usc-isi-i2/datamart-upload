@@ -1,7 +1,7 @@
 site_name: Datamart Schemas
 nav:
-  - Home: index.md
-  - Usage: usage.md
+  - Dataset Schema: index.md
+  - Data Download Schema: download.md
 theme: 
   name: material
   logo: 'logo.png'
