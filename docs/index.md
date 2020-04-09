@@ -1,4 +1,5 @@
 This page describes the current schema used by ISI the Datamart to represent datasets.
+
 * **Schema Version**: 0.0.1
 * **Release date**: April 8th, 2020
 * **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
@@ -36,11 +37,11 @@ Datasets have the following required and recommended properties. **Required prop
 | Creator [[P170](https://www.wikidata.org/wiki/Property:P170)]|  __*Expected value*__: **String** (will be matched to QNode of Person or Organization)<br/>__*Description*__: Person or Organization responsible for the creation of the Dataset <br/>__**Example**__: "Federal Bureau of Investigation"<br/>__**Example**__: "John Doe" |
 | Contributor [[P767](https://www.wikidata.org/wiki/Property:P767)]|  __*Expected value*__: **String** (will be matched to QNode of Person or Organization)<br/>__*Description*__: Person or Organization who helped in the development of the Dataset. <br/>__**Example**__: "John Doe" |
 | Cites Work [[P2860](https://www.wikidata.org/wiki/Property:P2860)]|  __*Expected value*__: **String or URL**<br/>__*Description*__: Bibliographic citation for the dataset <br/>__**Example**__: "Doe J (2014) Influence of X ... https://doi.org/10.1111/111"<br/>__**Example**__: [https://doi.org/10.1111/111](https://doi.org/10.1111/111) |
-| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
-| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
-| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
-| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
-| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P275](https://www.wikidata.org/wiki/Property:P275)]|  __*Expected value*__: **String** (will be matched to a QNode)<br/>__*Description*__: license under which this copyrighted work is released  <br/>__**Example**__: "Creative Commons Attribution-ShareAlike 4.0 International" (Q18199165) |
+| Official website [[P856](https://www.wikidata.org/wiki/Property:P856)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the official homepage of a Dataset <br/>__**Example**__: [https://crime-data-explorer.fr.cloud.gov](https://crime-data-explorer.fr.cloud.gov/) |
+| Date created [[schema:dateCreated](https://schema.org/dateCreated)]|  __*Expected value*__: **Date**<br/>__*Description*__: Creation date of the Dataset in ISO 8601 format (YYYY-MM-DD) <br/>__**Example**__: 2020-04-06 |
+| Version [[schema:version](https://schema.org/version)]|  __*Expected value*__: **String**<br/>__*Description*__: Version number of the Dataset. Semantic versioning (X.Y.Z) is preferred.<br/>__**Example**__: "1.0.0" |
+| API endpoint [[P6269](https://www.wikidata.org/wiki/Property:P6269)]|  __*Expected value*__: **URL**<br/>__*Description*__: Base URL of a web service <br/>__**Example**__: [https://www.wikidata.org/w/api.php](https://www.wikidata.org/w/api.php) |
 | CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
 | CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
 | CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
