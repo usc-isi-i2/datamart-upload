@@ -27,7 +27,7 @@ Datasets have the following required, recommended and optional properties. **Req
 | -------------------    |:-------------                     | 
 | Name [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__*Example*__: "Criminal records in the US for the year 2000"                     | 
 | Description [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the dataset and its context <br/>__*Example*__: "This dataset contains criminal records in the US (himicides, robbery, assault) organized by State and County as reported by their local administrations."                          | 
-| URL  [[P2699](https://www.wikidata.org/wiki/Property:P2699)]                  | __*Expected value*__: **URL**<br/>__*Description*__: URL where to download the dataset. It the dataset includes several files, this would be the URL where to download all of them. <br/>__*Example*__: [http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip](http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip)  <br/>__*Qualifiers [OPTIONAL]*__: Of [[P642](https://www.wikidata.org/wiki/Property:P642)] digital data download [[Q165194](https://www.wikidata.org/wiki/Property:Q165194)]; file format [[P2701](https://www.wikidata.org/wiki/Property:P2701)] (e.g., ZIP [[Q136218](https://www.wikidata.org/wiki/Property:Q136218)], N-Triples [[Q44044](https://www.wikidata.org/wiki/Property:Q44044)])          | 
+| URL  [[P2699](https://www.wikidata.org/wiki/Property:P2699)]                  | __*Expected value*__: **URL**<br/>__*Description*__: URL where to download the Dataset. It the dataset includes several files, this would be the URL where to download all of them. <br/>__*Example*__: [http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip](http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip)  <br/>__*Qualifiers [OPTIONAL]*__: Of [[P642](https://www.wikidata.org/wiki/Property:P642)] digital data download [[Q165194](https://www.wikidata.org/wiki/Property:Q165194)]; file format [[P2701](https://www.wikidata.org/wiki/Property:P2701)] (e.g., ZIP [[Q136218](https://www.wikidata.org/wiki/Property:Q136218)], N-Triples [[Q44044](https://www.wikidata.org/wiki/Property:Q44044)])          | 
 
 
 | Recommended Property      | Description and Examples          |
@@ -64,11 +64,13 @@ Datasets have the following required, recommended and optional properties. **Req
 
 When a property is marked as (will be marked to QNode) it means that Datamart will automatically transform the target string into an entity with a QNode in Wikidata. If no match is found, a new QNode will be created.
 
-## Dataset Variable Metadata
+## Dataset Variable Metadata (Work In Progress)
 
 | Recommended Property      | Description and Examples          |
 | ------------- |:-------------| 
-| Short Name [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**.<br/>__*Description*__: Full name of the dataset <br/>__*Example*__: "Criminal records in the US" |
+| Name [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the variable <br/>__*Example*__: "Number of homicides"                     | 
+| Description [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the Variable and its context <br/>__*Example*__: "The number of homicides in a region."                          | 
+| Short Name [[P1813](https://www.wikidata.org/wiki/Property:P1813)]|  __*Expected value*__: **String**<br/>__*Description*__: Short name of the Variable. Typically, this corresponds to the name of the variable in the corresponding column of the table <br/>__*Example*__: "Homicides" <br/>__*Example*__: "H" |
 
 ---------
 ## Contribution Guidelines
