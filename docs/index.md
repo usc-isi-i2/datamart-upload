@@ -1,4 +1,7 @@
 This page describes the current schema used by ISI the Datamart to represent datasets.
+* **Schema Version**: 0.0.1
+* **Release date**: April 8th, 2020
+* **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
 
 ## Dataset Definition
 We define a **Dataset** as a collection of files which contain information (typically observations) about one or multiple **variables** that describe **entities** of interest. For example, consider the sample table below:
@@ -18,21 +21,36 @@ The table contains information about the variable **number of homicides**, which
 ## Describing dataset metadata
 Datasets have the following required and recommended properties. **Required properties** MUST be submitted as part of the metadata in order to be inserted in Datamart. **Recommended properties** are optional, but recommended in order to exploit the full features of the system.
 
+
 | Required Property    | Description and Examples           |
 | -------------------    |:-------------                     | 
-| Name [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**.<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US"                     | 
-| Description [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**.<br/>__*Description*__: Text with a brief explanation of the dataset and its context <br/>__*Example*__: "This dataset contains criminal records in the US (himicides, robbery, assault) organized by State and County as reported by their local administrations."                          | 
-| URL  [[P2699](https://www.wikidata.org/wiki/Property:P2699)]                  | __*Expected value*__: **URL**.<br/>__*Description*__: URL where to download the dataset. It the dataset includes several files, this would be the URL where to download all of them. <br/>__*Example*__:http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip  <br/>__*Qualifiers*__: Of digital data download []; format (e.g., ZIP)[]                          | 
+| Name [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US for the year 2000"                     | 
+| Description [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the dataset and its context <br/>__*Example*__: "This dataset contains criminal records in the US (himicides, robbery, assault) organized by State and County as reported by their local administrations."                          | 
+| URL  [[P2699](https://www.wikidata.org/wiki/Property:P2699)]                  | __*Expected value*__: **URL**<br/>__*Description*__: URL where to download the dataset. It the dataset includes several files, this would be the URL where to download all of them. <br/>__*Example*__: [http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip](http://s3-us-gov-west-1.amazonaws.com/cg-d4b776d0-d898-4153-90c8-8336f86bdfec/2018/AL-2018.zip)  <br/>__*Qualifiers [OPTIONAL]*__: Of [[P642](https://www.wikidata.org/wiki/Property:P642)] digital data download [[Q165194](https://www.wikidata.org/wiki/Property:Q165194)]; file format [[P2701](https://www.wikidata.org/wiki/Property:P2701)] (e.g., ZIP [Q136218](https://www.wikidata.org/wiki/Property:Q136218)], N-Triples [Q44044](https://www.wikidata.org/wiki/Property:Q44044) )          | 
 
 
-
-| Recommended Properties      | Description and Examples          |
-| ------------- |:-------------:| 
-| col 3 is      | right-aligned  | 
-| col 2 is      | centered      | 
-| zebra stripes | are neat      | 
+| Recommended Property      | Description and Examples          |
+| ------------- |:-------------| 
+| Short Name [[P1813](https://www.wikidata.org/wiki/Property:P1813)]|  __*Expected value*__: **String**<br/>__*Description*__: Short name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| Keywords [[schema:keywords](https://schema.org/keywords)]|  __*Expected value*__: **String**<br/>__*Description*__: Keywords describing the dataset. Multiple entries are delimited by commas <br/>__**Example**__: "crime, homicide" |
+| Creator [[P170](https://www.wikidata.org/wiki/Property:P170)]|  __*Expected value*__: **String** (will be matched to QNode of Person or Organization)<br/>__*Description*__: Person or Organization responsible for the creation of the Dataset <br/>__**Example**__: "Federal Bureau of Investigation"<br/>__**Example**__: "John Doe" |
+| Contributor [[P767](https://www.wikidata.org/wiki/Property:P767)]|  __*Expected value*__: **String** (will be matched to QNode of Person or Organization)<br/>__*Description*__: Person or Organization who helped in the development of the Dataset. <br/>__**Example**__: "John Doe" |
+| Cites Work [[P2860](https://www.wikidata.org/wiki/Property:P2860)]|  __*Expected value*__: **String or URL**<br/>__*Description*__: Bibliographic citation for the dataset <br/>__**Example**__: "Doe J (2014) Influence of X ... https://doi.org/10.1111/111"<br/>__**Example**__: [https://doi.org/10.1111/111](https://doi.org/10.1111/111) |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
+| CopyRight License [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
 
 ## Dataset Variable Metadata
+
+| Recommended Property      | Description and Examples          |
+| ------------- |:-------------| 
+| Short Name [[P1476](https://www.wikidata.org/wiki/Property:P1476)]|  __*Expected value*__: **String**.<br/>__*Description*__: Full name of the dataset <br/>__**Example**__: "Criminal records in the US" |
 
 ---------
 ## Contribution Guidelines
