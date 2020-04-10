@@ -88,6 +88,9 @@ Dataset variables describe the contents of a table (typically a column). When de
 | `columnIndex` [PNode to be determined]|  __*Expected value*__: **Integer**<br/>__*Description*__: Column number that corresponds to the variable. <br/>__*Example*__: 2|
 | `qualifiers` [PNode to be determined]|  __*Expected value*__: **String**<br/>__*Description*__: Pointer to other columns in the dataset which qualify the property, such as the source of the data, . <br/>__*Example*__: Source (assuming there is a column called 'Source' in the table) <br/>__*Example*__: Sex (assuming there is a column called 'Sex' in the table)|
 
+## Acknnowledgements:
+We have used [Wikidata](wikidata.org/) and [Schema.org](schema.org/) as reference schemas to build the Datamart Dataset Schema. We have also used the [Google Dataset Search guide](https://developers.google.com/search/docs/data-types/dataset) as a reference for structuring our suggested minimum and required properties.
+
 ---------
 ## Contribution Guidelines
 If you have suggestions or concerns with any of the aspects covered in this schema, please open an issue [in our Github repository](https://github.com/usc-isi-i2/datamart-upload) with the headline [DatasetSchema].
