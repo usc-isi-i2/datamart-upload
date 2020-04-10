@@ -60,7 +60,7 @@ Some columns are specific to datasets. For the food production dataset, the sour
 Sample CSV file with one variable (production) and one qualifier (source).
 
 | variable_measured   | variable_measured_id | main_subject | main_subject_id | value | value_unit | time | time_precision | country | country_id | admin1 | admin1_id | qualifier_source | qualifier_source_id |
-|------------|-------------|---------|------------|-------|------------|------|----------------|---------|--------|-----------|--------|-----------|
+|------------|-------------|---------|------------|-------|------------|------|----------------|---------|--------|-----------|--------|-----------|-------|
 | Production | P1092       | maize   | Q25618328  | 1.182 | M quintal  | 2016-01-01T00:00:00 | year | Ethiopia | Q115 | Oromia | Q202107 | CSA | Q190360 |
 | Production | P1092       | teff    | Q843942    | 2.345 | M quintal  | 2016-01-01T00:00:00 | year | Ethiopia | Q115 | Oromia | Q202107 | CSA | Q190360 |
 
