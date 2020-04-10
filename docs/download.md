@@ -54,14 +54,14 @@ Some columns are specific to datasets. For the food production dataset, the sour
 
 Sample CSV file with one variable.
 
-| variable   | variable_id | subject | subject_id | value | value_unit | time | time_precision | country | admin1 | admin1_id | source | source_id |
+| variable   | variable_id | subject | subject_id | value | value_unit | time | time_precision | country | admin1 | admin1_id | qualifier_source | qualifier_source_id |
 |------------|-------------|---------|------------|-------|------------|------|----------------|---------|--------|-----------|--------|-----------|
 | Production | P1092       | maize   | Q25618328  | 1.182 | M Qunital  | 2016-01-01T00:00:00 | year | Ethiopia | Oromia | Q202107 | CSA | Q190360 |
 | Production | P1092       | teff    | Q843942    | 2.345 | M Qunital  | 2016-01-01T00:00:00 | year | Ethiopia | Oromia | Q202107 | CSA | Q190360 |
 
 Sample CSV file with multiple variables. This able contains two variables: total crop production and land area used for the production.
 
-| variable   | variable_id | subject | subject_id | value | value_unit | time | time_precision | country | admin1 | admin1_id | source | source_id |
+| variable   | variable_id | subject | subject_id | value | value_unit | time | time_precision | country | admin1 | admin1_id | qualifier_source | qualifier_source_id |
 |------------|-------------|---------|------------|-------|------------|------|----------------|---------|--------|-----------|--------|-----------|
 | Production | P1092       | maize   | Q25618328  | 1.182 | M Qunital  | 2016-01-01T00:00:00 | year | Ethiopia | Oromia | Q202107 | CSA | Q190360 |
 | Production | P1092       | teff    | Q843942    | 2.345 | M Qunital  | 2016-01-01T00:00:00 | year | Ethiopia | Oromia | Q202107 | CSA | Q190360 |
