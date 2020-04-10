@@ -62,7 +62,7 @@ Datasets have the following required, recommended and optional properties. **Req
 
 
 
-When a property is marked as (will be marked to QNode) it means that Datamart will automatically transform the target string into an entity with a QNode in Wikidata. If no match is found, a new QNode will be created.
+When a property is marked as (will be mapped to QNode) it means that Datamart will automatically transform the target string into an entity with a QNode in Wikidata. If no match is found, a new QNode will be created.
 
 ## Dataset Variable Metadata
 Dataset variables describe the contents of a table (typically a column). When describing properties, we have the following **required** and **recommended** properties:
