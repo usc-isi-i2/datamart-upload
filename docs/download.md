@@ -35,6 +35,7 @@ The following columns are common to all datasets. Some columns are optional, whi
 | `time` | __*Description*__: The time is in ISO format <br/>__*Example value*__: 2016-01-01T00:00:00 |
 | `time_precision` | __*Description*__: Precision of the time value  <br/>__*Example value*__: year|
 | `country`* | __*Description*__: Country location  <br/>__*Example value*__: Ethiopia |
+| `country_id`* | __*Description*__: Country location identifier <br/>__*Example value*__: Ethiopia |
 | `admin1`* | __*Description*__: First-level administrative country subdivision, such states in USA, provinces in Canada, and regions in Ethiopia  <br/>__*Example value*__: Oromia|
 | `admin1_id`* | __*Description*__: Identifier for the first-level administrative country subdivision  <br/>__*Example value*__: [Q202107](https://www.wikidata.org/wiki/Q202107)|
 | `admin2`* | __*Description*__: Second-level administrative country subdivision, such as counties in USA and zones in Ethiopia <br/>__*Example value*__: Bale|
