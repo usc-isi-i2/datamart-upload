@@ -47,12 +47,12 @@ class CSVParser(ParserBase):
         from_online_file = False
         if file_type == "csv":
             try:
-                loaded_data = [pd.read_csv(input_dir, dtype=str)]
+                _ = [pd.read_csv(input_dir, dtype=str)]
+                file_type = "online_csv"
             except Exception:
                 raise ValueError("Reading csv from" + input_dir + "failed.")
 
-            # TODO: how to upload to the online server afterwards?
-        elif len(file_type) > 7 and file_type[:7] == "online_":
+        if len(file_type) > 7 and file_type[:7] == "online_":
             from_online_file = True
             general_materializer = GeneralMaterializer()
             file_type = file_type[7:]
