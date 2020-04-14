@@ -25,8 +25,8 @@ The following columns are common to all datasets. Some columns are optional, whi
 | Column Name   | Description and Example |
 |---------------|-------------------------|
 | `dataset_id`* | __*Description*__: Dataset identifier in Datamart  <br/>__*Example value*__: Q_Food_Dataset|
-| `variable_measured`  | __*Description*__: Name of the variable <br/>__*Example value*__: Production <br/>__*Example value*__: Price|
-| `variable_measured_id` | __*Description*__: Variable identifier (in Wikidata)  <br/>__*Example value*__: [P1092](https://www.wikidata.org/wiki/Property:P1092)|   
+| `variable`  | __*Description*__: Name of the variable <br/>__*Example value*__: Production <br/>__*Example value*__: Price|
+| `variable_id` | __*Description*__: Variable identifier (in Wikidata)  <br/>__*Example value*__: [P1092](https://www.wikidata.org/wiki/Property:P1092)|   
 | `main_subject_category`* | __*Description*__: Type of the main subject column  <br/>__*Example value*__: Crops|
 | `main_subject` | __*Description*__: Main subject  <br/>__*Example value*__: Maize <br/>__*Example value*__ Teff|
 | `main_subject_id`  | __*Description*__ :Wikidata identifier corresponding to entity described with the `main_subject` property<br/>__*Example value*__: [Q25618328](https://www.wikidata.org/wiki/Q25618328) (for Maize) <br/>__*Example value*__: [Q843942](https://www.wikidata.org/wiki/Q843942) (for Teff) |
