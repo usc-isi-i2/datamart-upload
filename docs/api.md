@@ -48,6 +48,7 @@ The metadata API supports the following operations:
 * Returns: Status code. 201 (created) if successful, along with the dataset id. 
 
 `PUT /dataset/id`: **REPLACES** the entry of the dataset identified by `id` with the JSON received in the request. Contents **are not** added incrementally. For example, if a dataset had an author and the PUT request contains another author, the latter will replace the former.
+
 * Returns: Status code. 200 if successful.
 
 ## Data Content API. Tentative URL: data.datamart.isi.edu
