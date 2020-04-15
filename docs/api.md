@@ -40,3 +40,37 @@ The metadata API supports the following operations:
 Example: TBD, full dataset with variables.
 
 `PUT /dataset/id` -- Modifies a given dataset with the content provided in the JSON request. This request will REPLACE the contents from id. The contents are not added incrementally. For example, if a dataset had an author and the PUT request contains another author, the latter will replace the former.
+
+## Data Content API. Tentative URL: data.datamart.isi.edu
+
+The data content API supports the following operations:
+
+`GET /datasets`: Returns a list of dataset ids.
+* Returns: list of `dataset_id`s
+
+`GET /datasets/id`: Returns the raw dataset that was uploaded. Raw data could be in any format, such as CSV, TSV, PDF, images, zip and so on. 
+* Returns raw dataset identified by `id`
+
+`GET /datasets/id/variables`: Returns list of variables associated with dataset `id`
+* Returns: list of dataset variables 
+
+`GET /datasets/id/variables/id`: Returns a CSV in canonical data format for the specified dataset and variable.
+* Parameters: Parameters specifying the download content
+  * `include`: additional columns to download
+    * Example: `&include=country_id,admin1_id`
+  * `exclude`: exclude columns from download
+    * Example: `&exclude=coordinate`
+* Returns: dataset CSV in canonical format.
+* Example:
+  * `GET data.datamart.isi.edu/food_dataset/variable/production`: Get a CSV table of crop productions
+  * `GET data.datamart.isi.edu/food_dataset/variable/area&include=admin1_id`: Get a CSV table of land area used for crop productions, and include the `admin2_id` column in the table.
+  
+## Aggregation of Data Content API
+
+`GET /datasets/id/variable/id?group-by=column&operator=function`: Return aggregated dataset in canonical data format. 
+* Parameters:
+  * `group-by`: specifies the column to use for aggregation
+  * `operator`: specifies the function to use for aggregation
+* Returns: dataset CSV in canonical format
+* Example:
+  * `GET data.datamart.isi.edu/food_dataset/variable/production?group-by=admin1_id&operator=sum`: Get food production aggregated at the` admin1` region level.
