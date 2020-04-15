@@ -17,13 +17,13 @@ The metadata API supports the following operations:
 `GET /datasets`: Returns all datasets. 
 
 * Parameters: We support filtering datasets according to the following parameters:
-  * `name`: name of the dataset. 
+  - `name`: name of the dataset. 
     * Example: `&name=fbiData2009`
-  * `geo`: Spatial location:
+  - `geo`: Spatial location:
     * Example: `&geo=33.946799,-118.4307395,15z`
-  * `intersects`: Intersection if the dataset location with a bounding box in format [lonmin,lonmax,latmin,latmax]
+  - `intersects`: Intersection if the dataset location with a bounding box in format [lonmin,lonmax,latmin,latmax]
     * Example: `&intersects=84.7142,-76.7142,14.9457,22.945`
-  * `keyword`: A relevant keyword (or keyword list separated by ",") that points to relevant variables, subjects or location of the dataset.
+  - `keyword`: A relevant keyword (or keyword list separated by ",") that points to relevant variables, subjects or location of the dataset.
     * Example: `&keyword=maize,ethiopia`
 * Returns: list of [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
