@@ -21,14 +21,19 @@ The metadata API supports the following operations:
   - `name`: name of the dataset. 
   
     * Example: `&name=fbiData2009`
+  
   - `geo`: Spatial location:
   
     * Example: `&geo=33.946799,-118.4307395,15z`
+  
   - `intersects`: Intersection if the dataset location with a bounding box in format [lonmin,lonmax,latmin,latmax]
+  
     * Example: `&intersects=84.7142,-76.7142,14.9457,22.945`
+  
   - `keyword`: A relevant keyword (or keyword list separated by ",") that points to relevant variables, subjects or location of the dataset.
   
     * Example: `&keyword=maize,ethiopia`
+  
 * Returns: list of [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
 `GET /datasets/id`: Returns the metadata of the dataset identified by `id`.
@@ -56,8 +61,10 @@ The metadata API supports the following operations:
 The data content API supports the following operations:
 
 `GET /datasets`: Not supported
+
 * Returns: 403 (forbidden)
-  * Temporarily disabled (under discussion)
+
+  - Temporarily disabled (under discussion)
 
 `GET /datasets/id`: Returns the raw dataset in its original format. Raw data could be in any format, such as CSV, TSV, PDF, images, zip, etc. 
 
