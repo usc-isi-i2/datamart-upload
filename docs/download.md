@@ -71,7 +71,7 @@ Qualifiers can appear as additional columns in canonical data files for variable
 
 For upload, Datamart will provide little or no understanding of qualifier columns; Datamart will automatically detect common data types such as numbers and dates, and store them appropriately to support range queries. The user in the loop curation tools will provide additional support for qualifier columns, normalizing values by linking them to Wikidata.
 
-## Upload Examples
+## Examples
 
 ### Country Population
 The following table is an example of a simple canonical data file for a variable called `population`.
