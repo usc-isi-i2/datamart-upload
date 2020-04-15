@@ -88,5 +88,5 @@ The data content API supports the following operations:
   
 **_-Returns_**: dataset CSV in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format)
 
-* Example:
+**_-Example_**:
   - `GET data.datamart.isi.edu/food_dataset/variable/production?group-by=admin1_id&operator=sum`: Get food production aggregated at the` admin1` region level.
