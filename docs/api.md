@@ -27,16 +27,16 @@ The metadata API supports the following operations:
 * Returns: list of [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
 `GET /datasets/id`: Returns the dataset metadata identified by id.
-* Returns: Dataset [See Dataset Definition]
+* Returns: [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
-GET /datasets/id/variables: Returns all variable metadata in a dataset. No additional parameters are defined.
+`GET /datasets/id/variables`: Returns all variable metadata in a dataset. No additional parameters are defined.
   Returns: list [Variable] [See Variable Definition]
   Example: TBD
 
-GET /datasets/id/variables/id: 
+`GET /datasets/id/variables/id`: 
   Examples: TBD
 
-POST /dataset -- Creates a new dataset record. If variables are provided, they are expected to be included in the original POST request. 
+`POST /dataset` -- Creates a new dataset record. If variables are provided, they are expected to be included in the original POST request. 
 Example: TBD, full dataset with variables.
 
-PUT /dataset/id -- Modifies a given dataset with the content provided in the JSON request. This request will REPLACE the contents from id. The contents are not added incrementally. For example, if a dataset had an author and the PUT request contains another author, the latter will replace the former.
+`PUT /dataset/id` -- Modifies a given dataset with the content provided in the JSON request. This request will REPLACE the contents from id. The contents are not added incrementally. For example, if a dataset had an author and the PUT request contains another author, the latter will replace the former.
