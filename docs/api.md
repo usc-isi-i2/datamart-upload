@@ -3,7 +3,7 @@
 * **API Version**: 0.0.1
 * **Release date**: [Discussion DRAFT]
 * **Uses Dataset Metadata version schema**: 0.0.1
-* **Uses Dataset version schema**: 0.0.2
+* **Uses Dataset version schema**: 0.0.3
 * **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
 
 Datamart exposes two main APIs: a **Dataset metadata API**, where developers may retrieve metadata about datasets and variables; and a **Dataset content API**, where developers may download datasets and their variable time series.
