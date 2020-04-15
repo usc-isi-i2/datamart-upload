@@ -75,7 +75,7 @@ The data content API supports the following operations:
 **_-Example_**:
 
   * `GET data.datamart.isi.edu/food_dataset/variable/production`: Get a CSV table of crop productions
-  * `GET data.datamart.isi.edu/food_dataset/variable/area&include=admin1_id`: Get a CSV table of land area used for crop productions, and include the `admin2_id` column in the table.
+  * `GET data.datamart.isi.edu/food_dataset/variable/area&include=admin1_id`: Get a CSV table of land area used for crop productions, and include the `admin1_id` column in the table.
   
 ## Aggregation of Data Content API
 
