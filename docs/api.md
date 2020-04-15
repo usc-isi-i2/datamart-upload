@@ -82,6 +82,7 @@ The data content API supports the following operations:
 **`GET /datasets/id/variable/id?group-by=column&operator=function`**: Return aggregated dataset in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format). 
 
 **_-Parameters_**:
+
   * `group-by`: specifies the column to use for aggregation
   * `operator`: specifies the function to use for aggregation
   
