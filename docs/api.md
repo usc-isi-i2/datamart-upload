@@ -6,7 +6,7 @@
 * **Uses Dataset version schema**: 0.0.2
 * **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
 
-Datamart exposes two main APIs: a Dataset metadata API, where developers may retrieve metadata about datasets and variables; and a dataset content API, where developers may download datasets and their variable time series.
+Datamart exposes two main APIs: a **Dataset metadata API**, where developers may retrieve metadata about datasets and variables; and a **Dataset content API**, where developers may download datasets and their variable time series.
 
 !!! info
     The metadata API follows the Dataset schema in [https://datamart-upload.readthedocs.io/en/latest/](https://datamart-upload.readthedocs.io/en/latest/). The content API follows the schema in  [https://datamart-upload.readthedocs.io/en/latest/download/](https://datamart-upload.readthedocs.io/en/latest/download/) 
@@ -27,35 +27,35 @@ The metadata API supports the following operations:
     * Example: `&keyword=maize,ethiopia`
 * Returns: list of [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
-`GET /datasets/id`: Returns the dataset metadata identified by id.
+`GET /datasets/id`: Returns the metadata of the dataset identified by `id`.
 
 * Returns: [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
-`GET /datasets/id/variables`: Returns all variable metadata in a dataset. No additional parameters are defined.
-  Returns: list [Variable] [See Variable Definition]
-  Example: TBD
+`GET /datasets/id/variables`: Returns all variable metadata in a dataset identified by `id`. 
+* Returns: list [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata)
+  
+`GET /datasets/id/variables/id2`: Returns the variable `id2` in the dataset identified by `id`
+* Returns: [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata)
 
-`GET /datasets/id/variables/id`: 
-  Examples: TBD
+`POST /dataset`: Creates a new dataset record (See the [Dataset metadata schema](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) for more information about required and optional fields). If the dataset contains variables, they should be part of the POST request (there is no additional POST path for variables). 
+* Returns: Status code. 201 (created) if successful, along with the dataset id. 
 
-`POST /dataset` -- Creates a new dataset record. If variables are provided, they are expected to be included in the original POST request. 
-Example: TBD, full dataset with variables.
-
-`PUT /dataset/id` -- Modifies a given dataset with the content provided in the JSON request. This request will REPLACE the contents from id. The contents are not added incrementally. For example, if a dataset had an author and the PUT request contains another author, the latter will replace the former.
+`PUT /dataset/id`: **REPLACES** the entry of the dataset identified by `id` with the JSON received in the request. Contents **are not** added incrementally. For example, if a dataset had an author and the PUT request contains another author, the latter will replace the former.
+* Returns: Status code. 200 if successful.
 
 ## Data Content API. Tentative URL: data.datamart.isi.edu
 
 The data content API supports the following operations:
 
-`GET /datasets`: Returns a list of dataset ids.
+`GET /datasets`: Returns a list of all available dataset ids.
 
 * Returns: list of `dataset_id`s
 
-`GET /datasets/id`: Returns the raw dataset that was uploaded. Raw data could be in any format, such as CSV, TSV, PDF, images, zip and so on. 
+`GET /datasets/id`: Returns the raw dataset in its original format. Raw data could be in any format, such as CSV, TSV, PDF, images, zip, etc. 
 
-* Returns raw dataset identified by `id`
+* Returns: raw dataset identified by `id`
 
-`GET /datasets/id/variables`: Returns list of variables associated with dataset `id`
+`GET /datasets/id/variables`: Returns list of the variables associated with dataset `id`
 
 * Returns: list of dataset variables 
 
