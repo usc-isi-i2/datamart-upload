@@ -54,25 +54,27 @@ The canonical data format supports a large number of columns, which provide sign
 | `admin3`          | string     | o  | O    | Third-level administrative country subdivision, such as municipalities in USA or woredas in Ethiopia.  This attribute is optional for upload, and will be inferred automatically from geospatial coordinates if provided. For download, the admin3 will be formatted using the Wikipedia English label.  | Goba  |
 | `admin3_id`       | string     | o  | o    | Wikidata identifier for the third-level administrative country subdivision  | [Q3109573](https://www.wikidata.org/wiki/Q3109573)  (Goba)) |
 | `place`           | string     | o  | O    | Geographic place, such as cities, neighborhoods, mountains, lakes, etc. This attribute is used to specify places that do not fit into any of the other attributes for geopolitical entities. For upload any string can be entered and the system will attempt to link it to a place in Wikidata (geonames). If linking is possible and unambiguous the Wikidata identifier will be recorded in `place_id`.   | Addis Ababa    |
-| `place_id`        | string     | o  | o    | Wikidata identifier for a place. This attribute is optional for upload, if not provided the system will attempt to infer it from the value of the `place` attribute if provided. | [Q3624](https://www.wikidata.org/wiki/Q3624)                                                                                      |
-| `coordinate`      | string     | o  | O    | Latitude and longitude coordinates in [WKT format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry).                                                                                                                                                                                                                                                                                      | POINT(9.001 38.757)                                                                                                               |
-| `shape`           | string     | o  | o    | Geometric shape in [WKT format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry)                                                                                                                                                                                                                                                                                                          | POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))                                                                                     |
+| `place_id`        | string     | o  | o    | Wikidata identifier for a place. This attribute is optional for upload, if not provided the system will attempt to infer it from the value of the `place` attribute if provided. | [Q3624](https://www.wikidata.org/wiki/Q3624) <br/> (Addis Ababa)  |
+| `coordinate`      | string     | o  | O    | Latitude and longitude coordinates in [WKT format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry). This attribute is optional for upload. If not provided, it will be inferred from the shape, if provided, otherwise from the lowest level admin level or place provided. | POINT(9.001 38.757)                                                                                                               |
+| `shape`           | string     | o  | o    | Geometric shape in [WKT format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry). This attribute is not inferred if not provided.  | POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))  |
 
+### Qualifiers
 
-Qualifiers represent additional information to fully specify the context for the measurement of a variable. These qualifiers are
-specific to individual datasets. For example, the value of the population value may be for a certain ethnicity, age group or
-gender. The following example shows how to specify the context for gender and age.
+The table above specifies the standard columns in the canonical data format. In many applications, it is useful or necessary to supply additional information to fully specify the context for the measurement of a variable. __Qualifiers__ are an extension mechanism to specify additional attributes for a variable. Each variable may have its own collection of qualifiers.
+For example, a `population` variable may include qualifiers to specify that population values are for a specific ethnicity, age group or
+gender; a `number of casualties` variable may include qualifiers to distinguish civilian or combatant casualties.
 
-| Column Name           | Type   | Up | Down | Description                     | Examples                                                                               |
-|-----------------------|--------|:--:|:----:|---------------------------------|----------------------------------------------------------------------------------------|
-| `qualifier_gender`    | string | o  | O    | Column for the gender qualifier | male <br/> female                                                                      |
-| `qualifier_gender_id` | string | o  | o    | Identifier for gender qualifier | [Q48277](https://www.wikidata.org/wiki/Q48277)                                         |
-| `qualifier_age`       | string | o  | O    | Column for the age qualifier    | Under 18 years old <br/> 18-30 years old <br/> 30-59 years old <br/> 60 years or older |
-| `qualifier_age_id`    | string | o  | o    | Identifier for age qualifier    | [Q185836](https://www.wikidata.org/wiki/Q185836)                                       |
+Qualifiers can appear as additional columns in canonical data files for variables. The following conventions are used:
+
+- Any column whose name is different from the names used in the table above will be interpreted as a column containing qualifier information.
+- Columns with suffix `_id` will be interpreted as containing identifiers for another column. For example, `gender_id` is interpreted as containing identifiers for a `gender` column.
+
+For upload, Datamart will provide little or no understanding of qualifier columns; Datamart will automatically detect common data types such as numbers and dates, and store them appropriately to support range queries. The user in the loop curation tools will provide additional support for qualifier columns, normalizing values by linking them to Wikidata.
 
 ## Upload Examples
 
-Upload country-level population data by year.
+### Country Population
+The following table is an example of a simple canonical data file for a variable called `population`.
 
 | variable   | value       | time | country  |
 |------------|-------------|------|----------|
@@ -81,6 +83,27 @@ Upload country-level population data by year.
 | population | 320,000,000 | 2018 | USA      |
 | population | 328,000,000 | 2019 | USA      |
 
+When this table is uploaded to Datamart, it will automatically perform the following enhancements:
+
+- Identify whether a `population` variable exists in Datamart and reuse it, otherwise define a new variable and identifier.
+- Define a new dataset. If a dataset column had been provided, the variable would be made part of an existing dataset.
+- Parse the values as numbers assuming American conventions for commas and decimal points.
+- Convert the times to ISO format and automatically determine the precision as year.
+- Link the countries to Wikidata so that country names are standardized (United States of America instead of USA), and support downloading the country identifiers to support accurate joins.
+- Infer `country` as the main subject of the variable.
+
+When a client downloads the variable, it will be default include additional columns as show below. Note: the API enables clients to configure the set of optional columns present in the downloaded files; the API also supports downloading the raw uploaded file.
+
+
+| variable   | variable_id | main_subject | value       | time                | time_precision | country  | country_id | coordinate |
+|------------|-------------|--------------|------------:|---------------------|----------------|----------|------------|------------|
+| population | P1082       | Ethiopia     |100000000 | 2018-01-01T00:00:00 | year           | Ethiopia | Q115       | POINT(9°N, 40°E) |
+| population | P1082       | Ethiopia     |109000000 | 2019-01-01T00:00:00 | year           | Ethiopia | Q115       | POINT(9°N, 40°E) |
+| population | P1082       | United States of America | 320000000 | 2018-01-01T00:00:00 | year | United States of America | Q30 | POINT(38°53'42"N, 77°2'12"W) |
+| population | P1082       | United States of America | 328000000 | 2019-01-01T00:00:00 | year | United States of America | Q30 | POINT(38°53'42"N, 77°2'12"W) |
+
+
+### Production Data
 
 Upload admin1-level (region-level) food production data. In this example the units (M quintal) are written in line with the values. The units also could have been separated out in this own value_unit column, or included in the column header.
 
@@ -91,6 +114,17 @@ Upload admin1-level (region-level) food production data. In this example the uni
 | production | maize        | 2.234 M quintal | 2017-01-01T00:00:00 | Oromia |
 | production | teff         | 3.356 M quintal | 2017-01-01T00:00:00 | Oromia |
 
+Download food production data with optional identifier columns.
+
+| variable   | variable_id | main_subject | main\_subject\_id | value | value_unit | time                | time_precision | country  | country_id | admin1 | admin1_id |
+|------------|-------------|--------------|-----------------|-------|------------|---------------------|----------------|----------|------------|--------|-----------|
+| production | P1092       | maize        | Q25618328       | 1.182 | M quintal  | 2016-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
+| production | P1092       | teff         | Q843942         | 2.345 | M quintal  | 2016-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
+| production | P1092       | maize        | Q25618328       | 2.234 | M quintal  | 2017-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
+| production | P1092       | teff         | Q843942         | 3.356 | M quintal  | 2017-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
+
+### Grid Data
+
 Upload grid data of precipitation for the month of June 2016. In this example, the precipitation unit is included in the column header.
 
 | variable | value in mm |    time | time_precision | coordinate        |
@@ -100,36 +134,10 @@ Upload grid data of precipitation for the month of June 2016. In this example, t
 | rain     |         550 | 2016-06 | month          | POINT(9.15 40.80) |
 | rain     |         528 | 2016-06 | month          | POINT(9.25 40.80) |
 
-## Download Examples
-
-Download original population data.
-
-| variable   | value       | time                | country  |
-|------------|-------------|---------------------|----------|
-| population | 100,000,000 | 2018-01-01T00:00:00 | Ethiopia |
-| population | 109,000,000 | 2019-01-01T00:00:00 | Ethiopia |
-| population | 320,000,000 | 2018-01-01T00:00:00 | USA      |
-| population | 328,000,000 | 2019-01-01T00:00:00 | USA      |
-
-Download population data with optional identifier columns.
 
 
-| variable   | variable_id | value       | time                | time_precision | country  | country_id |
-|------------|-------------|-------------|---------------------|----------------|----------|------------|
-| population | P1082       | 100,000,000 | 2018-01-01T00:00:00 | year           | Ethiopia | Q115       |
-| population | P1082       | 109,000,000 | 2019-01-01T00:00:00 | year           | Ethiopia | Q115       |
-| population | P1082       | 320,000,000 | 2018-01-01T00:00:00 | year           | USA      | Q30        |
-| population | P1082       | 328,000,000 | 2019-01-01T00:00:00 | year           | USA      | Q30        |
 
 
-Download food production data with optional identifier columns.
-
-| variable   | variable_id | main_subject | main\_subject\_id | value | value_unit | time                | time_precision | country  | country_id | admin1 | admin1_id |
-|------------|-------------|--------------|-----------------|-------|------------|---------------------|----------------|----------|------------|--------|-----------|
-| production | P1092       | maize        | Q25618328       | 1.182 | M quintal  | 2016-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
-| production | P1092       | teff         | Q843942         | 2.345 | M quintal  | 2016-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
-| production | P1092       | maize        | Q25618328       | 2.234 | M quintal  | 2017-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
-| production | P1092       | teff         | Q843942         | 3.356 | M quintal  | 2017-01-01T00:00:00 | year           | Ethiopia | Q115       | Oromia | Q202107   |
 
 
 <!-- Download data with multiple variables. -->
