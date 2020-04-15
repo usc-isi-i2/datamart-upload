@@ -3,8 +3,8 @@
 
 This page describes the data format returned by ISI Datamart.
 
-* **Schema Version**: 0.0.2
-* **Release date**: April 14th, 2020
+* **Schema Version**: 0.0.3
+* **Release date**: April 15th, 2020
 * **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
 
 # Canonical Data Format
