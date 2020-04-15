@@ -47,38 +47,38 @@ The metadata API supports the following operations:
 
 The data content API supports the following operations:
 
-`GET /datasets`: Returns a list of all available dataset ids.
-
-* Returns: list of `dataset_id`s
+`GET /datasets`: Not supported
+* Returns: 403 (forbidden)
+  * Temporarily disabled (under discussion)
 
 `GET /datasets/id`: Returns the raw dataset in its original format. Raw data could be in any format, such as CSV, TSV, PDF, images, zip, etc. 
 
 * Returns: raw dataset identified by `id`
 
-`GET /datasets/id/variables`: Returns list of the variables associated with dataset `id`
+`GET /datasets/id/variables`: Returns a CSV with the variables included in the dataset identified by `id`. The results follow the [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format), and do not include qualifiers.
 
-* Returns: list of dataset variables 
+* Returns: list of the variables included in the dataset, in the [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format) 
 
-`GET /datasets/id/variables/id`: Returns a CSV in canonical data format for the specified dataset and variable.
+`GET /datasets/id/variables/id`: Returns a CSV in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format) for the specified dataset and variable.
 
-* Parameters: Parameters specifying the download content
+* Parameters: 
 
   - `include`: additional columns to download
     * Example: `&include=country_id,admin1_id`
   - `exclude`: exclude columns from download
     * Example: `&exclude=coordinate`
-* Returns: dataset CSV in canonical format.
+* Returns: dataset CSV in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format)
 * Example:
   - `GET data.datamart.isi.edu/food_dataset/variable/production`: Get a CSV table of crop productions
   - `GET data.datamart.isi.edu/food_dataset/variable/area&include=admin1_id`: Get a CSV table of land area used for crop productions, and include the `admin2_id` column in the table.
   
 ## Aggregation of Data Content API
 
-`GET /datasets/id/variable/id?group-by=column&operator=function`: Return aggregated dataset in canonical data format. 
+`GET /datasets/id/variable/id?group-by=column&operator=function`: Return aggregated dataset in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format). 
 
 * Parameters:
   - `group-by`: specifies the column to use for aggregation
   - `operator`: specifies the function to use for aggregation
-* Returns: dataset CSV in canonical format
+* Returns: dataset CSV in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format)
 * Example:
   - `GET data.datamart.isi.edu/food_dataset/variable/production?group-by=admin1_id&operator=sum`: Get food production aggregated at the` admin1` region level.
