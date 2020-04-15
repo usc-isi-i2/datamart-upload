@@ -15,6 +15,7 @@ Datamart exposes two main APIs: a Dataset metadata API, where developers may ret
 The metadata API supports the following operations:
 
 `GET /datasets`: Returns all datasets. 
+
 * Parameters: We support filtering datasets according to the following parameters:
   * `name`: name of the dataset. 
     * Example: `&name=fbiData2009`
@@ -27,6 +28,7 @@ The metadata API supports the following operations:
 * Returns: list of [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
 `GET /datasets/id`: Returns the dataset metadata identified by id.
+
 * Returns: [`Dataset`](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) 
 
 `GET /datasets/id/variables`: Returns all variable metadata in a dataset. No additional parameters are defined.
@@ -46,15 +48,18 @@ Example: TBD, full dataset with variables.
 The data content API supports the following operations:
 
 `GET /datasets`: Returns a list of dataset ids.
+
 * Returns: list of `dataset_id`s
 
 `GET /datasets/id`: Returns the raw dataset that was uploaded. Raw data could be in any format, such as CSV, TSV, PDF, images, zip and so on. 
+
 * Returns raw dataset identified by `id`
 
 `GET /datasets/id/variables`: Returns list of variables associated with dataset `id`
 * Returns: list of dataset variables 
 
 `GET /datasets/id/variables/id`: Returns a CSV in canonical data format for the specified dataset and variable.
+
 * Parameters: Parameters specifying the download content
   * `include`: additional columns to download
     * Example: `&include=country_id,admin1_id`
@@ -68,6 +73,7 @@ The data content API supports the following operations:
 ## Aggregation of Data Content API
 
 `GET /datasets/id/variable/id?group-by=column&operator=function`: Return aggregated dataset in canonical data format. 
+
 * Parameters:
   * `group-by`: specifies the column to use for aggregation
   * `operator`: specifies the function to use for aggregation
