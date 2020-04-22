@@ -47,7 +47,7 @@ The canonical data format supports a large number of columns, which provide sign
 | `time_precision`  | string     | o  | O    | Precision of the time (second, minute, hour, day, month, year). On download, times will are formatted in ISO format with second precision for easy parsing. The `time_precision` attribute specifies the intended precision, and is useful for determining how to format the axis of charts. For upload, the time precision is optional and if not provided is inferred automatically. | year |
 | `country`         | string     | o  | O    | The country associated with the location information of the variable value. The country is optional for upload; if not provided, it will be automatically inferred from other geospatial attributes, or left empty. For download, the country will be present if it was provided on upload or inferred. The country will be formatted using the Wikipedia English label.   | Ethiopia                                                                                                                          |
 | `country_id`      | string     | o  | o    | The Wikidata identifier for the country.  | [Q115](https://www.wikidata.org/wiki/Q115) (Ethiopia)|
-| `admin1`          | string     | o  | O    | First-level administrative country subdivision, such states in USA, provinces in Canada, and regions in Ethiopia. This attribute is optional for upload, and will be inferred automatically from lower level admin attributes or geospatial coordinates if provided. For download, the admin1 will be formatted using the Wikipedia English label.  | Oromia Region <br/> California |
+| `admin1`          | string     | o  | O    | First-level administrative country subdivision, such as states in USA, provinces in Canada, and regions in Ethiopia. This attribute is optional for upload, and will be inferred automatically from lower level admin attributes or geospatial coordinates if provided. For download, the admin1 will be formatted using the Wikipedia English label.  | Oromia Region <br/> California |
 | `admin1_id`       | string     | o  | o    | Wikidata identifier for the first-level administrative country subdivision.    | [Q202107](https://www.wikidata.org/wiki/Q202107) <br/> (Oromia Region)                                                                               |
 | `admin2`          | string     | o  | O    | Second-level administrative country subdivision, such as counties in USA and zones in Ethiopia. This attribute is optional for upload, and will be inferred automatically from lower level admin attributes or geospatial coordinates if provided. For download, the admin2 will be formatted using the Wikipedia English label.      | Bale Zone         |
 | `admin2_id`       | string     | o  | o    | Wikidata identifier for the second-level administrative country subdivision.      | [Q804883](https://www.wikidata.org/wiki/Q804883) <br/> (Bale Zone)  |
@@ -97,10 +97,10 @@ When a client downloads the variable, it will be default include additional colu
 
 | variable   | variable_id | main_subject | value       | time                | time_precision | country  | country_id | coordinate |
 |------------|-------------|--------------|------------:|---------------------|----------------|----------|------------|------------|
-| population | P1082       | Ethiopia     |100000000 | 2018-01-01T00:00:00 | year           | Ethiopia | Q115       | POINT(9°N, 40°E) |
-| population | P1082       | Ethiopia     |109000000 | 2019-01-01T00:00:00 | year           | Ethiopia | Q115       | POINT(9°N, 40°E) |
-| population | P1082       | United States of America | 320000000 | 2018-01-01T00:00:00 | year | United States of America | Q30 | POINT(38°53'42"N, 77°2'12"W) |
-| population | P1082       | United States of America | 328000000 | 2019-01-01T00:00:00 | year | United States of America | Q30 | POINT(38°53'42"N, 77°2'12"W) |
+| population | P1082       | Ethiopia     |100000000 | 2018-01-01T00:00:00 | year           | Ethiopia | Q115       | POINT(9.145 40.490) |
+| population | P1082       | Ethiopia     |109000000 | 2019-01-01T00:00:00 | year           | Ethiopia | Q115       | POINT(9.145 40.490) |
+| population | P1082       | United States of America | 320000000 | 2018-01-01T00:00:00 | year | United States of America | Q30 | POINT(37.090 -95.713) |
+| population | P1082       | United States of America | 328000000 | 2019-01-01T00:00:00 | year | United States of America | Q30 | POINT(37.090 -95.713) |
 
 
 ### Production Data
