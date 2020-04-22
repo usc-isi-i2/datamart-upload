@@ -116,7 +116,7 @@ Some variables may belong to already existing CSVs, and therefore we may have in
 {
 	"name": "Number of homicides worldwide",
 	"shortName": "Number of homicides",
-	"description": "Food production index, calculated from ...",
+	"description": "Number of homicides per country/year as collected by ...",
 	"mainSubject": ["USA", "Ethiopia"],
 	"startTime": "2000",
 	"endTime": "2020",
