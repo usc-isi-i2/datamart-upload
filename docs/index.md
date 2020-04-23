@@ -128,7 +128,7 @@ Some variables may belong to already existing CSVs, and therefore we may have in
 } 
 ```
 
-## Acknnowledgements:
+## Acknowledgements:
 We have used [Wikidata](wikidata.org/) and [Schema.org](schema.org/) as reference schemas to build the Datamart Dataset Schema. We have also used the [Google Dataset Search guide](https://developers.google.com/search/docs/data-types/dataset) as a reference for structuring our suggested minimum and required properties.
 
 ---------
