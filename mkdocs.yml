@@ -3,6 +3,7 @@ nav:
   - Dataset Metadata Schema: index.md
   - Data Schema: download.md
   - APIs: api.md
+  - API Tutorial: REST-API-tutorial.md
 theme: 
   name: material
   logo: 'logo.png'

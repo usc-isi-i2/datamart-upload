@@ -78,10 +78,10 @@ Dataset variables describe the contents of a table (typically a column). When de
 | `shortName` [[P1813](https://www.wikidata.org/wiki/Property:P1813)]|  __*Expected value*__: **String**<br/>__*Description*__: Short name of the Variable in the table. This corresponds to the header used in the corresponding column of the table <br/>__*Example*__: "Homicides" <br/>__*Example*__: "H" |
 | `description` [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the Variable and its context <br/>__*Example*__: "The number of homicides in a region."                          |
 | `identifier` [[schema:identifier](https://schema.org/identifier)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the variable in Wikidata. If provided, this value helps Datamart relating the variable to other variables that measure the same thing <br/>__*Example*__: [https://www.wikidata.org/wiki/Property:P2284](https://www.wikidata.org/wiki/Property:P2284) (for price)                     |
- | `mainSubject` [[P921](https://www.wikidata.org/wiki/Property:P921)]|  __*Expected value*__: **String** (will be mapped to QNode)<br/>__*Description*__: Primary topic(s) of a Variable. This property may be used to identify all the entities described by the variable <br/>__*Example*__: "USA" ([Q30](https://www.wikidata.org/wiki/Q30)) <br/>__*Example*__: "Burundi"([Q967](https://www.wikidata.org/wiki/Q967)) | 
+ | `mainSubject` [[P921](https://www.wikidata.org/wiki/Property:P921)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Primary topic(s) of a variable. This property may be used to identify all the entities described by the variable. Each main subject is described by an identifier and a name. <br/>__*Example*__: {"name":"USA", "identifier": "[https://www.wikidata.org/wiki/Q30](https://www.wikidata.org/wiki/Q30)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} | 
 | `unitOfMeasure` [[wikibase:quantityUnit](http://wikiba.se/ontology#quantityUnit)]|  __*Expected value*__: **String** (Will be mapped to QNode)<br/>__*Description*__: Unit of measurement used to measure the variable value.  <br/>__*Example*__: "Ethiopian Dollars per Kilogram" <br/>__*Example*__: "ETB/Kg" |
-| `country` [[P17](https://www.wikidata.org/wiki/Property:P17)]|  __*Expected value*__: **String** (will be mapped to QNode)<br/>__*Description*__: Country where the dataset observations were collected <br/>__*Example*__: "USA" ([Q30](https://www.wikidata.org/wiki/Q30)) <br/>__*Example*__: "Burundi"([Q967](https://www.wikidata.org/wiki/Q967)) |
-| `location` [[P276](https://www.wikidata.org/wiki/Property:P276)]|  __*Expected value*__: **String** (will be mapped to QNode)<br/>__*Description*__: Location of the Dataset <br/>__*Example*__: "Los Angeles" ([Q65](https://www.wikidata.org/wiki/Q65)) <br/>__*Example*__: "Burundi"([Q967](https://www.wikidata.org/wiki/Q967)) |
+| `country` [[P17](https://www.wikidata.org/wiki/Property:P17)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Country where the variable observations were collected. Each country is described by a name and an identifier <br/>__*Example*__: {"name":"USA", "identifier": "[https://www.wikidata.org/wiki/Q30](https://www.wikidata.org/wiki/Q30)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} |
+| `location` [[P276](https://www.wikidata.org/wiki/Property:P276)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Location of the variable. Each location is described with a name and an identifier  <br/>__*Example*__: {"name":"Los Angeles", "identifier":"[https://www.wikidata.org/wiki/Q65](https://www.wikidata.org/wiki/Q65)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} |
 | `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset starts collecting observationsThe value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset stops collecting observations. The value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `dataInterval` [[P921](https://www.wikidata.org/wiki/Property:P921)]|  __*Expected value*__: **String [Hourly ([Q59657010](https://www.wikidata.org/wiki/Q59657010)) OR Daily ([Q59657036](https://www.wikidata.org/wiki/Q59657036)) OR Monthly ([Q59657037](https://www.wikidata.org/wiki/Q59657037))]** <br/>__*Description*__: Interval at which the observations are collected in the dataset.  |
@@ -100,9 +100,14 @@ The following JSON snippet below illustrates an example of the metadata of the f
 	"shortName": "FPI",
 	"identifier": "https://datamart.isi.edu/wiki/Property:P110026",
 	"description": "Food production index, calculated from ...",
-	"mainSubject": ["Kercha", "Liben"],
+	"mainSubject": [
+		{"name":"Kercha", 
+		"identifier":"https://www.wikidata.org/wiki/Q6393737"},
+		{"name":"Liben", 
+		"identifier":"https://www.wikidata.org/wiki/Q3237714"}],
 	"unitOfMeasure": "tonnes/year",
-	"country": "Ethiopia",
+	"country": [{"name":"Ethiopia", 
+		"identifier":"https://www.wikidata.org/wiki/Q115"}],
 	"startTime": "1993",
 	"endTime": "2016",
 	"endTime_precision": "Year",
@@ -117,7 +122,11 @@ Some variables may belong to already existing CSVs, and therefore we may have in
 	"name": "Number of homicides worldwide",
 	"shortName": "Number of homicides",
 	"description": "Number of homicides per country/year as collected by ...",
-	"mainSubject": ["USA", "Ethiopia"],
+	"mainSubject":[
+		{"name":"United States of America", 
+		"identifier":"https://www.wikidata.org/wiki/Q30"},
+		{"name":"Ethiopia", 
+		"identifier":"https://www.wikidata.org/wiki/Q115"}],
 	"startTime": "2000",
 	"endTime": "2020",
 	"endTime_precision": "Year",
