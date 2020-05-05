@@ -105,7 +105,7 @@ The following JSON snippet below illustrates an example of the metadata of the f
 		"identifier":"https://www.wikidata.org/wiki/Q6393737"},
 		{"name":"Liben", 
 		"identifier":"https://www.wikidata.org/wiki/Q3237714"}],
-	"unitOfMeasure": "tonnes/year",
+	"unitOfMeasure": ["tonnes/year"],
 	"country": [{"name":"Ethiopia", 
 		"identifier":"https://www.wikidata.org/wiki/Q115"}],
 	"startTime": "1993",
