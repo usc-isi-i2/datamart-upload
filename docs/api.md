@@ -54,6 +54,10 @@ The metadata API supports the following operations:
   * `intersects`: Intersection if the variable location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945`
   * `keyword`: A relevant keyword (or keyword list separated by ",") that points to relevant aspects of the variable **Example**: `&keyword=production,ethiopia`
 
+**`GET /variables/id`**: Returns the metadata of the variable identified by `id`.
+
+**_-Returns_**: [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) 
+
 ## Data Content API. Tentative URL: data.datamart.isi.edu
 
 The data content API supports the following operations:
