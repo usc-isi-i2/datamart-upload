@@ -77,15 +77,16 @@ Dataset variables describe the contents of a table (typically a column). When de
 | ------------- |:-------------| 
 | `shortName` [[P1813](https://www.wikidata.org/wiki/Property:P1813)]|  __*Expected value*__: **String**<br/>__*Description*__: Short name of the Variable in the table. This corresponds to the header used in the corresponding column of the table <br/>__*Example*__: "Homicides" <br/>__*Example*__: "H" |
 | `description` [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the Variable and its context <br/>__*Example*__: "The number of homicides in a region."                          |
-| `identifier` [[schema:identifier](https://schema.org/identifier)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the variable in Wikidata. If provided, this value helps Datamart relating the variable to other variables that measure the same thing <br/>__*Example*__: [https://www.wikidata.org/wiki/Property:P2284](https://www.wikidata.org/wiki/Property:P2284) (for price)                     |
+| `correspondsToProperty` [[P1687](https://www.wikidata.org/wiki/Property:P1687)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the variable in Wikidata. If provided, this value helps Datamart relating the variable to other variables that measure the same thing <br/>__*Example*__: [https://www.wikidata.org/wiki/Property:P2284](https://www.wikidata.org/wiki/Property:P2284) (for price)                     |
  | `mainSubject` [[P921](https://www.wikidata.org/wiki/Property:P921)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Primary topic(s) of a variable. This property may be used to identify all the entities described by the variable. Each main subject is described by an identifier and a name. <br/>__*Example*__: {"name":"USA", "identifier": "[https://www.wikidata.org/wiki/Q30](https://www.wikidata.org/wiki/Q30)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} | 
-| `unitOfMeasure` [[wikibase:quantityUnit](http://wikiba.se/ontology#quantityUnit)]|  __*Expected value*__: **List[String]** (Will be mapped to QNode)<br/>__*Description*__: Unit of measurement used to measure the variable value.  <br/>__*Example*__: "Ethiopian Dollars per Kilogram" <br/>__*Example*__: "ETB/Kg" |
+| `unitOfMeasure` [[P1880](https://www.wikidata.org/wiki/Property:P1880)]|  __*Expected value*__: **List[String]** (Will be mapped to QNode)<br/>__*Description*__: Unit of measurement used to measure the variable value.  <br/>__*Example*__: "Ethiopian Dollars per Kilogram" <br/>__*Example*__: "ETB/Kg" |
 | `country` [[P17](https://www.wikidata.org/wiki/Property:P17)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Country where the variable observations were collected. Each country is described by a name and an identifier <br/>__*Example*__: {"name":"USA", "identifier": "[https://www.wikidata.org/wiki/Q30](https://www.wikidata.org/wiki/Q30)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} |
 | `location` [[P276](https://www.wikidata.org/wiki/Property:P276)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Location of the variable. Each location is described with a name and an identifier  <br/>__*Example*__: {"name":"Los Angeles", "identifier":"[https://www.wikidata.org/wiki/Q65](https://www.wikidata.org/wiki/Q65)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} |
 | `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset starts collecting observationsThe value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset stops collecting observations. The value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **String [Hourly ([Q59657010](https://www.wikidata.org/wiki/Q59657010)) OR Daily ([Q59657036](https://www.wikidata.org/wiki/Q59657036)) OR Monthly ([Q59657037](https://www.wikidata.org/wiki/Q59657037))]** <br/>__*Description*__: Interval at which the observations are collected in the dataset.  |
 | `columnIndex` [PNode to be determined]|  __*Expected value*__: **Integer**<br/>__*Description*__: Column number that corresponds to the variable. <br/>__*Example*__: 2|
+| `qualifier` [PNode to be determined]|  __*Expected value*__: **List[String]**<br/>__*Description*__: Qualifiers used to describe the variable <br/>__*Example*__:"Fertilizer"<br/> __*Example*__: "Source"|
 
 Additional `qualifiers` may identify descriprion properties that have not been included in the variable schema. These properties are often describing a single variable (e.g., if the variable measures production, then the `fertilizerType` may be a qualifier, while if the variable measures an observation in the sea soil, the `depth` at which the measurement was collected is a qualifier. <br/>__*Example*__: Sex (if the variable measures the number of crimes in a population)|
 <!-- 
@@ -98,7 +99,7 @@ The following JSON snippet below illustrates an example of the metadata of the f
 {
 	"name": "Food production index",
 	"shortName": "FPI",
-	"identifier": "https://datamart.isi.edu/wiki/Property:P110026",
+	"correspondsToProperty": "https://datamart.isi.edu/wiki/Property:P110026",
 	"description": "Food production index, calculated from ...",
 	"mainSubject": [
 		{"name":"Kercha", 
@@ -112,7 +113,7 @@ The following JSON snippet below illustrates an example of the metadata of the f
 	"endTime": "2016",
 	"endTime_precision": "Year",
 	"dataInterval": "Monthly",
-	"fertilizer": "NH3"
+	"qualifier": "Fertilizer"
 } 
 ```
 Some variables may belong to already existing CSVs, and therefore we may have information about their position in the table. In example case below, `columnIndex` is used to identify that the variable was in the second column of the spreadsheet, while the `partOf` qualifier indicates the URL of the table the variable was included in:

@@ -45,6 +45,15 @@ The metadata API supports the following operations:
 
 **_-Returns_**: Status code. 200 if successful.
 
+**`GET /variables`**: Returns all existing variable metadata. 
+
+**_-Parameters_**: We support filtering variables according to the following parameters:
+
+  * `name`: name of the variable. **Example**: `&name=population`
+  * `geo`: Spatial location: **Example**: `&geo=33.946799,-118.4307395,15z`
+  * `intersects`: Intersection if the variable location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945`
+  * `keyword`: A relevant keyword (or keyword list separated by ",") that points to relevant aspects of the variable **Example**: `&keyword=production,ethiopia`
+
 ## Data Content API. Tentative URL: data.datamart.isi.edu
 
 The data content API supports the following operations:
