@@ -89,27 +89,27 @@ The data content API supports the following operations:
   * `admin1`: Download rows where the main subject is one of the specified first-level administrative regions.
       - Example: `&admin1=Oromia+Region`
   * `admin1_id`: Download rows where the main subject is one of the specified first-level administrative region identifiers.
-	  - Example: `&admin1=Q202107`
+	  - Example: `&admin1_id=Q202107`
   * `admin2`: Download rows where the main subject is one of the specified second-level administrative regions.
       - Example: `&admin2=Arsi+Zone`
   * `admin2_id`: Download rows where the main subject is one of the specified second-level administrative region identifiers.
-      - Example: `&admin2=Q646859`
+      - Example: `&admin2_id=Q646859`
   * `admin3`: Download rows where the main subject is one of the specified third-level administrative regions.
       - Example: `&admin3=Amigna,Digeluna+Tijo`
   * `admin3_id`: Download rows where the main subject is one of the specified third-level administrative region identifiers.
-      - Example: `&admin3=Q2843318,Q5275598`
+      - Example: `&admin3_id=Q2843318,Q5275598`
   * `in_country`: Download rows where the main subject is a first-level administrative regions of the specified countries.
     - Example: `&in_country=Ethiopia'
   * `in_country_id`: Download rows where the main subject is a first-level administrative regions of the specified country identifiers.
-    - Example: `&in_country=Q115
+    - Example: `&in_country_id=Q115
   * `in_admin1`: Download rows where the main subject is a second-level administrative regions of the specified first-level administrative regions.
     - Example: `&in_admin1=Oromia+Region`
   * `in_admin1_id`: Download rows where the main subject is a second-level administrative regions of the specified first-level administrative region identifiers.
-    - Example: `&in_admin1=Q202107`
+    - Example: `&in_admin1_id=Q202107`
   * `in_admin2`: Download rows where the main subject is a third-level administrative regions of the specified second-level administrative regions.
     - Example: `&in_admin2=Arsi+Zone'
   * `in_admin2_id`: Download rows where the main subject is a third-level administrative regions of the specified second-level administrative regions.
-    - Example: `&in_admin2=Q646859'
+    - Example: `&in_admin2_id=Q646859'
 
 All the region parameters (i.e. `country`, `country_id`, `admin1`,
 etc) can be used at the same. The Datamart interprets multiple region
