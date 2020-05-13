@@ -100,15 +100,15 @@ The data content API supports the following operations:
       - Example: `&admin3=Q2843318,Q5275598`
   * `in_country`: Download rows where the main subject is a first-level administrative regions of the specified countries.
     - Example: `&in_country=Ethiopia'
-  * `in\_country\_id`: Download rows where the main subject is a first-level administrative regions of the specified country identifiers.
+  * `in_country_id`: Download rows where the main subject is a first-level administrative regions of the specified country identifiers.
     - Example: `&in_country=Q115
   * `in_admin1`: Download rows where the main subject is a second-level administrative regions of the specified first-level administrative regions.
     - Example: `&in_admin1=Oromia+Region`
-  * `in\_admin1\_id`: Download rows where the main subject is a second-level administrative regions of the specified first-level administrative region identifiers.
+  * `in_admin1_id`: Download rows where the main subject is a second-level administrative regions of the specified first-level administrative region identifiers.
     - Example: `&in_admin1=Q202107`
   * `in_admin2`: Download rows where the main subject is a third-level administrative regions of the specified second-level administrative regions.
     - Example: `&in_admin2=Arsi+Zone'
-  * `in\_admin2\_id`: Download rows where the main subject is a third-level administrative regions of the specified second-level administrative regions.
+  * `in_admin2_id`: Download rows where the main subject is a third-level administrative regions of the specified second-level administrative regions.
     - Example: `&in_admin2=Q646859'
 
 All the region parameters (i.e. `country`, `country_id`, `admin1`,
