@@ -24,7 +24,7 @@ The metadata API supports the following operations:
 |**/datasets/id/variables**|POST| Creates a new [Variable](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata). Returns 201 if successful| None |
 |**/datasets/id/variables/id2**|GET| Returns the [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) `id2` in the dataset identified by `id`| None |
 |**/variables**|GET| Returns all existing variable metadata|We support **filtering** datasets according to the following parameters:<br/>  **`ids`**: Variable ids to be returned (could be more than one). **Example**: `&ids=H123,H124` <br/>**`name`**: name of the variable. **Example**: `&name=population`<br/>**`geo`**: Spatial location: **Example**: `&geo=33.946799,-118.4307395,15z`<br/>**`intersects`**: Intersection if the variable location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945` <br/>**`keyword`**: A relevant keyword (or keyword list separated by ",") that points to relevant aspects of the variable **Example**: `&keyword=production,ethiopia` |
-|**/variables/id**|GET| Returns the [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) identified by `id`| None |
+
 
 
 ## Data Content API. Tentative URL: data.datamart.isi.edu
