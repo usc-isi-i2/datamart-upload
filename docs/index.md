@@ -76,7 +76,8 @@ Dataset variables describe the contents of a table (typically a column). When de
 
 | Recommended Property      | Description and Examples          |
 | ------------- |:-------------|
-| `variableID` |  __*Expected value*__: **String**<br/>__*Description*__: Identifier associated with the variable. It identifies this variable in particular in this dataset. <br/>__*Example*__: "H-123" | 
+| `variableID` |  __*Expected value*__: **String**<br/>__*Description*__: Identifier associated with the variable. It identifies this variable in particular in this dataset. <br/>__*Example*__: "H-123" |
+| `datasetID` |  __*Expected value*__: **String**<br/>__*Description*__: Identifier of the dataset this variable belongs to. <br/>__*Example*__: "UAZ" | 
 | `shortName` [[P1813](https://www.wikidata.org/wiki/Property:P1813)]|  __*Expected value*__: **String**<br/>__*Description*__: Short name of the Variable in the table. This corresponds to the header used in the corresponding column of the table <br/>__*Example*__: "Homicides" <br/>__*Example*__: "H" |
 | `description` [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the Variable and its context <br/>__*Example*__: "The number of homicides in a region."                          |
 | `correspondsToProperty` [[P1687](https://www.wikidata.org/wiki/Property:P1687)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the variable in Wikidata. If provided, this value helps Datamart relating the variable to other variables that measure the same thing <br/>__*Example*__: [https://www.wikidata.org/wiki/Property:P2284](https://www.wikidata.org/wiki/Property:P2284) (for price)                     |
@@ -137,7 +138,7 @@ Some variables may belong to already existing CSVs, and therefore we may have in
 	"endTime_calendar:": "Gregorian",
 	"dataInterval": "Year",
     "columnIndex":"2",
-	"partOf": "http://example.org/Crimes.csv"
+	"datasetID": "http://example.org/Crimes.csv"
 } 
 ```
 
