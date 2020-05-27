@@ -1,7 +1,7 @@
 This page describes the current schema used by ISI the Datamart to represent datasets.
 
-* **Schema Version**: 0.0.1
-* **Release date**: April 8th, 2020
+* **Schema Version**: 0.0.2
+* **Release date**: May 27th, 2020
 * **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
 
 ## Dataset Definition
@@ -47,7 +47,7 @@ Datasets have the following required, recommended and optional properties. **Req
 | `location` [[P276](https://www.wikidata.org/wiki/Property:P276)]|  __*Expected value*__: **String** (will be mapped to QNode)<br/>__*Description*__: Location of the Dataset <br/>__*Example*__: "Los Angeles" ([Q65](https://www.wikidata.org/wiki/Q65)) <br/>__*Example*__: "Burundi"([Q967](https://www.wikidata.org/wiki/Q967)) |
 | `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset starts collecting observationsThe value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]) |
 | `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset stops collecting observations. The value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]) |
-| `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **[Hourly ([Q59657010](https://www.wikidata.org/wiki/Q59657010)) OR Daily ([Q59657036](https://www.wikidata.org/wiki/Q59657036)) OR Monthly ([Q59657037](https://www.wikidata.org/wiki/Q59657037))]** <br/>__*Description*__: Primary topic(s) of a Dataset. This property may be used to identify all the entities described in a dataset <br/>__*Qualifiers [OPTIONAL]*__: `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)], `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)] |
+| `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **String [Millenium ([Q36507](https://www.wikidata.org/wiki/Q36507)) OR Century ([Q578](https://www.wikidata.org/wiki/Q578)) OR Decade ([Q39911](https://www.wikidata.org/wiki/Q39911)) OR Year ([Q577](https://www.wikidata.org/wiki/Q577)) OR Month ([Q5151](https://www.wikidata.org/wiki/Q5151))OR Day ([Q573](https://www.wikidata.org/wiki/Q573)) OR Hour ([Q25235](https://www.wikidata.org/wiki/Q25235)) OR Minute ([Q7727](https://www.wikidata.org/wiki/Q7727)) OR Second ([Q11574](https://www.wikidata.org/wiki/Q11574))]** <br/>__*Description*__: Primary topic(s) of a Dataset. This property may be used to identify all the entities described in a dataset <br/>__*Qualifiers [OPTIONAL]*__: `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)], `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)] |
 | `variableMeasured` [[schema:variableMeasured](https:schema.orf/variableMeasured)]|  __*Expected value*__: [**Variable**](#dataset-variable-metadata)<br/>__*Description*__: Variables that are measured in a Dataset. Variables MUST be described at least with their corresponding full name (`name` property). <br/>__*Example*__: {"**shortName**":"Price",<br/>"**name**":"Published price listed or paid for a product", <br/>"**identifier**":"https://www.wikidata.org/wiki/Property:P2284"}  <br/>|
 | `mappingFile` [[PNode to be determined]()]|  __*Expected value*__: **URL** <br/>__*Description*__: File used to create map the dataset statements to WikiData tiples <br/>__*Example*__: http://example.com/T2WMLProject-FBI <br/>__*Qualifiers [OPTIONAL]*__: `fileFormat` ([P2701](https://www.wikidata.org/wiki/Property:P2701)) (e.g., T2WML [TBD], D-REPR [TBD]) |
 
@@ -64,7 +64,7 @@ Datasets have the following required, recommended and optional properties. **Req
 
 When a property is marked as (will be mapped to QNode) it means that Datamart will automatically transform the target string into an entity with a QNode in Wikidata. If no match is found, a new QNode will be created.
 
-## Dataset Variable Metadata
+## Variable Metadata
 Dataset variables describe the contents of a table (typically a column). When describing properties, we have the following **required** and **recommended** properties:
 
 | Required Property      | Description and Examples          |
@@ -74,7 +74,8 @@ Dataset variables describe the contents of a table (typically a column). When de
 
 
 | Recommended Property      | Description and Examples          |
-| ------------- |:-------------| 
+| ------------- |:-------------|
+| `variableID` |  __*Expected value*__: **String**<br/>__*Description*__: Identifier associated with the variable. It identifies this variable in particular in this dataset. <br/>__*Example*__: "H-123" | 
 | `shortName` [[P1813](https://www.wikidata.org/wiki/Property:P1813)]|  __*Expected value*__: **String**<br/>__*Description*__: Short name of the Variable in the table. This corresponds to the header used in the corresponding column of the table <br/>__*Example*__: "Homicides" <br/>__*Example*__: "H" |
 | `description` [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the Variable and its context <br/>__*Example*__: "The number of homicides in a region."                          |
 | `correspondsToProperty` [[P1687](https://www.wikidata.org/wiki/Property:P1687)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the variable in Wikidata. If provided, this value helps Datamart relating the variable to other variables that measure the same thing <br/>__*Example*__: [https://www.wikidata.org/wiki/Property:P2284](https://www.wikidata.org/wiki/Property:P2284) (for price)                     |
@@ -84,7 +85,7 @@ Dataset variables describe the contents of a table (typically a column). When de
 | `location` [[P276](https://www.wikidata.org/wiki/Property:P276)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Location of the variable. Each location is described with a name and an identifier  <br/>__*Example*__: {"name":"Los Angeles", "identifier":"[https://www.wikidata.org/wiki/Q65](https://www.wikidata.org/wiki/Q65)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} |
 | `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset starts collecting observationsThe value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset stops collecting observations. The value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
-| `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **String [Hourly ([Q59657010](https://www.wikidata.org/wiki/Q59657010)) OR Daily ([Q59657036](https://www.wikidata.org/wiki/Q59657036)) OR Monthly ([Q59657037](https://www.wikidata.org/wiki/Q59657037))]** <br/>__*Description*__: Interval at which the observations are collected in the dataset.  |
+| `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **String [Millenium ([Q36507](https://www.wikidata.org/wiki/Q36507)) OR Century ([Q578](https://www.wikidata.org/wiki/Q578)) OR Decade ([Q39911](https://www.wikidata.org/wiki/Q39911)) OR Year ([Q577](https://www.wikidata.org/wiki/Q577)) OR Month ([Q5151](https://www.wikidata.org/wiki/Q5151))OR Day ([Q573](https://www.wikidata.org/wiki/Q573)) OR Hour ([Q25235](https://www.wikidata.org/wiki/Q25235)) OR Minute ([Q7727](https://www.wikidata.org/wiki/Q7727)) OR Second ([Q11574](https://www.wikidata.org/wiki/Q11574))]**<br/>__*Description*__: Interval at which the observations are collected in the dataset.  |
 | `columnIndex` [PNode to be determined]|  __*Expected value*__: **Integer**<br/>__*Description*__: Column number that corresponds to the variable. <br/>__*Example*__: 2|
 | `qualifier` [PNode to be determined]|  __*Expected value*__: **List[String]**<br/>__*Description*__: Qualifiers used to describe the variable <br/>__*Example*__:"Fertilizer"<br/> __*Example*__: "Source"|
 
@@ -98,6 +99,7 @@ The following JSON snippet below illustrates an example of the metadata of the f
 ```
 {
 	"name": "Food production index",
+	"variableID:" "H-123",
 	"shortName": "FPI",
 	"correspondsToProperty": "https://datamart.isi.edu/wiki/Property:P110026",
 	"description": "Food production index, calculated from ...",
@@ -120,6 +122,7 @@ Some variables may belong to already existing CSVs, and therefore we may have in
 ```
 {
 	"name": "Number of homicides worldwide",
+	"variableID": "H-124",
 	"shortName": "Number of homicides",
 	"description": "Number of homicides per country/year as collected by ...",
 	"mainSubject":[
