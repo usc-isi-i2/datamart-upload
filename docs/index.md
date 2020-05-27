@@ -120,7 +120,7 @@ The following JSON snippet below illustrates an example of the metadata of the f
 	"qualifier": "Fertilizer"
 } 
 ```
-Some variables may belong to already existing CSVs, and therefore we may have information about their position in the table. In example case below, `columnIndex` is used to identify that the variable was in the second column of the spreadsheet, while the `partOf` qualifier indicates the URL of the table the variable was included in:
+Some variables may belong to already existing CSVs, and therefore we may have information about their position in the table. In example case below, `columnIndex` is used to identify that the variable was in the second column of the spreadsheet, while the `datasetID` qualifier indicates the URL of the dataset the variable was included in:
 ```
 {
 	"name": "Number of homicides worldwide",
