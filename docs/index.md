@@ -90,6 +90,9 @@ Dataset variables describe the contents of a table (typically a column). When de
 | `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **String [Millenium ([Q36507](https://www.wikidata.org/wiki/Q36507)) OR Century ([Q578](https://www.wikidata.org/wiki/Q578)) OR Decade ([Q39911](https://www.wikidata.org/wiki/Q39911)) OR Year ([Q577](https://www.wikidata.org/wiki/Q577)) OR Month ([Q5151](https://www.wikidata.org/wiki/Q5151))OR Day ([Q573](https://www.wikidata.org/wiki/Q573)) OR Hour ([Q25235](https://www.wikidata.org/wiki/Q25235)) OR Minute ([Q7727](https://www.wikidata.org/wiki/Q7727)) OR Second ([Q11574](https://www.wikidata.org/wiki/Q11574))]**<br/>__*Description*__: Interval at which the observations are collected in the dataset.  |
 | `columnIndex` [PNode to be determined]|  __*Expected value*__: **Integer**<br/>__*Description*__: Column number that corresponds to the variable. <br/>__*Example*__: 2|
 | `qualifier` [PNode to be determined]|  __*Expected value*__: **List[String]**<br/>__*Description*__: Qualifiers used to describe the variable <br/>__*Example*__:"Fertilizer"<br/> __*Example*__: "Source"|
+| `count` [P1114](https://www.wikidata.org/wiki/Property:P1114)|  __*Expected value*__: **Integer**<br/>__*Description*__: Number of instances of this property in this table. For instance, number of rows in a CSV that use this property. <br/>__*Example*__: 150<br/> |
+
+
 
 Additional `qualifiers` may identify descriprion properties that have not been included in the variable schema. These properties are often describing a single variable (e.g., if the variable measures production, then the `fertilizerType` may be a qualifier, while if the variable measures an observation in the sea soil, the `depth` at which the measurement was collected is a qualifier. <br/>__*Example*__: Sex (if the variable measures the number of crimes in a population)|
 <!-- 
