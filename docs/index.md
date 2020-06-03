@@ -88,8 +88,8 @@ Dataset variables describe the contents of a table (typically a column). When de
 | `startTime` [[P580](https://www.wikidata.org/wiki/Property:P580)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset starts collecting observationsThe value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `endTime` [[P582](https://www.wikidata.org/wiki/Property:P582)]|  __*Expected value*__: **String** <br/>__*Description*__: Time at which the Dataset stops collecting observations. The value should follow the ISO 8601 format (YYYY-MM-DD). Precision may vary from seconds to years. <br/>__*Example*__: "2020-04-06" <br/>__*Example*__: "2020"<br/>__*Qualifiers [OPTIONAL]*__: `precision` [[P2803](https://www.wikidata.org/wiki/Property:P2803)] (e.g., Year [[Q577](https://www.wikidata.org/wiki/Q577)]), `calendar` [[P2803]()] (e.g., Gregorian [Q12138](https://www.wikidata.org/wiki/Q12138)) |
 | `dataInterval` [[P6339](https://www.wikidata.org/wiki/Property:P6339)]|  __*Expected value*__: **String [Millenium ([Q36507](https://www.wikidata.org/wiki/Q36507)) OR Century ([Q578](https://www.wikidata.org/wiki/Q578)) OR Decade ([Q39911](https://www.wikidata.org/wiki/Q39911)) OR Year ([Q577](https://www.wikidata.org/wiki/Q577)) OR Month ([Q5151](https://www.wikidata.org/wiki/Q5151))OR Day ([Q573](https://www.wikidata.org/wiki/Q573)) OR Hour ([Q25235](https://www.wikidata.org/wiki/Q25235)) OR Minute ([Q7727](https://www.wikidata.org/wiki/Q7727)) OR Second ([Q11574](https://www.wikidata.org/wiki/Q11574))]**<br/>__*Description*__: Interval at which the observations are collected in the dataset.  |
-| `columnIndex` [PNode to be determined]|  __*Expected value*__: **Integer**<br/>__*Description*__: Column number that corresponds to the variable. <br/>__*Example*__: 2|
-| `qualifier` [PNode to be determined]|  __*Expected value*__: **List[String]**<br/>__*Description*__: Qualifiers used to describe the variable <br/>__*Example*__:"Fertilizer"<br/> __*Example*__: "Source"|
+| `hasColumnIndex` [[P2006020001](https://w3id.org/datamart/P2006020001)]|  __*Expected value*__: **Integer**<br/>__*Description*__: Column number that corresponds to the variable. <br/>__*Example*__: 2|
+| `hasQualifier` [[P2006020002](https://w3id.org/datamart/P2006020002)]|  __*Expected value*__: **List[String]**<br/>__*Description*__: Qualifiers used to describe the variable <br/>__*Example*__:"Fertilizer"<br/> __*Example*__: "Source"|
 | `count` [[P1114](https://www.wikidata.org/wiki/Property:P1114)]|  __*Expected value*__: **Integer**<br/>__*Description*__: Number of instances of this property in this table. For instance, number of rows in a CSV that use this property. <br/>__*Example*__: 150<br/> |
 
 
@@ -120,7 +120,7 @@ The following JSON snippet below illustrates an example of the metadata of the f
 	"endTime": "2016",
 	"endTime_precision": "Year",
 	"dataInterval": "Monthly",
-	"qualifier": "Fertilizer"
+	"hasQualifier": "Fertilizer"
 } 
 ```
 Some variables may belong to already existing CSVs, and therefore we may have information about their position in the table. In example case below, `columnIndex` is used to identify that the variable was in the second column of the spreadsheet, while the `datasetID` qualifier indicates the URL of the dataset the variable was included in:
@@ -140,7 +140,7 @@ Some variables may belong to already existing CSVs, and therefore we may have in
 	"endTime_precision": "Year",
 	"endTime_calendar:": "Gregorian",
 	"dataInterval": "Year",
-    "columnIndex":"2",
+    "hasColumnIndex":"2",
 	"datasetID": "http://example.org/Crimes.csv"
 } 
 ```
