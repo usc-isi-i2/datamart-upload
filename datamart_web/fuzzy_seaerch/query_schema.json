@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "datamart_fuzzy_search_query",
+  "description": "JSON object that specifies queries for searching API send from fuzzy search",
+  "type": "object",
+  "definitions": {
+    "keywords": {
+      "type": "array",
+      "description": "the given keywords for related area for target datasets",
+      "items": {
+        "type": "string"
+      }
+    },
+    "geospatial_names": {
+      "type": "array",
+      "description": "the given names of area values",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

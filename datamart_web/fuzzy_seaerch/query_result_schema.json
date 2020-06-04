@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gitlab.com/datadrivendiscovery/datamart-api/query_result_schema.json",
+  "title": "Datamart search result",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "The dataset identifier provided by Datamart."
+    },
+    "score": {
+      "type": "float",
+      "description": "A non-negative number that represents the relevance of this dataset to query."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "The metadata associated with the dataset. isi's metadata follow d3m's metadata format.",
+      "properties": {
+        "$ref": "#/definitions/augmentation_unit"
+      }
+    },
+    "type": {
+      "type": "string",
+      "description": "The format of the original file",
+      "enum": [
+        "csv",
+        "pdf",
+        "image",
+        "net-cdf"
+      ]
+    },
+    "sample_data": {
+      "type": {
+        "enum": [
+          "string",
+          "byte",
+          null
+        ]
+      },
+      "description": "a sample data file for user to preview, depending on the original file format, it may return different format"
+    }
+  }
+}

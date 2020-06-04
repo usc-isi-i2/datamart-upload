@@ -16,6 +16,7 @@ import requests
 import copy
 import time
 import redis
+import hashlib
 import socket
 import inspect
 import datetime
@@ -42,14 +43,14 @@ from datamart_isi import config as config_datamart
 from datamart_isi import config_services
 from datamart_isi.utilities import connection
 from datamart_isi.entries import Datamart, DatamartQuery, AUGMENT_RESOURCE_ID, DatamartSearchResult, DatasetColumn
-from datamart_isi.upload.store import Datamart_isi_upload
+from datamart_isi.upload.store import DatamartISIUpload
 from datamart_isi.utilities.download_manager import DownloadManager
 from datamart_isi.utilities.utils import Utils
 from datamart_isi.cache.materializer_cache import MaterializerCache
 from datamart_isi.cache.metadata_cache import MetadataCache
 from datamart_isi.upload.redis_manager import RedisManager
 from datamart_isi.upload.dataset_upload_woker_process import upload_to_datamart
-
+from datamart_isi.augment import Augment
 
 
 _logger = logging.getLogger()
@@ -106,7 +107,7 @@ FUZZY_SEARCH_CORE = load_keywords_augment_resources()
 _logger.info("Loading finished!!")
 DATAMART_SERVER = connection.get_general_search_server_url()
 DATAMART_TEST_SERVER = connection.get_general_search_test_server_url()
-datamart_upload_instance = Datamart_isi_upload(update_server=DATAMART_SERVER,
+datamart_upload_instance = DatamartISIUpload(update_server=DATAMART_SERVER,
                                                query_server=DATAMART_SERVER)
 Q_NODE_SEMANTIC_TYPE = config_datamart.q_node_semantic_type
 REDIS_MANAGER = RedisManager()
@@ -248,10 +249,12 @@ def load_csv_data(data) -> d3m_Dataset:
     :return: a d3m style Dataset
     """
     _logger.debug("Trying to load csv data with first 100 characters as:")
+
     if isinstance(data, str):
         _logger.debug(str(data))
     else:
         _logger.debug(str(data[:10]))
+
     if type(data) is str:
         data = pd.read_csv(data, converters=StringConverter())
     elif type(data) is pd.DataFrame:
@@ -368,6 +371,8 @@ def load_input_supplied_data(data_from_value, data_from_file):
 
 
 def check_return_format(format_):
+    if format_ is None:
+        return None
     if format_.lower() == "csv":
         return_format = "csv"
     elif format_.lower() == "d3m":
@@ -682,52 +687,37 @@ def search():
         results = []
         for i, each_res in enumerate(res):
             try:
+                file_type = each_res.search_result['file_type']['value']
                 materialize_info = each_res.serialize()
                 materialize_info_decoded = json.loads(materialize_info)
                 augmentation_part = materialize_info_decoded['augmentation']
                 search_type = materialize_info_decoded["metadata"]['search_type']
-
-                # for vector search results and wikidata search results, we need to fetech the results
-                try:
-                    if search_type == "vector":
-                        q_nodes_list = materialize_info_decoded["metadata"]['search_result']['q_nodes_list'][:10]
-                        target_column_name = materialize_info_decoded["metadata"]['search_result']['target_q_node_column_name']
-                        first_10_rows_df = DownloadManager.fetch_fb_embeddings(q_nodes_list=q_nodes_list, 
-                                                                                 target_q_node_column_name=target_column_name)
-                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
-                        if first_10_rows_df.shape[0] == 0:
-                            continue
-                        first_10_rows_info = first_10_rows_df.to_csv(index=False)
-
-                    elif search_type == "wikidata":
-                        p_nodes = each_res.id().split("___")
-                        p_nodes = p_nodes[1: -1]
-                        materialize_info_wikidata = {"p_nodes_needed": p_nodes, "length": 10}
-                        temp_df = MaterializerCache.materialize(materialize_info_wikidata)
-                        # updated v2020.1.6: do not return this results if get nothing on first 10 rows
-                        if temp_df.shape[0] == 0 or temp_df.shape[1] == 0:
-                            continue
-                        first_10_rows_info = temp_df.to_csv(index=False)
-
-                    elif search_type == "general":
-                        extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
-                        temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
-                        if 'Unnamed: 0' in temp_df.columns:
-                            temp_df = temp_df.drop(columns=['Unnamed: 0'])
-                        first_10_rows_info = temp_df.to_csv(index=False)
-
-                except Exception as e:
-                    _logger.error("Feteching the first 10 rows failed!")
-                    _logger.debug(e, exc_info=True)
-                    first_10_rows_info = ""
-
+                sample_data = DownloadManager.get_sample_dataset(each_res)
+                # if returned false from `sample_data`, we should skip this result because it is useless
+                if sample_data == False:
+                    _logger.info("No.{} search result is useless, skipped.".format(str(i)))
+                    continue
+                # updated v2020.3.17, now we can't do download/augment operation for non csv format
+                # this extra parameter can let the frontend know if this search result can be used for augment or not
+                if file_type != "csv":
+                    preview_only = True
+                else:
+                    metadata = DownloadManager.get_metadata(each_res)
+                    preview_only = False
                 cur = {
-                    'augmentation': {'type': augmentation_part['properties'], 'left_columns': augmentation_part['left_columns'], 'right_columns': augmentation_part['right_columns']},
+                    'augmentation': {
+                        'type': augmentation_part['properties'], 
+                        'left_columns': augmentation_part['left_columns'], 
+                        'right_columns': augmentation_part['right_columns'],
+                        },
+                    'all_column_names': materialize_info_decoded['dataframe_column_names'],
                     'summary': parse_search_result(each_res),
                     'score': each_res.score(),
-                    'metadata': each_res.get_metadata().to_json_structure(),
+                    'metadata': metadata,
                     'id': each_res.id(),
-                    'sample': first_10_rows_info,
+                    'sample': sample_data,
+                    'file_type': file_type,
+                    'preview_only': preview_only,
                     'materialize_info': materialize_info
                 }
                 results.append(cur)
@@ -785,6 +775,7 @@ def search_without_data():
         _logger.debug("The search's keywords are: {}".format(str(keywords)))
         _logger.debug("The search's variables are: {}".format(str(variables)))
         _logger.debug("The search's return docs amount is: {}".format(str(max_return_docs)))
+
         # query_wrapped = DatamartQuery(keywords=keywords, variables=variables)
 
         # keywords = request.values.get("keywords").strip(',') if request.values.get("keywords") else None
@@ -805,23 +796,18 @@ def search_without_data():
         for each_res in res:
             materialize_info = each_res.serialize()
             materialize_info_decoded = json.loads(materialize_info)
-            search_type = materialize_info_decoded["metadata"]['search_type']
-            if search_type == "general":
-                extra_info_json = json.loads(materialize_info_decoded["metadata"]["search_result"]["extra_information"]["value"])
-                temp_df = pd.read_csv(io.StringIO(extra_info_json["first_10_rows"]))
-                if 'Unnamed: 0' in temp_df.columns:
-                    temp_df = temp_df.drop(columns=['Unnamed: 0'])
-                first_10_rows_info = temp_df.to_csv(index=False)
-            else:
-                first_10_rows_info = ""
+            sample_data = DownloadManager.get_sample_dataset(each_res)
+            metadata = DownloadManager.get_metadata(each_res)
+            file_type = each_res.search_result['file_type']['value']
             cur = {
                 'augmentation': {'type': "", 'left_columns': [], 'right_columns':[]},
                 'summary': parse_search_result(each_res),
                 'score': each_res.score(),
-                'metadata': each_res.get_metadata().to_json_structure(),
+                'metadata': metadata,
                 'id': each_res.id(),
-                'sample': first_10_rows_info,
-                'materialize_info': materialize_info
+                'sample': sample_data,
+                'materialize_info': materialize_info,
+                'file_type': file_type
             }
             results.append(cur)
 
@@ -972,9 +958,10 @@ def download_by_id(id):
     _logger.debug("Start downloading with id " + str(datamart_id))
     return_format = check_return_format(request.values.get('format'))
     if return_format is None:
-        return wrap_response(code='400',
-                             msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
-                             data=None)
+        return_format = "original"
+        # return wrap_response(code='400',
+        #                      msg='FAIL SEARCH - Unknown return format: ' + str(return_format),
+        #                      data=None)
     try:
         # general format datamart id
         if datamart_id.startswith("wikidata_search_on"):
@@ -1010,69 +997,84 @@ def download_by_id(id):
             if len(results) == 0:
                 return wrap_response('400', msg="Can't find corresponding dataset with given id.")
             _logger.debug("Start materialize the dataset...")
-            result_df = MaterializerCache.materialize(metadata=results[0], run_wikifier=False)
-
+            result = MaterializerCache.materialize(metadata=results[0], run_wikifier=False)
+            original_file_type = results[0]['file_type']['value']
+            original_file_name = results[0]['url']['value'].split("/")[-1]
+            _logger.debug("result original format is {}".format(original_file_type))
         # else:
         # return wrap_response('400', msg="FAIL MATERIALIZE - Unknown input id format.")
 
         _logger.debug("Materialize finished, start sending...")
-        result_id = str(hash(result_df.values.tobytes()))
+        if isinstance(result, pd.DataFrame):
+            result_id = str(hash(result.values.tobytes()))
+        else:
+            hash_generator = hashlib.md5()
+            hash_generator.update(str(result).encode('utf-8'))
+            result_id = hash_generator.hexdigest()
+
         save_dir = "/tmp/download_result" + result_id
         if os.path.isdir(save_dir) or os.path.exists(save_dir):
             shutil.rmtree(save_dir)
 
-        if return_format == "d3m":
-            # save dataset
-            d3m_df = d3m_DataFrame(result_df, generate_metadata=False)
-            resources = {AUGMENT_RESOURCE_ID: d3m_df}
-            return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
-            return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
-            metadata_all_level = {
-                "id": datamart_id,
-                "version": "2.0",
-                "name": "datamart_dataset_" + datamart_id,
-                # "location_uris":('file:///tmp/datasetDoc.json',),
-                "digest": "",
-                "description": "",
-                "source": {'license': 'Other'},
-            }
-            return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
-            # update structure type
-            update_part = {"structural_type": str}
-            for i in range(result_df.shape[1]):
-                return_ds.metadata = return_ds.metadata.update(metadata=update_part,
-                                                               selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
+        if "csv" in original_file_type:
+            if return_format == "d3m":
+                # save dataset
+                d3m_df = d3m_DataFrame(result, generate_metadata=False)
+                resources = {AUGMENT_RESOURCE_ID: d3m_df}
+                return_ds = d3m_Dataset(resources=resources, generate_metadata=False)
+                return_ds.metadata = return_ds.metadata.clear(source="", for_value=return_ds, generate_metadata=True)
+                metadata_all_level = {
+                    "id": datamart_id,
+                    "version": "2.0",
+                    "name": "datamart_dataset_" + datamart_id,
+                    # "location_uris":('file:///tmp/datasetDoc.json',),
+                    "digest": "",
+                    "description": "",
+                    "source": {'license': 'Other'},
+                }
+                return_ds.metadata = return_ds.metadata.update(metadata=metadata_all_level, selector=())
+                # update structure type
+                update_part = {"structural_type": str}
+                for i in range(result.shape[1]):
+                    return_ds.metadata = return_ds.metadata.update(metadata=update_part,
+                                                                   selector=(AUGMENT_RESOURCE_ID, ALL_ELEMENTS, i))
 
-            with tempfile.TemporaryDirectory() as tmpdir:
-                save_dir = os.path.join(str(tmpdir), result_id)
-                absolute_path_part_length = len(str(save_dir))
-                # print(save_dir)
-                # sys.stdout.flush()
-                return_ds.save("file://" + save_dir + "/datasetDoc.json")
-                # zip and send to client
-                base_path = pathlib.Path(save_dir + '/')
-                data = io.BytesIO()
-                filePaths = retrieve_file_paths(save_dir)
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    save_dir = os.path.join(str(tmpdir), result_id)
+                    absolute_path_part_length = len(str(save_dir))
+                    # print(save_dir)
+                    # sys.stdout.flush()
+                    return_ds.save("file://" + save_dir + "/datasetDoc.json")
+                    # zip and send to client
+                    base_path = pathlib.Path(save_dir + '/')
+                    data = io.BytesIO()
+                    filePaths = retrieve_file_paths(save_dir)
 
-                zip_file = zipfile.ZipFile(data, 'w')
-                with zip_file:
-                    # write each file seperately
-                    for fileName in filePaths:
-                        shorter_path = fileName[absolute_path_part_length:]
-                        zip_file.write(fileName, shorter_path)
-                data.seek(0)
+                    zip_file = zipfile.ZipFile(data, 'w')
+                    with zip_file:
+                        # write each file seperately
+                        for fileName in filePaths:
+                            shorter_path = fileName[absolute_path_part_length:]
+                            zip_file.write(fileName, shorter_path)
+                    data.seek(0)
 
-                return send_file(
-                    data,
-                    mimetype='application/zip',
-                    as_attachment=True,
-                    attachment_filename=datamart_id + '.zip'
-                )
+                    return send_file(
+                        data,
+                        mimetype='application/zip',
+                        as_attachment=True,
+                        attachment_filename=datamart_id + '.zip'
+                    )
 
+            elif return_format == "csv":
+                data = io.StringIO()
+                result.to_csv(data, index=False)
+                return Response(data.getvalue(), mimetype="text/csv")
         else:
-            data = io.StringIO()
-            result_df.to_csv(data, index=False)
-            return Response(data.getvalue(), mimetype="text/csv")
+            _logger.warning("Non csv file detected, will only return the original content.")
+            return send_file(io.BytesIO(result), 
+                             mimetype="application/x-binary", 
+                             as_attachment=True,
+                             attachment_filename=original_file_name)
 
     except Exception as e:
         record_error_to_file(e, inspect.stack()[0][3])
@@ -1321,7 +1323,7 @@ def augment():
         record_error_to_file(e, inspect.stack()[0][3])
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
-
+# get_identifiers and get_properties are wrapped original from minds03.isi.edu:4444's wikifier
 @app.route('/get_identifiers', methods=['POST'])
 @cross_origin()
 def get_identifiers():
@@ -1344,6 +1346,22 @@ def get_identifiers():
         status=200,
         mimetype='application/json'
     )
+    return response
+
+
+@app.route('/get_properties', methods=['POST'])
+@cross_origin()
+def get_properties():
+    request_data = json.loads(request.data)
+    property_map = REDIS_MANAGER.getKeys(request_data, "propall:")
+    data = dict()
+    for key in property_map:
+        data[key] = list(property_map[key])
+    response = app.response_class(
+        response = json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )   
     return response
 
 
@@ -1412,7 +1430,8 @@ def upload():
 @app.route('/upload/test', methods=['POST'])
 @cross_origin()
 def upload_test():
-    # same as upload function, only difference is it will upload the dataset to a testing blazegraph namespace
+    # same as upload function, only difference is it will 
+    # upload the dataset to a testing blazegraph namespace
     return upload_function(request, test_mode=True)
 
 
@@ -1782,6 +1801,88 @@ def keywords_augmentation(keywords):
         return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
 
 
+@app.route('/fuzzy_search/search', methods=['POST'])
+@cross_origin()
+def fyzzy_search_without_data():
+    try:
+        _logger.debug("Start running fuzzy search without supplied data...")
+        # check that each parameter meets the requirements
+        query = read_file(request.values, 'query', 'json')
+        # if not send the json via file
+        if not query and request.form.get('query_json'):
+            query = json.loads(request.form.get('query_json'))
+        if not query and request.files.get("query"):
+            query = json.load(request.files.get('query'))
+        if not query and request.json:
+            query = request.json
+        max_return_docs = int(request.values.get('max_return_docs')) if request.values.get('max_return_docs') else 20
+
+        if query:
+            keywords = query.get("keywords", [])
+            geospatial_names = query.get("geospatial_names", [])
+            if geospatial_names is None:
+                geospatial_names = []
+        else:
+            return wrap_response(code='400', msg="FAIL SEARCH - No query given, can't search.")
+
+        keywords = clean_list_of_words(keywords)
+        geospatial_names = clean_list_of_words(geospatial_names)
+
+        _logger.debug("The search's keywords are: {}".format(str(keywords)))
+        _logger.debug("The search's geospatial_names are: {}".format(str(geospatial_names)))
+        _logger.debug("The search's return docs amount is: {}".format(str(max_return_docs)))
+        # END processing inputs
+
+        # start query in datamart
+        query_wrapped = {"keywords_search": keywords, "variables": {"values": " ".join(geospatial_names)}}
+        _logger.debug("Starting datamart search service...")
+        datamart_search_unit = Augment()
+        res = datamart_search_unit.query_by_sparql(query=query_wrapped, dataset="dummy")
+        _logger.debug("Search finished, totally find " + str(len(res)) + " results.")
+
+        # parse the search results
+        results = []
+        for each_res in res:
+            extra_information = json.loads(each_res['extra_information']['value'])
+            metadata = {}
+            for k, v in extra_information.items():
+                if "meta" in k:
+                    metadata[k] = v
+            data_metadata = extra_information
+            file_type = each_res['file_type']['value']
+            if file_type != "other":
+                sample_data = extra_information['first_10_rows']
+            else:
+                sample_data = ""
+            cur = {
+                'id': each_res['datasetLabel']['value'],
+                'score': float(each_res['score']['value']),
+                'type': each_res['file_type']['value'],
+                'metadata': metadata,
+                'sample_data': sample_data,
+            }
+            results.append(cur)
+
+        json_return = dict()
+        json_return["results"] = results
+        return json.dumps(json_return, indent=2)
+
+    except Exception as e:
+        record_error_to_file(e, inspect.stack()[0][3])
+        return wrap_response(code='400', msg="FAIL SEARCH - %s \n %s" % (str(e), str(traceback.format_exc())))
+
+
+def clean_list_of_words(input_words: typing.List[str]) -> typing.List[str]:
+    # remove empty and duplicate keywords, then return the sorted result
+    words_set = set(input_words)
+    if "" in words_set:
+        words_set.remove("")
+    if " " in words_set:
+        words_set.remove(" ")
+    output_words = [str(each) for each in words_set]
+    output_words.sort()
+    return output_words
+
 def generate_dataset_metadata():
     '''
     Add D3M dataset metadata to cache
@@ -1798,7 +1899,7 @@ def generate_dataset_metadata():
     for path in dataset_paths:
         path = pathlib.Path(path)
         if path.exists:
-            metadata_cache.MetadataCache.generate_real_metadata_files([str(path)])
+            metadata_cache.MetadataCache.generate_real_metadata_files([str(path).lower()])
     print('Done generate_dataset_metadata')
 
 

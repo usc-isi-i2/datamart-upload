@@ -502,11 +502,11 @@ paths:
               value: wikidata_search_on___P1082___P2046___P571___with_column_FIPS_wikidata
         - in: query
           name: format
-          description: Download format(general csv format or d3m format)
+          description: Download format(original uploaded format or d3m format) D3M format only works for CSV(table) format data.
           required: true
           schema:
             type: string
-            enum: [csv, d3m]
+            enum: [original, d3m]
       responses:
         '200':
           description: A zip file
@@ -535,18 +535,18 @@ paths:
         The method automatically generates metadata for the datasets.
 
         Required parameters:
-          * **file_type**: A string indicating the type of the data source, currently only **online_csv** is suported.
+          * **url / file**: The address to the dataset resource or upload the file via content body.
           * **username**: The username of the upload user. If you do not have an account, ask the datamart
               administrator. If you just want to try out the upload functionality, use the **/upload/test** endpoint.
           * **password**: The password of the upload user.
 
         Optional parameters:
-          * **url**: The address to the dataset resource. An alternative way is upload a local file using request body.
-          * **run_wikifier**: If true, runs the wikifier to add additional Wikidata Qnode columns.
-          * **title**: The name of the dataset.
-          * **description**: Text description of the dataset.
-          * **keywords**: Keywords associated with the dataset.
-
+          * **file_type**: A string indicating the type of the data source, if not given default is **auto**.
+          * **upload_async**: If true, the job will be scheduled on server side and return a job id. If false, you have to wait until the request responsed.
+          * **run_wikifier**: If true, runs the wikifier to add additional Wikidata Qnode columns. Default is auto. I will determine whether to run wikifier or not base on the uploaded dataset size and type.
+          * **title**: The name of the dataset. If not given, it will use the file name.
+          * **description**: Text description of the dataset. 
+          * **keywords**: Keywords associated with the dataset. If not given, it will use the column names of the files.
         Request body:
           * Filepath to dataset.
       requestBody:
@@ -596,10 +596,15 @@ paths:
           in: query
           schema:
             type: string
+            example: auto
             enum:
+              - auto
               - online_csv
+              - image
+              - pdf
+              - other
           required: true
-          description: Online file type, currently only support online_csv
+          description: file type, if set to auto, it will try to detect format by the file name suffix
         - name: title
           in: query
           schema:
@@ -907,6 +912,52 @@ paths:
               schema:
                  type: string
                  format: binary
+        '400':
+          description: "Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /fuzzy_search/search:
+    post:
+      tags:
+        - Search API
+      summary: Search by keywords and geospatial_names, used for fuzzy search page
+      description: |
+        Find datasets by keywords and/or geospatial_names.
+
+        **Attention:** The search results found here cannot be used for augmentation. If you want to use the search
+          result for augmentation, please use **/search** endpoint instead!
+
+        Required request body:
+          * **query_json**: A JSON query to specify additional search constraints You can follow the example <a href="https://raw.githubusercontent.com/usc-isi-i2/datamart-userend/d3m/examples/sample_time_search_variables.json">here</a>. <br> Please see detail explainations on example part.
+      requestBody:
+        content:
+          application/json:
+            description: "keywords and geospatial information for search"
+            schema:
+              $ref: '#/components/schemas/Query'
+            examples:
+              keywords_searching:
+                description: "Search using the keywords `rain`, with geospatial information at `Abay Chomen`, `Haru` and `Jarso`"
+                value:
+                  keywords:
+                    - "rain"
+                  geospatial_names:
+                    - "Abay Chomen"
+                    - "Haru"
+                    - "Jarso"
+
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Results'
         '400':
           description: "Error"
           content:
