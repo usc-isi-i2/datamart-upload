@@ -1,8 +1,8 @@
 # Datamart Dataset APIs
 
-* **API Version**: 0.0.2
-* **Release date**: [Discussion DRAFT]
-* **Uses Dataset Metadata version schema**: 0.0.2
+* **API Version**: 1.0.0
+* **Release date**: Stable release
+* **Uses Dataset Metadata version schema**: 1.0.0
 * **Uses Dataset version schema**: 0.0.3
 * **Authors**: Pedro Szekely, Ke-Thia Yao and Daniel Garijo
 
@@ -11,19 +11,21 @@ Datamart exposes two main APIs: a **Dataset metadata API**, where developers may
 !!! info
     The metadata API follows the Dataset schema in [https://datamart-upload.readthedocs.io/en/latest/](https://datamart-upload.readthedocs.io/en/latest/). The content API follows the schema in  [https://datamart-upload.readthedocs.io/en/latest/download/](https://datamart-upload.readthedocs.io/en/latest/download/)
 
-## Metadata API. Tentative URL:  metadata.datamart.isi.edu
+An implementation of the API is available at: https://dsbox02.isi.edu:10020/open-backend/
+
+## Metadata API. 
 The metadata API supports the following operations:
 
 | Path     | Method       | Description | Parameters
 | -------- |:-------------| ------------|----------|
-|**/datasets**|GET| Returns all datasets (list of [Dataset](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata))| We support **filtering** datasets according to the following parameters:<br/> **`name`**: name of the dataset. **Example**: `&name=fbiData2009` <br/> **`geo`**: Spatial location. **Example**: `&geo=33.946799,-118.4307395,15z`<br/>**`intersects`**: Intersection if the dataset location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945`<br/>**`keyword`**: A relevant keyword (or keyword list separated by ",") that points to relevant variables, subjects or location of the dataset **Example**: `&keyword=maize,ethiopia`|
-|**/datasets**|POST| Creates a new [Dataset](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) record. <br>Returns: Status code 201 (created) if successful, along with the dataset id. | None |
-|**/datasets/id**|PUT| **REPLACES** the entry of the dataset identified by `id` with the JSON received in the request. Returns: Status code 200 if successful.| None |
-|**/datasets/id**|GET| Returns the metadata of the [Dataset](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) identified by `id`| None |
-|**/datasets/id/variables**|GET| Returns all [Variables](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) in a dataset identified by `id` (list of variable)| None |
-|**/datasets/id/variables**|POST| Creates a new [Variable](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata). Returns 201 if successful| None |
-|**/datasets/id/variables/id2**|GET| Returns the [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) `id2` in the dataset identified by `id`| None |
-|**/variables**|GET| Returns all existing variable metadata|We support **filtering** datasets according to the following parameters:<br/>  **`ids`**: Variable ids to be returned (could be more than one). **Example**: `&ids=H123,H124` <br/>**`name`**: name of the variable. **Example**: `&name=population`<br/>**`geo`**: Spatial location: **Example**: `&geo=33.946799,-118.4307395,15z`<br/>**`intersects`**: Intersection if the variable location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945` <br/>**`keyword`**: A relevant keyword (or keyword list separated by ",") that points to relevant aspects of the variable **Example**: `&keyword=production,ethiopia` |
+|**/metadata/datasets**|GET| Returns all datasets (list of [Dataset](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata))| We support **filtering** datasets according to the following parameters:<br/> **`name`**: name of the dataset. **Example**: `&name=fbiData2009` <br/> **`geo`**: Spatial location. **Example**: `&geo=33.946799,-118.4307395,15z`<br/>**`intersects`**: Intersection if the dataset location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945`<br/>**`keyword`**: A relevant keyword (or keyword list separated by ",") that points to relevant variables, subjects or location of the dataset **Example**: `&keyword=maize,ethiopia`|
+|**/metadata/datasets**|POST| Creates a new [Dataset](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) record. <br>Returns: Status code 201 (created) if successful, along with the dataset id. | None |
+|**/metadata/datasets/id**|PUT| **REPLACES** the entry of the dataset identified by `id` with the JSON received in the request. Returns: Status code 200 if successful.| None |
+|**/metadata/datasets/id**|GET| Returns the metadata of the [Dataset](https://datamart-upload.readthedocs.io/en/latest/#describing-dataset-metadata) identified by `id`| None |
+|**/metadata/datasets/id/variables**|GET| Returns all [Variables](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) in a dataset identified by `id` (list of variable)| None |
+|**/metadata/datasets/id/variables**|POST| Creates a new [Variable](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata). Returns 201 if successful| None |
+|**/metadata/datasets/id/variables/id2**|GET| Returns the [`Variable`](https://datamart-upload.readthedocs.io/en/latest/#dataset-variable-metadata) `id2` in the dataset identified by `id`| None |
+|**/metadata/variables**|GET| Returns all existing variable metadata|We support **filtering** datasets according to the following parameters:<br/>  **`ids`**: Variable ids to be returned (could be more than one). **Example**: `&ids=H123,H124` <br/>**`name`**: name of the variable. **Example**: `&name=population`<br/>**`geo`**: Spatial location: **Example**: `&geo=33.946799,-118.4307395,15z`<br/>**`intersects`**: Intersection if the variable location with a bounding box in format [lonmin,lonmax,latmin,latmax]. **Example**: `&intersects=84.7142,-76.7142,14.9457,22.945` <br/>**`keyword`**: A relevant keyword (or keyword list separated by ",") that points to relevant aspects of the variable **Example**: `&keyword=production,ethiopia` |
 
 
 
@@ -46,15 +48,15 @@ The Datamart uses place names based on Wikidata place name labels in English. Al
 
 **_-Example_**:
 
-  * `GET data.datamart.isi.edu/food_dataset/variable/production`: Get a CSV table of crop productions
-  * `GET data.datamart.isi.edu/food_dataset/variable/area&include=admin1_id`: Get a CSV table of land area used for crop productions, and include the `admin1_id` column in the table.
+  * `GET [API_URL]/[dataset_id]/variable/[variable_id]`: Get a CSV table of crop productions
+  * `GET [API_URL]/[dataset_id]/variable/[variable_id]/area&include=admin1_id`: Get a CSV table of land area used for crop productions, and include the `admin1_id` column in the table.
 
 ## Aggregation of Data Content API
 
 | Path     | Method       | Description | Parameters
 | -------- |:-------------| ------------|----------|
-|**/datasets/id/variable/id2**|GET| Returns an aggregated dataset from dataset `id` and variable `id2` in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format).| **`group-by`**: specifies the column to use for aggregation <br/> **`operator`**: specifies the function to use for aggregation
+|**/datasets/dataset_id/variable/variable_id**|GET| Returns an aggregated dataset from dataset `dataset_id` and variable `variable_id` in [canonical data format](https://datamart-upload.readthedocs.io/en/latest/download/#canonical-data-format).| **`group-by`**: specifies the column to use for aggregation <br/> **`operator`**: specifies the function to use for aggregation
 
 
 **_-Example_**:
-  - `GET data.datamart.isi.edu/food_dataset/variable/production?group-by=admin1_id&operator=sum`: Get food production aggregated at the` admin1` region level.
+  - `GET [API_URL]/datasets/[dataset_id]/variables/[variable_id]?group-by=admin1_id&operator=sum`: Get food production aggregated at the` admin1` region level.

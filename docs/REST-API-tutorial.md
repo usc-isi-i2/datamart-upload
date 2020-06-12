@@ -1,5 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿
-# Datamart REST API Tutorial
+﻿﻿# Datamart REST API Tutorial
 
 This page demonstrates how to access the Datamart using REST. This is
 an initial demonstration. Only the end point for getting dataset CSV
