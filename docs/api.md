@@ -11,7 +11,7 @@ Datamart exposes two main APIs: a **Dataset metadata API**, where developers may
 !!! info
     The metadata API follows the Dataset schema in [https://datamart-upload.readthedocs.io/en/latest/](https://datamart-upload.readthedocs.io/en/latest/). The content API follows the schema in  [https://datamart-upload.readthedocs.io/en/latest/download/](https://datamart-upload.readthedocs.io/en/latest/download/)
 
-An implementation of the API is available at: https://dsbox02.isi.edu:10020/open-backend/
+An implementation of the API is available at: https://dsbox02.isi.edu:10020/open-backend/. We illustrate how to use it in a [Jupyter notebook](https://github.com/usc-isi-i2/datamart-api/blob/master/Datamart%20Data%20API%20Demo.ipynb). 
 
 ## Metadata API. 
 The metadata API supports the following operations:
