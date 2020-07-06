@@ -10,7 +10,8 @@ RUN git clone https://github.com/usc-isi-i2/dsbox-primitives.git && cd dsbox-pri
 RUN git clone https://github.com/usc-isi-i2/datamart-userend.git && cd datamart-userend && git checkout 92521e2a55608206b3e880aa51344930191e89b2 && pip install -e .
 
 # RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout cdd4aa236ebfeb288b26b504a1dee626f2028edd && pip install -e .
-RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout be374b12a9ac659a3d13b9b655f002b79f1b1f80 && pip install -e .
+# RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout be374b12a9ac659a3d13b9b655f002b79f1b1f80 && pip install -e .
+RUN git clone https://github.com/usc-isi-i2/datamart-upload.git && cd datamart-upload && git checkout 403be4e1bd7bc76c1f2d193e59e797b14f7fba70 && pip install -e .
 
 RUN pip3 install rq==1.1.0
 RUN pip3 install bcrypt>=3.1.7
