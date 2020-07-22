@@ -76,7 +76,7 @@ Dataset variables describe the contents of a table (typically a column). When de
 | Recommended Property      | Description and Examples          |
 | ------------- |:-------------|
 | `variable_id` [[P1813](https://www.wikidata.org/wiki/Property:P1813)] |  __*Expected value*__: **String**<br/>__*Description*__: Identifier associated with the variable. It identifies this variable in particular in this dataset, using the name it has in its corresponding column header <br/>__*Example*__: "homicides_n" |
-| `dataset` [[P2006020004](https://w3id.org/datamart/P2006020004)]|  __*Expected value*__: **String**<br/>__*Description*__: Identifier of the dataset this variable belongs to. <br/>__*Example*__: "UAZ" | 
+| `dataset_id` [[P1813](https://www.wikidata.org/wiki/Property:P1813)|  __*Expected value*__: **String**<br/>__*Description*__: Identifier of the dataset this variable belongs to. <br/>__*Example*__: "UAZ" | 
 | `description` [[schema:description](http://schema.org/description)]            | __*Expected value*__: **String**<br/>__*Description*__: Text with a brief explanation of the Variable and its context <br/>__*Example*__: "The number of homicides in a region."                          |
 | `corresponds_to_property` [[P1687](https://www.wikidata.org/wiki/Property:P1687)]|  __*Expected value*__: **URL**<br/>__*Description*__: URL of the variable in Wikidata. If provided, this value helps Datamart relating the variable to other variables that measure the same thing <br/>__*Example*__: [https://www.wikidata.org/wiki/Property:P2284](https://www.wikidata.org/wiki/Property:P2284) (for price)                     |
  | `main_subject` [[P921](https://www.wikidata.org/wiki/Property:P921)]|  __*Expected value*__: **List[Object]** <br/>__*Description*__: Primary topic(s) of a variable. This property may be used to identify all the entities described by the variable. Each main subject is described by an identifier and a name. <br/>__*Example*__: {"name":"USA", "identifier": "[https://www.wikidata.org/wiki/Q30](https://www.wikidata.org/wiki/Q30)"} <br/>__*Example*__: {"name":"Burundi", "identifier":"[https://www.wikidata.org/wiki/Q967](https://www.wikidata.org/wiki/Q967)"} | 
@@ -92,8 +92,10 @@ Dataset variables describe the contents of a table (typically a column). When de
 | `geospatial_granularity` [[P2006180001](https://w3id.org/datamart/P2006180001)]|  __*Expected value*__: **String**<br/>__*Description*__: Administrative area (admin1..admin3) the variable belongs to. This classification depends on the administrative territorial entities used by  countries. <br/>__*Example*__: 150<br/> |
 
 
-Additional `qualifiers` may identify descriprion properties that have not been included in the variable schema. These properties are often describing a single variable (e.g., if the variable measures production, then the `fertilizer_type` may be a qualifier, while if the variable measures an observation in the sea soil, the `depth` at which the measurement was collected is a qualifier. <br/>__*Example*__: Sex (if the variable measures the number of crimes in a population)|
+Additional `qualifiers` may identify descriprion properties that have not been included in the variable schema. These properties are often describing a single variable. For example if the variable measures production, then the `fertilizer_type` may be a qualifier, while if the variable measures an observation in the sea soil, the `depth` and `point in time` at which the measurement was collected are a qualifiers. 
+
 <!-- 
+<br/>__*Example*__: Sex (if the variable measures the number of crimes in a population)
 | `timePrecision` [PNode to be determined]|  __*Expected value*__: **Integer**<br/>__*Description*__: Precision at which the time is measured by the variable. Accepted values are: **millennium, century, decade, year, month, day, hour, minute, second**. <br/>__*Example*__: "year"|
 -->
 ### Example:

@@ -58,6 +58,8 @@ The canonical data format supports a large number of columns, which provide sign
 | `place_id`        | string     | o  | o    | Wikidata identifier for a place. This attribute is optional for upload, if not provided the system will attempt to infer it from the value of the `place` attribute if provided. | [Q3624](https://www.wikidata.org/wiki/Q3624) <br/> (Addis Ababa)  |
 | `coordinate`      | string     | o  | O    | Latitude and longitude coordinates in [WKT format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry). This attribute is optional for upload. If not provided, it will be inferred from the shape, if provided, otherwise from the lowest level admin level or place provided. | POINT(9.001 38.757)                                                                                                               |
 | `shape`           | string     | o  | o    | Geometric shape in [WKT format](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry). This attribute is not inferred if not provided.  | POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))  |
+| `stated_in`           | string     | o  | O    | Source of the data variable | WDI  |
+| `stated_in_id`           | string     | o  | O    | Wikidata identifier for the source of the data variable | Q8035640  |
 
 ### Qualifiers
 
