@@ -59,6 +59,8 @@ Datasets have the following required, recommended and optional properties. **Req
 | `api_endpoint` [[P6269](https://www.wikidata.org/wiki/Property:P6269)]|  __*Expected value*__: **String**<br/>__*Description*__: Base URL of a web service <br/>__*Example*__: [https://www.wikidata.org/w/api.php](https://www.wikidata.org/w/api.php) |
 | `included_in_data_catalog` [[P2006020009](https://w3id.org/datamart/P2006020009)]|  __*Expected value*__: **String** (will be mapped to QNode)<br/>__*Description*__: Catalog where the Dataset is included <br/>__*Example*__: "FigShare"([Q17013516](https://www.wikidata.org/wiki/Q17013516)) |
 | `has_part` [[P527](https://www.wikidata.org/wiki/Property:P527)]|  __*Expected value*__: **String**<br/>__*Description*__: Link to the files that are included on a Dataset (in case the dataset contains multiple files) <br/>__*Example*__: http://example.com/example.csv1 <br/>__*Qualifiers [OPTIONAL]*__: `file_format` ([P2701](https://www.wikidata.org/wiki/Property:P2701)) (e.g., CSV [[Q935809](https://www.wikidata.org/wiki/Q935809)]) |
+| `last_update` [[P5017](https://www.wikidata.org/wiki/Property:P5017)]|  __*Expected value*__: **Date**<br/>__*Description*__: Date a dataset was last updated in ISO 8601 format (YYYY-MM-DD)<br/>__*Example*__: 2020-04-06 <br/> |
+| `updated_by` [[P2010280001](https://github.com/usc-isi-i2/datamart-schema/blob/master/properties.tsv)]|  __*Expected value*__: **String**<br/>__*Description*__: Person who edited a dataset last<br/>__*Example*__: John Doe<br/> |
 
 
 
