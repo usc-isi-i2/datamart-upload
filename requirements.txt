@@ -19,7 +19,7 @@ bcrypt>=3.1.7
 gunicorn>=19.9.0
 tables>=3.5.2
 gensim>=3.4
-nltk==3.4.5
+nltk==3.9
 PyYAML
 pyjarowinkler
 edit_distance
